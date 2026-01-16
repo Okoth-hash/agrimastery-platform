@@ -1,7 +1,8 @@
 const agriEngine = {
     author: {
         name: "Omondi Robin Okoth",
-        phone: "0742178833",
+        phone: "254742178833", // Format for WhatsApp (no +)
+        displayPhone: "0742178833",
         email: "okothrobin323@gmail.com"
     },
     lessons: [
@@ -36,30 +37,29 @@ const agriEngine = {
             ui += '<div class="card" style="border:2px solid #ffcc00; text-align:center;">' +
                   '<h3>🏆 Certified</h3><p>Well done, ' + student.name + '!</p></div>';
         } else if (student.currentLesson >= this.lessons.length) {
-            ui += '<div class="card"><h3>📝 Final Quiz</h3>' +
-                  '<p>' + this.quiz.question + '</p>';
+            ui += '<div class="card"><h3>📝 Final Quiz</h3><p>' + this.quiz.question + '</p>';
             this.quiz.options.forEach((opt, idx) => {
                 ui += '<button class="btn" style="background:#1a1a1a; margin:5px 0; width:100%; text-align:left;" onclick="agriEngine.checkQuiz(' + idx + ')">' + (idx+1) + '. ' + opt + '</button>';
             });
             ui += '</div>';
         } else {
-            ui += '<div class="card"><h3>🎓 Lesson ' + (student.currentLesson + 1) + '</h3>' +
-                  '<h4>' + this.lessons[student.currentLesson].title + '</h4>' +
-                  '<p>' + this.lessons[student.currentLesson].content + '</p>' +
+            ui += '<div class="card"><h3>🎓 Lesson ' + (student.currentLesson + 1) + '</h3><h4>' + this.lessons[student.currentLesson].title + '</h4><p>' + this.lessons[student.currentLesson].content + '</p>' +
                   '<button class="btn" style="width:100%;" onclick="agriEngine.next()">Next</button></div>';
         }
         // --- MARKET MANAGER ---
         ui += '<div class="card"><h3>📦 Market Updates</h3>' +
               '<input type="text" id="mItem" placeholder="Crop" style="width:45%;"> <input type="number" id="mPrice" placeholder="Price" style="width:45%;">' +
               '<button class="btn" style="width:100%; margin-top:10px;" onclick="agriEngine.updateMarket()">Update</button></div>';
-        // --- ADMIN & INTERACTIVE AUTHOR ACKNOWLEDGMENT ---
-        ui += '<div class="card" style="background:rgba(0,0,0,0.8); border:1px solid #444; font-size:0.85em;">' +
+        // --- ADMIN & WHATSAPP AUTHOR ACKNOWLEDGMENT ---
+        const waMsg = encodeURIComponent("Hello Omondi, I am a student on the AgriMastery Platform. I need some assistance.");
+        ui += '<div class="card" style="background:rgba(0,0,0,0.85); border:1px solid #444; font-size:0.85em;">' +
               '<h3 style="color:#ffcc00; margin-bottom:5px;">🛡️ System Control</h3>' +
-              '<p>Student Status: <strong>' + (student?.passedQuiz ? 'CERTIFIED' : 'ACTIVE') + '</strong></p>' +
-              '<hr style="border:0; border-top:1px solid #333; margin:10px 0;">' +
               '<p><strong>Author:</strong> ' + this.author.name + '</p>' +
-              '<p><strong>Call:</strong> <a href="tel:' + this.author.phone + '" style="color:lime; text-decoration:none;">' + this.author.phone + '</a></p>' +
-              '<p><strong>Email:</strong> <a href="mailto:' + this.author.email + '" style="color:cyan; text-decoration:none;">' + this.author.email + '</a></p>' +
+              '<div style="margin-top:10px;">' +
+              '<a href="https://wa.me/' + this.author.phone + '?text=' + waMsg + '" style="display:inline-block; background:#25d366; color:white; padding:8px 15px; text-decoration:none; border-radius:5px; font-weight:bold; margin-right:5px;">💬 WhatsApp</a>' +
+              '<a href="tel:' + this.author.displayPhone + '" style="display:inline-block; background:#444; color:white; padding:8px 15px; text-decoration:none; border-radius:5px;">📞 Call</a>' +
+              '</div>' +
+              '<p style="margin-top:10px;"><strong>Email:</strong> <a href="mailto:' + this.author.email + '" style="color:cyan; text-decoration:none;">' + this.author.email + '</a></p>' +
               '<button class="btn" style="background:none; border:1px solid red; color:red; font-size:9px; width:100%; margin-top:15px;" onclick="agriEngine.reset()">Hard Reset System</button>' +
               '</div>';
         view.innerHTML = ui;
@@ -81,7 +81,7 @@ const agriEngine = {
             localStorage.setItem('agri_student', JSON.stringify(s));
             this.sync();
         } else {
-            alert("Incorrect! Reviewing Lesson 1...");
+            alert("Incorrect! Reviewing lessons...");
             let s = JSON.parse(localStorage.getItem('agri_student'));
             s.currentLesson = 0;
             localStorage.setItem('agri_student', JSON.stringify(s));
