@@ -1,27 +1,60 @@
 const agriEngine = {
-    course: { id: 'MZ-01', title: 'Professional Maize Mastery', duration: '90 Days' },
     init: function() {
-        console.log('AgriMastery Engine: UTF-8 Repair Success');
-        this.render();
+        console.log('AgriMastery Integrated System: Online');
+        this.syncDashboards();
     },
-    render: function() {
+    // Communication Layer: Syncs data across all modules
+    syncDashboards: function() {
         const view = document.getElementById('app-viewport');
         if(!view) return;
-        const user = JSON.parse(localStorage.getItem('agri_student'));
+        // Load Global State
+        const user = JSON.parse(localStorage.getItem('agri_student')) || null;
+        const market = JSON.parse(localStorage.getItem('agri_market')) || [];
+        this.renderUnifiedUI(view, user, market);
+    },
+    renderUnifiedUI: function(view, user, market) {
+        let html = '';
+        // 1. STUDENT PORTAL SECTION
         if(!user) {
-            view.innerHTML = '<div class="card"><h2 style="color:#ffcc00;">📝 Student Registration</h2><p>Enroll in the 3-Month Professional Certification</p><input type="text" id="sName" placeholder="Full Name" style="width:90%; padding:12px; margin:10px 0; border-radius:5px; background:#111; color:white; border:1px solid #2d6a4f;"><input type="text" id="sPhone" placeholder="WhatsApp Number" style="width:90%; padding:12px; margin:10px 0; border-radius:5px; background:#111; color:white; border:1px solid #2d6a4f;"><button class="btn" style="width:100%; margin-top:10px;" onclick="agriEngine.register()">Register & Begin Month 1</button></div>';
+            html += '<div class="card"><h3>🎓 Student Enrollment</h3>' +
+                    '<input type="text" id="sName" placeholder="Name" style="width:90%; padding:10px; margin:5px 0;">' +
+                    '<button class="btn" onclick="agriEngine.register()">Register Student</button></div>';
         } else {
-            view.innerHTML = '<div class="card"><h2 style="color:#ffcc00;">Welcome, ' + user.name + '</h2><div class="result-card" style="border-left:4px solid #ffcc00;"><h3>🌽 ' + this.course.title + '</h3><p><strong>Progress:</strong> Month 1 (Soil Prep)</p><button class="btn" style="width:100%;" onclick="alert(\'Opening Month 1...\')">Continue Learning</button></div><button class="btn" style="background:none; color:#ff4444; font-size:11px; margin-top:20px;" onclick="localStorage.clear(); location.reload();">Logout / Reset</button></div>';
+            html += '<div class="card" style="border-left:5px solid gold;"><h3>🎓 Welcome, ' + user.name + '</h3>' +
+                    '<p>Course: Maize Mastery | Month: 1</p></div>';
         }
+        // 2. MARKET MANAGER SECTION (Communicating Live Inventory)
+        html += '<div class="card"><h3>📦 Live Market Manager</h3>' +
+                '<input type="text" id="itemName" placeholder="Crop Name" style="width:40%; padding:10px;"> ' +
+                '<input type="number" id="itemPrice" placeholder="Price" style="width:40%; padding:10px;">' +
+                '<button class="btn" onclick="agriEngine.addToMarket()">Update Market</button>';
+        market.forEach(item => {
+            html += '<div class="result-card">' + item.name + ' - KES ' + item.price + '</div>';
+        });
+        html += '</div>';
+        // 3. ADMIN DASHBOARD (Watching Student Activity)
+        if(user) {
+            html += '<div class="card" style="background:#1a1a1a;"><h3>🛡️ Admin Oversight</h3>' +
+                    '<p>Active Students: 1 (' + user.name + ')</p>' +
+                    '<p>System Health: Optimal</p></div>';
+        }
+        view.innerHTML = html;
     },
     register: function() {
         const name = document.getElementById('sName').value;
-        const phone = document.getElementById('sPhone').value;
-        if(name && phone) {
-            localStorage.setItem('agri_student', JSON.stringify({name: name, phone: phone}));
-            this.render();
-        } else {
-            alert('Please enter your details.');
+        if(name) {
+            localStorage.setItem('agri_student', JSON.stringify({name: name, date: new Date()}));
+            this.syncDashboards();
+        }
+    },
+    addToMarket: function() {
+        const name = document.getElementById('itemName').value;
+        const price = document.getElementById('itemPrice').value;
+        if(name && price) {
+            let market = JSON.parse(localStorage.getItem('agri_market')) || [];
+            market.push({name, price});
+            localStorage.setItem('agri_market', JSON.stringify(market));
+            this.syncDashboards();
         }
     }
 };
