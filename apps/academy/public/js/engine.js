@@ -1,9 +1,7 @@
-﻿const agriEngine = {
+const agriEngine = {
     course: { id: 'MZ-01', title: 'Professional Maize Mastery', duration: '90 Days' },
     init: function() {
-        // Clear old interval loops if they exist
-        for (let i = 1; i < 100; i++) window.clearInterval(i);
-        console.log('AgriMastery Engine: Stabilized');
+        console.log('AgriMastery Engine: Final Stability Version');
         this.render();
     },
     render: function() {
@@ -11,7 +9,6 @@
         if(!view) return;
         const user = JSON.parse(localStorage.getItem('agri_student'));
         if(!user) {
-            // REGISTRATION FORM
             view.innerHTML = '<div class="card">' +
                 '<h2 style="color:#ffcc00;">📝 Student Registration</h2>' +
                 '<p>Enroll in the 3-Month Professional Certification</p>' +
@@ -20,12 +17,11 @@
                 '<button class="btn" style="width:100%; margin-top:10px;" onclick="agriEngine.register()">Register & Begin Month 1</button>' +
             '</div>';
         } else {
-            // DASHBOARD
             view.innerHTML = '<div class="card">' +
                 '<h2 style="color:#ffcc00;">Welcome, ' + user.name + '</h2>' +
                 '<div class="result-card" style="border-left:4px solid #ffcc00; background:rgba(255,255,255,0.05);">' +
                     '<h3>🌽 ' + this.course.title + '</h3>' +
-                    '<p><strong>Progress:</strong> Month 1 (Soil Prep)</p>' +
+                    '<p><strong>Progress:</strong> Month 1 (Soil Chemistry)</p>' +
                     '<button class="btn" style="width:100%;" onclick="alert(\'Opening Month 1 Modules...\')">Continue Learning</button>' +
                 '</div>' +
                 '<button class="btn" style="background:none; color:#ff4444; font-size:11px; margin-top:20px; border:1px solid #333;" onclick="localStorage.clear(); location.reload();">Logout / Reset Profile</button>' +
@@ -39,7 +35,7 @@
             localStorage.setItem('agri_student', JSON.stringify({name: name, phone: phone}));
             this.render();
         } else {
-            alert('Please enter your details to start the 90-day track.');
+            alert('Please provide name and phone.');
         }
     }
 };
