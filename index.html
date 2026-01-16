@@ -3,62 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Fully Active Portal</title>
+    <title>AgriMastery Global | Enterprise Portal</title>
     <style>
-        :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; }
-        body { background: var(--bg); color: #e8f5e9; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
-        .card { background: #1b4332; border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid var(--primary); transition: 0.3s; }
-        .card.active { border-left-color: var(--accent); transform: scale(1.02); }
-        .badge { background: var(--accent); color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; margin: 10px 0; box-sizing: border-box;}
+        :root { --primary: #2d6a4f; --secondary: #1b4332; --accent: #ffca28; --text: #e8f5e9; --bg: #0b1d12; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
+        .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); margin-bottom: 20px; }
+        .card { background: var(--secondary); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+        .card.verified { border-left-color: var(--accent); }
+        .badge { background: var(--accent); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; margin: 10px 0; box-sizing: border-box; }
         .btn { background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        #results { margin-top: 15px; }
+        .price-tag { color: var(--accent); font-size: 1.3em; font-weight: bold; }
     </style>
 </head>
 <body>
-    <header style="text-align: center; padding: 20px 0;">
-        <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Enterprise 7-Layer System Active</small>
-    </header>
-
-    <div class="card" id="search-card">
-        <h3> Active Marketplace Search</h3>
-        <input type="text" id="cropInput" placeholder="Enter crop (e.g. Maize, Beans)">
-        <button class="btn" onclick="app.search()">Search Ranking Engine</button>
-        <div id="results"></div>
+    <div class="header">
+        <h1 style="margin:0; color: var(--accent);">AGRIMASTERY</h1>
+        <p>System Live: Kenya Hub</p>
     </div>
 
     <div class="card">
-        <h3> Real-Time Market Intelligence</h3>
-        <p id="price-display">Select a crop to view current KES price...</p>
+        <h3> Search Marketplace</h3>
+        <input type="text" id="cropSearch" placeholder="Search Maize or Beans...">
+        <button class="btn" onclick="agriMastery.search()">Query Marketplace</button>
+        <div id="searchResults" style="margin-top:15px;"></div>
+    </div>
+
+    <div class="card">
+        <h3> Market Intelligence</h3>
+        <p id="marketDisplay">Select a crop to see prices.</p>
+    </div>
+
+    <div class="card verified">
+        <h3> Farmer Identity</h3>
+        <div id="identityDisplay">
+            <p>Status: <strong>Guest</strong></p>
+            <button class="btn" onclick="agriMastery.login()">Verify Omondi Identity</button>
+        </div>
     </div>
 
     <script>
-        // CORE ACTIVE LOGIC (Linking Layer 1 to Layer 3)
-        const app = {
-            data: {
-                "maize": { price: "3,200", unit: "90kg Bag", farmer: "Omondi", status: "Verified Master" },
-                "beans": { price: "8,500", unit: "90kg Bag", farmer: "Njeri", status: "Gold Member" }
+        const agriMastery = {
+            database: {
+                "maize": { price: 3200, unit: "90kg Bag", trend: "Up", master: "Omondi", location: "Eldoret" },
+                "beans": { price: 8500, unit: "90kg Bag", trend: "Stable", master: "Njeri", location: "Nakuru" }
             },
             search: function() {
-                const query = document.getElementById('cropInput').value.toLowerCase();
-                const resultsDiv = document.getElementById('results');
-                const priceDiv = document.getElementById('price-display');
-                
-                if (this.data[query]) {
-                    const item = this.data[query];
-                    document.getElementById('search-card').classList.add('active');
-                    
-                    resultsDiv.innerHTML = \
-                        <div style="background: #2d6a4f; padding: 10px; border-radius: 8px; margin-top: 10px;">
-                            <strong>Top Match:</strong> \ <span class="badge">\</span><br>
-                            <small>Stock available in Eldoret</small>
-                        </div>\;
-                    
-                    priceDiv.innerHTML = \Current \ price: <strong>KES \</strong> per \\;
+                const query = document.getElementById('cropSearch').value.toLowerCase();
+                const data = this.database[query];
+                if (data) {
+                    document.getElementById('searchResults').innerHTML = '<span class="badge">Verified Master</span><br><strong>' + data.master + '</strong> | ' + data.location;
+                    document.getElementById('marketDisplay').innerHTML = query.toUpperCase() + ' Price: <span class="price-tag">KES ' + data.price + '</span>';
                 } else {
-                    resultsDiv.innerHTML = "<p style='color: #ff5252;'>No active listings found for that crop.</p>";
+                    alert("Crop not found. Try 'Maize'.");
                 }
+            },
+            login: function() {
+                document.getElementById('identityDisplay').innerHTML = '<p>Welcome, <strong>Omondi</strong> <span class="badge">Master</span></p>';
+                alert("Identity Secured via Layer 2 Gateway.");
             }
         };
     </script>
