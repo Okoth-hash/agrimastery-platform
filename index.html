@@ -3,54 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Robin L2 Hardware Auth</title>
+    <title>AgriMastery | Robin L1 Physical</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
-        body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
+        body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
         .header { text-align: center; padding: 10px; border-bottom: 2px solid var(--primary); }
-        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); }
+        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); position: relative; z-index: 2; }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .hw-code { color: var(--accent); font-weight: bold; font-family: monospace; }
+        
+        /* LAYER 1: BITSTREAM VISUALIZER */
+        #bitStream { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            color: rgba(45, 106, 79, 0.2); font-family: monospace; 
+            font-size: 10px; line-height: 10px; overflow: hidden; z-index: 1; pointer-events: none;
+        }
     </style>
 </head>
 <body onload="agriEngine.init()">
 
+    <div id="bitStream"></div>
+
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Layer 2: Data Link / Hardware Secured</small>
+        <small>Layer 1: Physical Signal Processing Active</small>
     </div>
 
     <div class="card" id="lockScreen" style="text-align:center;">
-        <h3>Hardware Identity Required</h3>
-        <p style="font-size:12px;">Device MAC Trace: <span class="hw-code" id="macDisplay">...detecting...</span></p>
-        <input type="text" id="adminUser" placeholder="Username" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
-        <input type="password" id="adminPass" placeholder="Password" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
-        <button class="btn" style="margin-top:10px;" onclick="agriEngine.login()">Authorize Device</button>
+        <h3>Final Layer Authorized</h3>
+        <p style="font-size:12px; color: var(--accent);">Pulse: 101011001...</p>
+        <input type="text" id="adminUser" placeholder="Username (robin)" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
+        <input type="password" id="adminPass" placeholder="Password (1234)" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
+        <button class="btn" onclick="agriEngine.login()">Sync with Hardware</button>
     </div>
 
     <div id="adminDashboard" style="display:none;">
         <div class="card">
-            <h3>Authorized: Robin</h3>
-            <p><strong>Hardware ID:</strong> <span class="hw-code">00-B0-D0-63-C2-26</span></p>
-            <p style="font-size:13px; color:#888;">This session is pinned to your physical network interface.</p>
-            <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">Secure Logout</button>
+            <h3>Full 7-Layer Stack: ONLINE</h3>
+            <p>Welcome back, <strong>Robin</strong>.</p>
+            <div style="font-size: 12px; line-height: 1.6;">
+                <span style="color:var(--accent)">L7:</span> Application UI<br>
+                <span style="color:var(--accent)">L6:</span> Persistence (Memory)<br>
+                <span style="color:var(--accent)">L5:</span> Session (robin_auth)<br>
+                <span style="color:var(--accent)">L4:</span> Transport (TCP/Recovery)<br>
+                <span style="color:var(--accent)">L3:</span> Network (Routing)<br>
+                <span style="color:var(--accent)">L2:</span> Data Link (MAC ID)<br>
+                <span style="color:var(--accent)">L1:</span> Physical (Bitstream)
+            </div>
+            <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">System Shutdown</button>
         </div>
     </div>
 
     <script>
         const agriEngine = {
             init: function() {
-                // Simulating Layer 2 MAC detection
-                document.getElementById('macDisplay').innerText = "00-B0-D0-63-C2-26";
+                this.generateBits();
                 if (sessionStorage.getItem('admin_session') === "robin_active") this.showDashboard();
             },
+            generateBits: function() {
+                const stream = document.getElementById('bitStream');
+                let bits = "";
+                for(let i=0; i<2000; i++) { bits += Math.round(Math.random()); }
+                stream.innerText = bits;
+            },
             login: function() {
-                const u = document.getElementById('adminUser').value;
-                const p = document.getElementById('adminPass').value;
-                if(u === "robin" && p === "1234") {
+                if(document.getElementById('adminUser').value === "robin" && document.getElementById('adminPass').value === "1234") {
                     sessionStorage.setItem('admin_session', 'robin_active');
                     this.showDashboard();
-                } else { alert("Hardware Authorization Failed"); }
+                } else { alert("Signal Rejected"); }
             },
             logout: function() {
                 sessionStorage.removeItem('admin_session');
