@@ -2,10 +2,15 @@ const agriEngine = {
     author: {
         name: "Omondi Robin Okoth",
         phone: "254742178833",
-        displayPhone: "0742178833",
         email: "okothrobin323@gmail.com"
     },
-    // Intended Purpose: Educational Content Data
+    // Agronomy Data for Weather Card
+    weather: {
+        temp: "24°C",
+        condition: "Partly Cloudy",
+        forecast: "Rain expected in 48hrs",
+        advice: "Good timing for Top-dressing (CAN)."
+    },
     lessons: [
         { title: "Soil pH & Testing", content: "Measure pH before planting. Target 5.8-7.0 for maximum yield." },
         { title: "Fertilizer Timing", content: "Apply DAP at planting and CAN/Urea 3-4 weeks after germination." },
@@ -25,15 +30,21 @@ const agriEngine = {
     },
     render: function(view, student, market) {
         let html = '';
-        // --- PURPOSE: STUDENT EDUCATION ---
+        // --- 1. WEATHER & PLANTING FORECAST (New Utility) ---
+        html += '<div class="card" style="border-left:5px solid #00b4d8; background:rgba(0, 180, 216, 0.05);">' +
+                '<h3 style="color:#00b4d8;">☁️ Weather Forecast</h3>' +
+                '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+                '<div><h2 style="margin:0;">' + this.weather.temp + '</h2><small>' + this.weather.condition + '</small></div>' +
+                '<div style="text-align:right;"><small style="color:#aaa;">Advice:</small><br><strong>' + this.weather.advice + '</strong></div>' +
+                '</div></div>';
+        // --- 2. STUDENT ACADEMY ---
         if(!student) {
             html += '<div class="card"><h3>🎓 Student Academy</h3>' +
-                    '<p>Enroll to access Month 1 content.</p>' +
                     '<input type="text" id="sName" placeholder="Full Name" style="width:90%; padding:10px; margin-bottom:10px; background:#111; color:white; border:1px solid #2d6a4f;">' +
                     '<button class="btn" onclick="agriEngine.enroll()">Begin Mastery</button></div>';
         } else if(student.passed) {
             html += '<div class="card" style="border:2px solid #ffcc00;"><h3>🏆 Certified Producer</h3>' +
-                    '<p>Student: ' + student.name + '</p><p style="color:#ffcc00;">Status: Mastery Level 1 Achieved</p></div>';
+                    '<p>Student: ' + student.name + '</p></div>';
         } else if(student.step >= this.lessons.length) {
             html += '<div class="card"><h3>📝 Certification Quiz</h3><p>' + this.quiz.q + '</p>';
             this.quiz.options.forEach((o, i) => {
@@ -41,36 +52,24 @@ const agriEngine = {
             });
             html += '</div>';
         } else {
-            const p = (student.step / this.lessons.length) * 100;
             html += '<div class="card"><h3>📖 ' + this.lessons[student.step].title + '</h3>' +
-                    '<div style="width:100%; background:#333; height:6px; border-radius:3px; margin:10px 0;"><div style="width:' + p + '%; background:#2d6a4f; height:100%;"></div></div>' +
                     '<p>' + this.lessons[student.step].content + '</p>' +
                     '<button class="btn" onclick="agriEngine.nextStep()">Complete Lesson</button></div>';
         }
-        // --- PURPOSE: MARKET LOGISTICS ---
+        // --- 3. MARKET MANAGER ---
         html += '<div class="card"><h3>📦 Market Manager</h3>' +
-                '<p style="font-size:0.8em; color:#888;">Live Price Discovery (KES)</p>' +
                 '<div style="display:flex; gap:5px;">' +
                 '<input type="text" id="mItem" placeholder="Crop" style="flex:2; padding:8px; background:#000; color:white; border:1px solid #333;">' +
                 '<input type="number" id="mPrice" placeholder="Price" style="flex:1; padding:8px; background:#000; color:white; border:1px solid #333;">' +
                 '</div>' +
-                '<button class="btn" style="width:100%; margin-top:8px;" onclick="agriEngine.postMarket()">Post Update</button>';
-        market.slice(-2).reverse().forEach(m => {
-            html += '<div class="result-card" style="display:flex; justify-content:space-between;"><span>' + m.name + '</span><strong style="color:lime;">' + m.price + '/=</strong></div>';
-        });
-        html += '</div>';
-        // --- PURPOSE: ADMIN & AUTHORSHIP ---
-        const waMsg = encodeURIComponent("Hello Omondi, I am a user on AgriMastery. Help me with my dashboard.");
+                '<button class="btn" style="width:100%; margin-top:8px;" onclick="agriEngine.postMarket()">Post Update</button></div>';
+        // --- 4. ADMIN & AUTHOR CREDITS ---
         html += '<div class="card" style="background:#0a0a0a; border:1px solid #444;">' +
                 '<h3>🛡️ Admin Dashboard</h3>' +
-                '<div style="font-size:0.85em; color:#aaa;">' +
-                '<p>System: <strong>Operational</strong></p>' +
-                '<p>Student: ' + (student ? student.name : 'None') + '</p>' +
-                '<hr style="border:0; border-top:1px solid #333; margin:10px 0;">' +
-                '<p>Author: ' + this.author.name + '</p>' +
-                '<a href="https://wa.me/' + this.author.phone + '?text=' + waMsg + '" class="btn" style="background:#25d366; color:white; display:block; text-align:center; margin:10px 0;">WhatsApp Omondi</a>' +
+                '<p style="font-size:0.8em;">Author: ' + this.author.name + '</p>' +
+                '<a href="https://wa.me/' + this.author.phone + '" class="btn" style="background:#25d366; color:white; display:block; text-align:center; text-decoration:none; margin:10px 0;">WhatsApp Author</a>' +
                 '<button class="btn" style="background:none; border:1px solid red; color:red; width:100%; font-size:10px;" onclick="agriEngine.reset()">System Reset</button>' +
-                '</div></div>';
+                '</div>';
         view.innerHTML = html;
     },
     enroll: function() {
