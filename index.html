@@ -3,103 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | robin Secure Session</title>
+    <title>AgriMastery | Robin L3 Network</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
         body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
         .header { text-align: center; padding: 10px; border-bottom: 2px solid var(--primary); }
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); }
-        .badge { background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
-        input, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; margin: 8px 0; box-sizing: border-box; }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .admin-unlocked { border: 2px dashed var(--accent); padding: 15px; border-radius: 12px; margin-top: 30px; display: none; }
-        .query-box { background: #081c15; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--accent); }
+        .network-tag { font-family: monospace; color: var(--accent); font-size: 11px; background: #000; padding: 2px 5px; border-radius: 3px; }
     </style>
 </head>
-<body onload="agriEngine.checkSession()">
+<body onload="agriEngine.init()">
+
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Layer 5: Authenticated Session (robin)</small>
-    </div>
-
-    <div class="card">
-        <h3> Customer Support</h3>
-        <input type="text" id="userName" placeholder="Your Name">
-        <textarea id="userQuestion" placeholder="Type your query..."></textarea>
-        <button class="btn" onclick="agriEngine.saveQuery()">Submit Query</button>
+        <small>Layer 3: Network Routing (Kenya Hub)</small>
     </div>
 
     <div class="card" id="lockScreen" style="text-align:center;">
-        <h3>Admin Secure Login</h3>
-        <input type="text" id="adminUser" placeholder="Username" style="width:90%">
-        <input type="password" id="adminPass" placeholder="Password" style="width:90%">
+        <h3>Secure Login</h3>
+        <input type="text" id="adminUser" placeholder="Username" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
+        <input type="password" id="adminPass" placeholder="Password" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
         <button class="btn" style="margin-top:10px;" onclick="agriEngine.login()">Login</button>
     </div>
 
-    <div class="admin-unlocked" id="adminDashboard">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="color: var(--accent);"> Admin Hub (robin)</h3>
-            <button onclick="agriEngine.logout()" style="background:#8b0000; color:white; border:none; padding:5px 10px; border-radius:5px;">Logout</button>
+    <div id="adminDashboard" style="display:none;">
+        <div class="card">
+            <h3>Welcome, Robin</h3>
+            <div style="border: 1px solid #444; padding: 10px; border-radius: 5px; background: #081c15;">
+                <p style="margin: 0; font-size: 13px;"><strong>Network Trace:</strong></p>
+                <p style="margin: 5px 0; font-size: 12px;">Source: <span class="network-tag">192.168.1.1 (Local)</span></p>
+                <p style="margin: 5px 0; font-size: 12px;">Gateway: <span class="network-tag">41.215.160.1 (Safaricom/Airtel)</span></p>
+                <p style="margin: 5px 0; font-size: 12px;">Target: <span class="network-tag">140.82.121.4 (GitHub USA)</span></p>
+            </div>
+            <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">Logout</button>
         </div>
-        <div id="queryList"></div>
     </div>
 
     <script>
         const agriEngine = {
-            queries: JSON.parse(localStorage.getItem('agri_queries')) || [],
-            credentials: { user: "robin", pass: "1234" }, // Your specific credentials
-
-            checkSession: function() {
-                if (sessionStorage.getItem('admin_session') === "robin_active") {
-                    this.showDashboard();
-                }
+            init: function() {
+                if (sessionStorage.getItem('admin_session') === "robin_active") this.showDashboard();
             },
-
             login: function() {
                 const u = document.getElementById('adminUser').value;
                 const p = document.getElementById('adminPass').value;
-                
-                if(u === this.credentials.user && p === this.credentials.pass) {
+                if(u === "robin" && p === "1234") {
                     sessionStorage.setItem('admin_session', 'robin_active');
                     this.showDashboard();
-                } else {
-                    alert("Invalid Credentials");
-                }
+                } else { alert("Access Denied"); }
             },
-
             logout: function() {
                 sessionStorage.removeItem('admin_session');
                 location.reload();
             },
-
             showDashboard: function() {
                 document.getElementById('lockScreen').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
-                this.renderQueries();
-            },
-
-            saveQuery: function() {
-                const name = document.getElementById('userName').value;
-                const text = document.getElementById('userQuestion').value;
-                if(!name || !text) return;
-                this.queries.push({ sender: name, msg: text, time: new Date().toLocaleString() });
-                localStorage.setItem('agri_queries', JSON.stringify(this.queries));
-                this.renderQueries();
-                alert("Query Sent.");
-            },
-
-            renderQueries: function() {
-                const list = document.getElementById('queryList');
-                list.innerHTML = "";
-                this.queries.forEach(q => {
-                    list.innerHTML += \
-                        <div class="query-box">
-                            <strong>\</strong> <small>\</small><br>
-                            <p>\</p>
-                            <button class="btn" style="background:var(--accent); color:#000; font-size:10px; padding:4px;" 
-                            onclick="window.open('https://wa.me/254742178833?text=Reply to \:')">Reply</button>
-                        </div>\;
-                });
             }
         };
     </script>
