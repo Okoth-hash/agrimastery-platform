@@ -10,13 +10,8 @@
         .header { text-align: center; padding: 10px; border-bottom: 2px solid var(--primary); }
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); position: relative; z-index: 2; }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        
-        /* LAYER 1: BITSTREAM VISUALIZER */
-        #bitStream { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            color: rgba(45, 106, 79, 0.2); font-family: monospace; 
-            font-size: 10px; line-height: 10px; overflow: hidden; z-index: 1; pointer-events: none;
-        }
+        input { width: 90%; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid var(--primary); background: #081c15; color: white; }
+        #bitStream { position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: rgba(45, 106, 79, 0.2); font-family: monospace; font-size: 10px; line-height: 10px; overflow: hidden; z-index: 1; pointer-events: none; }
     </style>
 </head>
 <body onload="agriEngine.init()">
@@ -25,29 +20,31 @@
 
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Layer 1: Physical Signal Processing Active</small>
+        <small>System Stack: 7-Layer Enterprise</small>
     </div>
 
     <div class="card" id="lockScreen" style="text-align:center;">
-        <h3>Final Layer Authorized</h3>
-        <p style="font-size:12px; color: var(--accent);">Pulse: 101011001...</p>
-        <input type="text" id="adminUser" placeholder="Username (robin)" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
-        <input type="password" id="adminPass" placeholder="Password (1234)" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
+        <h3 style="color: var(--accent);">Final Layer Authorization</h3>
+        <p style="font-size:12px;">Pulse: 101011001...</p>
+        <input type="text" id="adminUser" placeholder="Username (robin)">
+        <input type="password" id="adminPass" placeholder="Password (1234)">
         <button class="btn" onclick="agriEngine.login()">Sync with Hardware</button>
     </div>
 
     <div id="adminDashboard" style="display:none;">
         <div class="card">
-            <h3>Full 7-Layer Stack: ONLINE</h3>
-            <p>Welcome back, <strong>Robin</strong>.</p>
-            <div style="font-size: 12px; line-height: 1.6;">
-                <span style="color:var(--accent)">L7:</span> Application UI<br>
-                <span style="color:var(--accent)">L6:</span> Persistence (Memory)<br>
-                <span style="color:var(--accent)">L5:</span> Session (robin_auth)<br>
-                <span style="color:var(--accent)">L4:</span> Transport (TCP/Recovery)<br>
-                <span style="color:var(--accent)">L3:</span> Network (Routing)<br>
-                <span style="color:var(--accent)">L2:</span> Data Link (MAC ID)<br>
-                <span style="color:var(--accent)">L1:</span> Physical (Bitstream)
+            <h3>Full 7-Layer Stack: <span style="color:#25d366">ONLINE</span></h3>
+            <p>Authorized User: <strong>Robin</strong></p>
+            <hr style="border:0; border-top:1px solid #444;">
+            <p><strong>System Diagnostics:</strong></p>
+            <div style="font-size: 12px; line-height: 1.6; background: #081c15; padding: 10px; border-radius: 8px;">
+                L7: App UI Active<br>
+                L6: Memory Persistent<br>
+                L5: Session Secured<br>
+                L4: TCP Optimized<br>
+                L3: Route: Eldoret -> GitHub<br>
+                L2: MAC: 00-B0-D0...<br>
+                L1: Physical Bits flowing
             </div>
             <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">System Shutdown</button>
         </div>
@@ -62,14 +59,19 @@
             generateBits: function() {
                 const stream = document.getElementById('bitStream');
                 let bits = "";
-                for(let i=0; i<2000; i++) { bits += Math.round(Math.random()); }
+                for(let i=0; i<3000; i++) { bits += Math.round(Math.random()); }
                 stream.innerText = bits;
             },
             login: function() {
-                if(document.getElementById('adminUser').value === "robin" && document.getElementById('adminPass').value === "1234") {
+                const u = document.getElementById('adminUser').value.toLowerCase().trim(); // Fixes capitalization
+                const p = document.getElementById('adminPass').value.trim();
+                
+                if(u === "robin" && p === "1234") {
                     sessionStorage.setItem('admin_session', 'robin_active');
                     this.showDashboard();
-                } else { alert("Signal Rejected"); }
+                } else { 
+                    alert("Signal Rejected: Check your username/password."); 
+                }
             },
             logout: function() {
                 sessionStorage.removeItem('admin_session');
