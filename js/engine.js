@@ -4,32 +4,31 @@ const agriEngine = {
         {name: "Wheat", price: "KES 4,500"}
     ],
 
-    // MODULE STORE (Baking the components in for 100% reliability)
     modules: {
-        public: \
+        public: `
             <div class="card">
-                <h3> Search Marketplace</h3>
+                <h3>🔍 Search Marketplace</h3>
                 <input type="text" id="searchInput" placeholder="Search Crop..." onkeyup="agriEngine.search()">
                 <div id="searchResults"></div>
             </div>
-            <button class="btn" style="background:none; color:var(--accent); font-size:12px;" onclick="agriEngine.load('login')">Admin Login</button>\,
+            <button class="btn" style="background:none; color:var(--accent); font-size:12px; cursor:pointer;" onclick="agriEngine.load('login')">Admin Login</button>`,
         
-        login: \
+        login: `
             <div class="card">
                 <h3>Admin Authorization</h3>
                 <input type="text" id="adminUser" placeholder="Username">
                 <input type="password" id="adminPass" placeholder="Password">
                 <button class="btn" onclick="agriEngine.login()">Login</button>
                 <button class="btn" style="background:#444;" onclick="agriEngine.load('public')">Back</button>
-            </div>\,
+            </div>`,
 
-        admin: \
+        admin: `
             <div class="card">
                 <h3 style="color: var(--accent);">Full 7-Layer Stack: <span style="color:#25d366">ONLINE</span></h3>
                 <div style="font-size: 11px; background: #081c15; padding: 10px; border-radius: 8px; border: 1px solid var(--primary);">
                     <strong>Diagnostics:</strong> L7: App UI | L6: JSON | L5: Session | L4: TCP | L3: Route | L2: MAC | L1: Bits
                 </div>
-                <h3 style="margin-top:15px;"> Market Manager</h3>
+                <h3 style="margin-top:15px;">📦 Market Manager</h3>
                 <input type="text" id="itemName" placeholder="Crop Name">
                 <input type="text" id="itemPrice" placeholder="Price">
                 <button class="btn" onclick="agriEngine.addProduct()">Add to Market</button>
@@ -38,7 +37,7 @@ const agriEngine = {
                 <h3>Live Inventory</h3>
                 <div id="adminInventory"></div>
                 <button class="btn" style="background:#8b0000;" onclick="agriEngine.logout()">Shutdown</button>
-            </div>\
+            </div>`
     },
 
     init: function() {
@@ -56,8 +55,11 @@ const agriEngine = {
     },
 
     load: function(name) {
-        document.getElementById('app-viewport').innerHTML = this.modules[name];
-        if(name === 'admin') this.renderAdminInv();
+        const view = document.getElementById('app-viewport');
+        if(view) {
+            view.innerHTML = this.modules[name];
+            if(name === 'admin') this.renderAdminInv();
+        }
     },
 
     login: function() {
@@ -66,7 +68,7 @@ const agriEngine = {
         if(u === "robin" && p === "1234") {
             sessionStorage.setItem('admin_session', 'robin_active');
             this.load('admin');
-        } else { alert("Rejected"); }
+        } else { alert("Access Denied"); }
     },
 
     search: function() {
@@ -75,11 +77,11 @@ const agriEngine = {
         results.innerHTML = "";
         if(query.length < 1) return;
         this.inventory.filter(i => i.name.toLowerCase().includes(query)).forEach(item => {
-            results.innerHTML += \
-                <div class="result-card">
-                    <strong>\</strong>: \
-                    <br><small><a href="https://wa.me/254742178833" style="color:var(--accent)">Contact Seller</a></small>
-                </div>\;
+            results.innerHTML += `
+                <div class="result-card" style="padding:10px; border-bottom:1px solid #2d6a4f;">
+                    <strong>${item.name}</strong>: ${item.price}
+                    <br><small><a href="https://wa.me/254742178833" target="_blank" style="color:var(--accent)">Contact Seller</a></small>
+                </div>`;
         });
     },
 
@@ -90,6 +92,8 @@ const agriEngine = {
         this.inventory.push({name, price});
         localStorage.setItem('agri_inv', JSON.stringify(this.inventory));
         this.renderAdminInv();
+        document.getElementById('itemName').value = "";
+        document.getElementById('itemPrice').value = "";
     },
 
     renderAdminInv: function() {
@@ -97,7 +101,7 @@ const agriEngine = {
         if(!list) return;
         list.innerHTML = "";
         this.inventory.forEach(item => {
-            list.innerHTML += \<div style="padding:8px; border-bottom:1px solid #2d6a4f;">\ - \</div>\;
+            list.innerHTML += `<div style="padding:8px; border-bottom:1px solid #2d6a4f;">${item.name} - ${item.price}</div>`;
         });
     },
 
@@ -106,3 +110,6 @@ const agriEngine = {
         this.load('public');
     }
 };
+
+// CRITICAL: Initialize the engine
+agriEngine.init();
