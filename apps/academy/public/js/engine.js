@@ -4,7 +4,7 @@ const agriEngine = {
         for (let i = 1; i < 100; i++) window.clearInterval(i);
         setInterval(() => {
             const el = document.getElementById('sys-clock');
-            if(el) el.innerText = new Date().toLocaleTimeString() + " | FINANCIAL ENGINE LIVE";
+            if(el) el.innerText = new Date().toLocaleTimeString() + " | GROUP MODULE ACTIVE";
         }, 1000);
         this.sync();
     },
@@ -15,39 +15,45 @@ const agriEngine = {
     },
     render: function(view) {
         let html = '';
-        // 1. UPDATED ACTION PANEL WITH LOAN CALCULATOR
+        // 1. UPDATED ACTION PANEL
         html += '<div class="card" style="border-bottom: 3px solid #ffcc00;">' +
-                '<h3>🛠️ Farmer Financials</h3>' +
+                '<h3>🛠️ Community Tools</h3>' +
                 '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">' +
                 '<button class="btn" onclick="agriEngine.calcYield()">📊 Yield Calc</button>' +
-                '<button class="btn" onclick="agriEngine.checkLoan()" style="background:#8338ec;">💰 Loan Check</button>' +
+                '<button class="btn" onclick="agriEngine.checkGroup()" style="background:#06d6a0;">👥 Group Power</button>' +
                 '<button class="btn" onclick="agriEngine.contactDev()" style="background:#25d366; color:white;">💬 Support</button>' +
                 '<button class="btn" onclick="agriEngine.reset()" style="background:#500;">⚠️ Reset</button>' +
                 '</div></div>';
-        // 2. LOAN STATUS DISPLAY
-        const loanData = JSON.parse(localStorage.getItem('agri_loan'));
-        if(loanData) {
-            html += '<div class="card" style="background:#3c096c; border:1px solid #9d4edd;">' +
-                    '<h3 style="color:#ff9e00;">🏦 Credit Estimate</h3>' +
-                    '<p>Crop Value: <b>KES ' + loanData.value.toLocaleString() + '</b></p>' +
-                    '<p>Eligible Loan: <b style="color:lime;">KES ' + loanData.limit.toLocaleString() + '</b></p>' +
-                    '<small style="color:#aaa;">*Max limit is 40% of projected harvest value.</small>' +
-                    '<button class="btn" style="width:100%; margin-top:10px; font-size:9px;" onclick="localStorage.removeItem(\'agri_loan\'); agriEngine.sync()">New Calculation</button></div>';
+        // 2. GROUP POWER DISPLAY
+        const groupData = JSON.parse(localStorage.getItem('agri_group'));
+        if(groupData) {
+            html += '<div class="card" style="background:#073b4c; border:1px solid #06d6a0;">' +
+                    '<h3 style="color:#06d6a0;">🤝 Group Collective</h3>' +
+                    '<p>Total Farmers: <b>' + groupData.members + '</b></p>' +
+                    '<p>Total Bags: <b>' + groupData.totalBags + '</b></p>' +
+                    '<p>Group Loan Limit: <b style="color:lime;">KES ' + groupData.groupLimit.toLocaleString() + '</b></p>' +
+                    '<small style="color:#aaa;">*Collective bargaining increases price per bag.</small>' +
+                    '<button class="btn" style="width:100%; margin-top:10px; font-size:9px;" onclick="localStorage.removeItem(\'agri_group\'); agriEngine.sync()">Disband Group</button></div>';
         }
-        // 3. BRANDING & CLOCK
+        // 3. BRANDING
         html += '<div class="card" style="background:#0a0a0a; border:1px solid #444;">' +
                 '<div id="sys-clock" style="color:lime; font-family:monospace; font-size:12px;"></div>' +
                 '<p style="font-size:0.8em; margin:5px 0;">Developer: ' + this.author.name + '</p>' +
                 '</div>';
         view.innerHTML = html;
     },
-    checkLoan: function() {
-        const bags = prompt("Enter your projected harvest (bags):", "50");
-        if(bags) {
-            const pricePerBag = 3500; // Estimated market price
-            const totalValue = bags * pricePerBag;
-            const loanLimit = totalValue * 0.40; // 40% safety limit
-            localStorage.setItem('agri_loan', JSON.stringify({value: totalValue, limit: loanLimit}));
+    checkGroup: function() {
+        const members = prompt("How many farmers in your group?", "10");
+        const avgBags = prompt("Average bags per farmer?", "30");
+        if(members && avgBags) {
+            const totalBags = members * avgBags;
+            const groupValue = totalBags * 3800; // Better price (3800) due to bulk volume
+            const groupLimit = groupValue * 0.50; // Higher credit limit (50%) for groups
+            localStorage.setItem('agri_group', JSON.stringify({
+                members: members, 
+                totalBags: totalBags, 
+                groupLimit: groupLimit
+            }));
             this.sync();
         }
     },
