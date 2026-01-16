@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Layer 5 Session</title>
+    <title>AgriMastery | robin Secure Session</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
         body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
@@ -19,7 +19,7 @@
 <body onload="agriEngine.checkSession()">
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Layer 5: Session Management Active</small>
+        <small>Layer 5: Authenticated Session (robin)</small>
     </div>
 
     <div class="card">
@@ -30,14 +30,15 @@
     </div>
 
     <div class="card" id="lockScreen" style="text-align:center;">
-        <h3>Admin Login</h3>
-        <input type="password" id="adminPass" placeholder="Admin Pin" style="width:60%">
-        <button class="btn" style="width:30%; background:#444;" onclick="agriEngine.login()">Login</button>
+        <h3>Admin Secure Login</h3>
+        <input type="text" id="adminUser" placeholder="Username" style="width:90%">
+        <input type="password" id="adminPass" placeholder="Password" style="width:90%">
+        <button class="btn" style="margin-top:10px;" onclick="agriEngine.login()">Login</button>
     </div>
 
     <div class="admin-unlocked" id="adminDashboard">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="color: var(--accent);"> Admin Hub</h3>
+            <h3 style="color: var(--accent);"> Admin Hub (robin)</h3>
             <button onclick="agriEngine.logout()" style="background:#8b0000; color:white; border:none; padding:5px 10px; border-radius:5px;">Logout</button>
         </div>
         <div id="queryList"></div>
@@ -46,27 +47,27 @@
     <script>
         const agriEngine = {
             queries: JSON.parse(localStorage.getItem('agri_queries')) || [],
-            
-            // LAYER 5: CHECK FOR EXISTING SESSION
+            credentials: { user: "robin", pass: "1234" }, // Your specific credentials
+
             checkSession: function() {
-                const sessionActive = sessionStorage.getItem('admin_session');
-                if (sessionActive === "true") {
+                if (sessionStorage.getItem('admin_session') === "robin_active") {
                     this.showDashboard();
                 }
             },
 
             login: function() {
-                if(document.getElementById('adminPass').value === "1234") {
-                    // LAYER 5: CREATE SESSION
-                    sessionStorage.setItem('admin_session', 'true');
+                const u = document.getElementById('adminUser').value;
+                const p = document.getElementById('adminPass').value;
+                
+                if(u === this.credentials.user && p === this.credentials.pass) {
+                    sessionStorage.setItem('admin_session', 'robin_active');
                     this.showDashboard();
                 } else {
-                    alert("Unauthorized Access");
+                    alert("Invalid Credentials");
                 }
             },
 
             logout: function() {
-                // LAYER 5: DESTROY SESSION
                 sessionStorage.removeItem('admin_session');
                 location.reload();
             },
@@ -84,7 +85,7 @@
                 this.queries.push({ sender: name, msg: text, time: new Date().toLocaleString() });
                 localStorage.setItem('agri_queries', JSON.stringify(this.queries));
                 this.renderQueries();
-                alert("Query Received.");
+                alert("Query Sent.");
             },
 
             renderQueries: function() {
