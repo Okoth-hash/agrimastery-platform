@@ -1,60 +1,57 @@
 const agriEngine = {
     init: function() {
-        console.log('AgriMastery Integrated System: Online');
-        this.syncDashboards();
+        // Kill all old background loops to stop the 'backtracking'
+        for (let i = 1; i < 100; i++) window.clearInterval(i);
+        this.sync();
     },
-    // Communication Layer: Syncs data across all modules
-    syncDashboards: function() {
+    sync: function() {
         const view = document.getElementById('app-viewport');
         if(!view) return;
-        // Load Global State
-        const user = JSON.parse(localStorage.getItem('agri_student')) || null;
+        const student = JSON.parse(localStorage.getItem('agri_student'));
         const market = JSON.parse(localStorage.getItem('agri_market')) || [];
-        this.renderUnifiedUI(view, user, market);
+        this.renderAll(view, student, market);
     },
-    renderUnifiedUI: function(view, user, market) {
-        let html = '';
-        // 1. STUDENT PORTAL SECTION
-        if(!user) {
-            html += '<div class="card"><h3>🎓 Student Enrollment</h3>' +
-                    '<input type="text" id="sName" placeholder="Name" style="width:90%; padding:10px; margin:5px 0;">' +
-                    '<button class="btn" onclick="agriEngine.register()">Register Student</button></div>';
+    renderAll: function(view, student, market) {
+        let ui = '';
+        // STUDENT DASHBOARD (L7 UI)
+        if(!student) {
+            ui += '<div class="card"><h3>🎓 Student Enrollment</h3>' +
+                  '<input type="text" id="nameIn" placeholder="Enter Full Name" style="width:90%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #2d6a4f;">' +
+                  '<button class="btn" onclick="agriEngine.reg()">Enroll Now</button></div>';
         } else {
-            html += '<div class="card" style="border-left:5px solid gold;"><h3>🎓 Welcome, ' + user.name + '</h3>' +
-                    '<p>Course: Maize Mastery | Month: 1</p></div>';
+            ui += '<div class="card" style="border-left:5px solid #ffcc00;"><h3>🎓 Student: ' + student.name + '</h3>' +
+                  '<p>Progress: Month 1 - Soil Prep</p></div>';
         }
-        // 2. MARKET MANAGER SECTION (Communicating Live Inventory)
-        html += '<div class="card"><h3>📦 Live Market Manager</h3>' +
-                '<input type="text" id="itemName" placeholder="Crop Name" style="width:40%; padding:10px;"> ' +
-                '<input type="number" id="itemPrice" placeholder="Price" style="width:40%; padding:10px;">' +
-                '<button class="btn" onclick="agriEngine.addToMarket()">Update Market</button>';
-        market.forEach(item => {
-            html += '<div class="result-card">' + item.name + ' - KES ' + item.price + '</div>';
+        // MARKET DASHBOARD (L6 Data)
+        ui += '<div class="card"><h3>📦 Market Manager</h3>' +
+              '<input type="text" id="itemIn" placeholder="Crop" style="width:45%;"> ' +
+              '<input type="number" id="priceIn" placeholder="Price" style="width:45%;">' +
+              '<button class="btn" style="margin-top:10px;" onclick="agriEngine.addM()">Update Market</button>';
+        market.forEach(m => {
+            ui += '<div class="result-card">' + m.name + ' - KES ' + m.price + '</div>';
         });
-        html += '</div>';
-        // 3. ADMIN DASHBOARD (Watching Student Activity)
-        if(user) {
-            html += '<div class="card" style="background:#1a1a1a;"><h3>🛡️ Admin Oversight</h3>' +
-                    '<p>Active Students: 1 (' + user.name + ')</p>' +
-                    '<p>System Health: Optimal</p></div>';
-        }
-        view.innerHTML = html;
+        ui += '</div>';
+        // ADMIN DASHBOARD (L5 Session Oversight)
+        ui += '<div class="card" style="background:#111; opacity:0.9;"><h3>🛡️ Admin Dashboard</h3>' +
+              '<p>Active Students: ' + (student ? '1' : '0') + '</p>' +
+              '<p>Market Items: ' + market.length + '</p></div>';
+        view.innerHTML = ui;
     },
-    register: function() {
-        const name = document.getElementById('sName').value;
-        if(name) {
-            localStorage.setItem('agri_student', JSON.stringify({name: name, date: new Date()}));
-            this.syncDashboards();
+    reg: function() {
+        const n = document.getElementById('nameIn').value;
+        if(n) {
+            localStorage.setItem('agri_student', JSON.stringify({name: n}));
+            this.sync();
         }
     },
-    addToMarket: function() {
-        const name = document.getElementById('itemName').value;
-        const price = document.getElementById('itemPrice').value;
-        if(name && price) {
-            let market = JSON.parse(localStorage.getItem('agri_market')) || [];
-            market.push({name, price});
-            localStorage.setItem('agri_market', JSON.stringify(market));
-            this.syncDashboards();
+    addM: function() {
+        const i = document.getElementById('itemIn').value;
+        const p = document.getElementById('priceIn').value;
+        if(i && p) {
+            let m = JSON.parse(localStorage.getItem('agri_market')) || [];
+            m.push({name: i, price: p});
+            localStorage.setItem('agri_market', JSON.stringify(m));
+            this.sync();
         }
     }
 };
