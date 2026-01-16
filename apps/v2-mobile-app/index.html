@@ -3,66 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery Global | Enterprise Portal</title>
+    <title>AgriMastery Global | Active Portal</title>
     <style>
-        :root { --primary: #2d6a4f; --secondary: #1b4332; --accent: #ffca28; --text: #e8f5e9; --bg: #0b1d12; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
-        .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); margin-bottom: 20px; }
-        .card { background: var(--secondary); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
-        .card.verified { border-left-color: var(--accent); }
-        .badge { background: var(--accent); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
+        body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
+        .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); }
+        .card { background: var(--card); border-radius: 12px; padding: 20px; margin-top: 15px; border-left: 5px solid var(--primary); }
+        .badge { background: var(--accent); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
         input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; margin: 10px 0; box-sizing: border-box; }
-        .btn { background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .price-tag { color: var(--accent); font-size: 1.3em; font-weight: bold; }
+        .btn { background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .wa-btn { background: #25d366; color: white; }
+        .result-item { background: #2d6a4f; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--accent); }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 style="margin:0; color: var(--accent);">AGRIMASTERY</h1>
+        <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
         <p>System Live: Kenya Hub</p>
     </div>
 
     <div class="card">
-        <h3> Search Marketplace</h3>
-        <input type="text" id="cropSearch" placeholder="Search Maize or Beans...">
-        <button class="btn" onclick="agriMastery.search()">Query Marketplace</button>
-        <div id="searchResults" style="margin-top:15px;"></div>
+        <h3>Search Marketplace</h3>
+        <input type="text" id="cropInput" placeholder="Type 'Maize' or 'Beans'...">
+        <button class="btn" onclick="runLiveSearch()">Query Marketplace</button>
+        <div id="liveResults"></div>
     </div>
 
     <div class="card">
-        <h3> Market Intelligence</h3>
-        <p id="marketDisplay">Select a crop to see prices.</p>
+        <h3>Market Intelligence</h3>
+        <p id="priceOutput">Enter a crop to see live prices.</p>
     </div>
 
-    <div class="card verified">
-        <h3> Farmer Identity</h3>
-        <div id="identityDisplay">
-            <p>Status: <strong>Guest</strong></p>
-            <button class="btn" onclick="agriMastery.login()">Verify Omondi Identity</button>
-        </div>
+    <div class="card" style="border-left-color: var(--accent);">
+        <h3>Farmer Identity</h3>
+        <p>Welcome, <strong>Omondi</strong> <span class="badge">Master</span></p>
     </div>
 
     <script>
-        const agriMastery = {
-            database: {
-                "maize": { price: 3200, unit: "90kg Bag", trend: "Up", master: "Omondi", location: "Eldoret" },
-                "beans": { price: 8500, unit: "90kg Bag", trend: "Stable", master: "Njeri", location: "Nakuru" }
-            },
-            search: function() {
-                const query = document.getElementById('cropSearch').value.toLowerCase();
-                const data = this.database[query];
-                if (data) {
-                    document.getElementById('searchResults').innerHTML = '<span class="badge">Verified Master</span><br><strong>' + data.master + '</strong> | ' + data.location;
-                    document.getElementById('marketDisplay').innerHTML = query.toUpperCase() + ' Price: <span class="price-tag">KES ' + data.price + '</span>';
-                } else {
-                    alert("Crop not found. Try 'Maize'.");
-                }
-            },
-            login: function() {
-                document.getElementById('identityDisplay').innerHTML = '<p>Welcome, <strong>Omondi</strong> <span class="badge">Master</span></p>';
-                alert("Identity Secured via Layer 2 Gateway.");
-            }
+        const db = {
+            "maize": { price: 3200, location: "Eldoret", stock: "500 Bags" },
+            "beans": { price: 8500, location: "Nakuru", stock: "120 Bags" }
         };
+
+        function runLiveSearch() {
+            const input = document.getElementById('cropInput').value.toLowerCase();
+            const results = document.getElementById('liveResults');
+            const priceOut = document.getElementById('priceOutput');
+            const phone = "254742178833";
+            
+            if (db[input]) {
+                const item = db[input];
+                const message = "Hello AgriMastery, I want to buy " + input + ".";
+                const waLink = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+
+                results.innerHTML = \
+                    <div class="result-item">
+                        <strong>Top Farmer: Omondi</strong> <span class="badge">VERIFIED</span><br>
+                        Location: \ | Stock: \<br>
+                        <button class="btn wa-btn" onclick="window.open('\')">Contact via WhatsApp</button>
+                    </div>\;
+                priceOut.innerHTML = \Current \ price: <strong style="color:var(--accent)">KES \</strong>\;
+            } else {
+                alert("Crop not found. Try 'Maize'.");
+            }
+        }
     </script>
 </body>
 </html>
