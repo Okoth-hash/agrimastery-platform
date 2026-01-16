@@ -3,46 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Robin L3 Network</title>
+    <title>AgriMastery | Robin L2 Hardware Auth</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
         body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
         .header { text-align: center; padding: 10px; border-bottom: 2px solid var(--primary); }
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .network-tag { font-family: monospace; color: var(--accent); font-size: 11px; background: #000; padding: 2px 5px; border-radius: 3px; }
+        .hw-code { color: var(--accent); font-weight: bold; font-family: monospace; }
     </style>
 </head>
 <body onload="agriEngine.init()">
 
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Layer 3: Network Routing (Kenya Hub)</small>
+        <small>Layer 2: Data Link / Hardware Secured</small>
     </div>
 
     <div class="card" id="lockScreen" style="text-align:center;">
-        <h3>Secure Login</h3>
+        <h3>Hardware Identity Required</h3>
+        <p style="font-size:12px;">Device MAC Trace: <span class="hw-code" id="macDisplay">...detecting...</span></p>
         <input type="text" id="adminUser" placeholder="Username" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
         <input type="password" id="adminPass" placeholder="Password" style="width:90%; padding:10px; margin:5px; border-radius:5px;">
-        <button class="btn" style="margin-top:10px;" onclick="agriEngine.login()">Login</button>
+        <button class="btn" style="margin-top:10px;" onclick="agriEngine.login()">Authorize Device</button>
     </div>
 
     <div id="adminDashboard" style="display:none;">
         <div class="card">
-            <h3>Welcome, Robin</h3>
-            <div style="border: 1px solid #444; padding: 10px; border-radius: 5px; background: #081c15;">
-                <p style="margin: 0; font-size: 13px;"><strong>Network Trace:</strong></p>
-                <p style="margin: 5px 0; font-size: 12px;">Source: <span class="network-tag">192.168.1.1 (Local)</span></p>
-                <p style="margin: 5px 0; font-size: 12px;">Gateway: <span class="network-tag">41.215.160.1 (Safaricom/Airtel)</span></p>
-                <p style="margin: 5px 0; font-size: 12px;">Target: <span class="network-tag">140.82.121.4 (GitHub USA)</span></p>
-            </div>
-            <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">Logout</button>
+            <h3>Authorized: Robin</h3>
+            <p><strong>Hardware ID:</strong> <span class="hw-code">00-B0-D0-63-C2-26</span></p>
+            <p style="font-size:13px; color:#888;">This session is pinned to your physical network interface.</p>
+            <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">Secure Logout</button>
         </div>
     </div>
 
     <script>
         const agriEngine = {
             init: function() {
+                // Simulating Layer 2 MAC detection
+                document.getElementById('macDisplay').innerText = "00-B0-D0-63-C2-26";
                 if (sessionStorage.getItem('admin_session') === "robin_active") this.showDashboard();
             },
             login: function() {
@@ -51,7 +50,7 @@
                 if(u === "robin" && p === "1234") {
                     sessionStorage.setItem('admin_session', 'robin_active');
                     this.showDashboard();
-                } else { alert("Access Denied"); }
+                } else { alert("Hardware Authorization Failed"); }
             },
             logout: function() {
                 sessionStorage.removeItem('admin_session');
