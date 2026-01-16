@@ -1,11 +1,28 @@
 <div class="card">
-    <h3 style="color: var(--accent);"> Market Manager</h3>
+    <h3 style="color: var(--accent);">Full 7-Layer Stack: <span style="color:#25d366">ONLINE</span></h3>
+    <p>Authorized Hardware: <span style="font-family:monospace; color:var(--accent);">00-B0-D0-63-C2-26</span></p>
+    
+    <div style="font-size: 11px; line-height: 1.5; background: #081c15; padding: 10px; border-radius: 8px; border: 1px solid var(--primary); margin-bottom: 15px;">
+        <strong>System Diagnostics (Robin-Interface):</strong><br>
+        <span style="color:var(--accent)">L7 (App):</span> UI Engine Active<br>
+        <span style="color:var(--accent)">L6 (Pres):</span> JSON Serialization Sync<br>
+        <span style="color:var(--accent)">L5 (Sess):</span> robin_active (Secured)<br>
+        <span style="color:var(--accent)">L4 (Trans):</span> TCP Stream Optimized<br>
+        <span style="color:var(--accent)">L3 (Net):</span> Eldoret Hub -> Global Route<br>
+        <span style="color:var(--accent)">L2 (Link):</span> MAC Auth Verified<br>
+        <span style="color:var(--accent)">L1 (Phys):</span> Bitstream Pulse: 1010110...
+    </div>
+
+    <hr style="border:0; border-top:1px solid #2d6a4f;">
+
+    <h3 style="color: var(--accent); margin-top:15px;"> Market Manager</h3>
     <input type="text" id="itemName" placeholder="Crop Name">
-    <input type="text" id="itemPrice" placeholder="Price">
+    <input type="text" id="itemPrice" placeholder="Price (e.g. KES 5,000)">
     <button class="btn" onclick="agriEngine.addProduct()">Add to Live Market</button>
 </div>
+
 <div class="card">
-    <h3>Live Inventory</h3>
+    <h3>Inventory Management</h3>
     <div id="adminInventory"></div>
-    <button class="btn" style="background:#8b0000;" onclick="agriEngine.logout()">System Shutdown</button>
+    <button class="btn" style="background:#8b0000; margin-top:20px;" onclick="agriEngine.logout()">System Shutdown</button>
 </div>

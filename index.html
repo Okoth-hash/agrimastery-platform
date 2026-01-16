@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Pro Modular</title>
+    <title>AgriMastery | 7-Layer Modular</title>
     <link rel="stylesheet" href="assets/style.css">
+    <style>
+        #bitStream { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            color: rgba(45, 106, 79, 0.15); font-family: monospace; 
+            font-size: 10px; line-height: 10px; overflow: hidden; z-index: -1; pointer-events: none;
+        }
+    </style>
 </head>
 <body onload="agriEngine.init()">
+    <div id="bitStream"></div>
+
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Enterprise Stack: Modular Assets</small>
+        <small>Enterprise Architecture: 7-Layer Modular</small>
     </div>
 
     <div id="app-viewport">Syncing Modules...</div>
@@ -19,8 +28,16 @@
             inventory: JSON.parse(localStorage.getItem('agri_inv')) || [{name: "Maize", price: "KES 3,200"}],
 
             init: async function() {
+                this.generateBits();
                 const session = sessionStorage.getItem('admin_session');
                 await this.loadComponent(session === "robin_active" ? 'admin' : 'public');
+            },
+
+            generateBits: function() {
+                const stream = document.getElementById('bitStream');
+                let bits = "";
+                for(let i=0; i<4000; i++) { bits += Math.round(Math.random()); }
+                stream.innerText = bits;
             },
 
             loadComponent: async function(name) {
@@ -29,9 +46,7 @@
                     const html = await response.text();
                     document.getElementById('app-viewport').innerHTML = html;
                     if(name === 'admin') this.renderAdminInv();
-                } catch (err) {
-                    console.error("Fetch Error:", err);
-                }
+                } catch (err) { console.error("Layer Fetch Error:", err); }
             },
 
             login: function() {
@@ -40,7 +55,7 @@
                 if(u === "robin" && p === "1234") {
                     sessionStorage.setItem('admin_session', 'robin_active');
                     this.loadComponent('admin');
-                } else { alert("Access Denied"); }
+                } else { alert("Signal Rejected"); }
             },
 
             search: function() {
@@ -48,7 +63,6 @@
                 const results = document.getElementById('searchResults');
                 results.innerHTML = "";
                 if(query.length < 1) return;
-
                 this.inventory.filter(i => i.name.toLowerCase().includes(query)).forEach(item => {
                     results.innerHTML += \<div class="result-card"><strong>\</strong>: \</div>\;
                 });
