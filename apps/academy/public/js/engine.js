@@ -1,4 +1,9 @@
 const agriEngine = {
+    author: {
+        name: "Omondi Robin Okoth",
+        phone: "0742178833",
+        email: "okothrobin323@gmail.com"
+    },
     lessons: [
         { title: "Soil pH", content: "Maize thrives in pH 5.8 to 7.0. Acidic soil locks nutrients." },
         { title: "Nitrogen (N)", content: "Nitrogen drives leaf growth. Apply top-dressing at knee-high stage." },
@@ -22,50 +27,40 @@ const agriEngine = {
     },
     renderAll: function(view, student, market) {
         let ui = '';
-        // --- 1. STUDENT PORTAL (Top Section) ---
+        // --- 1. STUDENT PORTAL ---
         if(!student) {
-            ui += '<div class="card"><h3>🎓 Student Enrollment</h3>' +
+            ui += '<div class="card"><h3>🎓 Enrollment</h3>' +
                   '<input type="text" id="nameIn" placeholder="Full Name" style="width:90%; padding:10px; margin:5px 0; background:#111; color:#fff; border:1px solid #2d6a4f;">' +
-                  '<button class="btn" onclick="agriEngine.reg()">Enroll & Begin Month 1</button></div>';
+                  '<button class="btn" onclick="agriEngine.reg()">Enroll Now</button></div>';
         } else if (student.passedQuiz) {
-            ui += '<div class="card" style="border:2px solid #ffcc00; background:rgba(255, 204, 0, 0.1); text-align:center;">' +
-                  '<h3>🏆 Month 1 Certified</h3>' +
-                  '<p>Congratulations ' + student.name + '! You have mastered Soil Chemistry.</p>' +
-                  '<button class="btn" onclick="agriEngine.generateCert()">Download Certificate</button></div>';
+            ui += '<div class="card" style="border:2px solid #ffcc00; text-align:center;">' +
+                  '<h3>🏆 Certified</h3><p>Well done, ' + student.name + '!</p></div>';
         } else if (student.currentLesson >= this.lessons.length) {
-            ui += '<div class="card"><h3>📝 Month 1 Final Quiz</h3>' +
+            ui += '<div class="card"><h3>📝 Final Quiz</h3>' +
                   '<p>' + this.quiz.question + '</p>';
             this.quiz.options.forEach((opt, idx) => {
                 ui += '<button class="btn" style="background:#1a1a1a; margin:5px 0; width:100%; text-align:left;" onclick="agriEngine.checkQuiz(' + idx + ')">' + (idx+1) + '. ' + opt + '</button>';
             });
             ui += '</div>';
         } else {
-            const prog = (student.currentLesson / this.lessons.length) * 100;
             ui += '<div class="card"><h3>🎓 Lesson ' + (student.currentLesson + 1) + '</h3>' +
-                  '<div style="width:100%; background:#333; height:8px; border-radius:4px;"><div style="width:' + prog + '%; background:#ffcc00; height:100%; transition: 0.5s;"></div></div>' +
                   '<h4>' + this.lessons[student.currentLesson].title + '</h4>' +
                   '<p>' + this.lessons[student.currentLesson].content + '</p>' +
-                  '<button class="btn" style="width:100%;" onclick="agriEngine.next()">Mark as Complete</button></div>';
+                  '<button class="btn" style="width:100%;" onclick="agriEngine.next()">Next</button></div>';
         }
-        // --- 2. MARKET MANAGER (Middle Section) ---
-        ui += '<div class="card"><h3>📦 Market Logistics</h3>' +
-              '<div style="display:flex; gap:5px;">' +
-              '<input type="text" id="mItem" placeholder="Crop" style="flex:2; padding:8px; background:#000; color:#fff; border:1px solid #333;">' +
-              '<input type="number" id="mPrice" placeholder="Price" style="flex:1; padding:8px; background:#000; color:#fff; border:1px solid #333;">' +
-              '</div>' +
-              '<button class="btn" style="margin-top:10px; width:100%;" onclick="agriEngine.updateMarket()">Post Price Update</button>';
-        market.slice(-2).forEach(m => {
-            ui += '<div class="result-card" style="font-size:0.85em;">' + m.name + ': <span style="color:#ffcc00;">KES ' + m.price + '</span></div>';
-        });
-        ui += '</div>';
-        // --- 3. ADMIN DASHBOARD (Bottom Section) ---
-        ui += '<div class="card" style="background:rgba(0,0,0,0.6); border:1px dashed #444;">' +
-              '<h3>🛡️ Admin Control</h3>' +
-              '<div style="display:flex; justify-content:space-around; text-align:center; margin-bottom:10px;">' +
-              '<div><small>STUDENT</small><br><strong>' + (student ? student.name : 'None') + '</strong></div>' +
-              '<div><small>STATUS</small><br><strong>' + (student?.passedQuiz ? 'CERTIFIED' : 'ACTIVE') + '</strong></div>' +
-              '</div>' +
-              '<button class="btn" style="background:none; border:1px solid red; color:red; font-size:10px; width:100%;" onclick="agriEngine.reset()">System Hard Reset</button>' +
+        // --- 2. MARKET MANAGER ---
+        ui += '<div class="card"><h3>📦 Market Updates</h3>' +
+              '<input type="text" id="mItem" placeholder="Crop" style="width:45%;"> <input type="number" id="mPrice" placeholder="Price" style="width:45%;">' +
+              '<button class="btn" style="width:100%; margin-top:10px;" onclick="agriEngine.updateMarket()">Update</button></div>';
+        // --- 3. ADMIN & AUTHOR ACKNOWLEDGMENT ---
+        ui += '<div class="card" style="background:rgba(0,0,0,0.7); border:1px solid #444; color:#888; font-size:0.85em;">' +
+              '<h3 style="color:#ffcc00; margin-bottom:5px;">🛡️ System Control</h3>' +
+              '<p>Student Status: <strong>' + (student?.passedQuiz ? 'CERTIFIED' : 'ACTIVE') + '</strong></p>' +
+              '<hr style="border:0; border-top:1px solid #333; margin:10px 0;">' +
+              '<p><strong>Author:</strong> ' + this.author.name + '</p>' +
+              '<p><strong>Contact:</strong> ' + this.author.phone + '</p>' +
+              '<p><strong>Email:</strong> ' + this.author.email + '</p>' +
+              '<button class="btn" style="background:none; border:1px solid red; color:red; font-size:9px; width:100%; margin-top:10px;" onclick="agriEngine.reset()">Hard Reset System</button>' +
               '</div>';
         view.innerHTML = ui;
     },
@@ -86,10 +81,7 @@ const agriEngine = {
             localStorage.setItem('agri_student', JSON.stringify(s));
             this.sync();
         } else {
-            alert("Incorrect! Reviewing Lesson 1...");
-            let s = JSON.parse(localStorage.getItem('agri_student'));
-            s.currentLesson = 0;
-            localStorage.setItem('agri_student', JSON.stringify(s));
+            alert("Incorrect!");
             this.sync();
         }
     },
@@ -103,10 +95,6 @@ const agriEngine = {
             this.sync();
         }
     },
-    generateCert: function() {
-        const s = JSON.parse(localStorage.getItem('agri_student'));
-        alert("Generating Certificate for " + s.name + "... [Month 1: Soil Mastery]");
-    },
-    reset: function() { if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); } }
+    reset: function() { localStorage.clear(); location.reload(); }
 };
 agriEngine.init();
