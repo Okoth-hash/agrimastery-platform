@@ -11,21 +11,21 @@
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; box-sizing: border-box; }
-        .result-card { background: #081c15; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid var(--accent); animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .result-card { background: #081c15; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid var(--accent); position: relative; }
+        .contact-btn { background: #25d366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; display: inline-block; margin-top: 10px; font-size: 13px; font-weight: bold; }
     </style>
 </head>
 <body onload="agriEngine.init()">
 
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small id="sub-tag">Public Marketplace: Kenya Hub</small>
+        <small id="sub-tag">Direct Trade: Kenya Hub</small>
     </div>
 
     <div id="publicUI">
         <div class="card">
-            <h3> Search Marketplace</h3>
-            <input type="text" id="searchInput" placeholder="Search Maize, Beans, Wheat..." onkeyup="agriEngine.search()">
+            <h3> Buy Directly</h3>
+            <input type="text" id="searchInput" placeholder="Search Crop..." onkeyup="agriEngine.search()">
             <div id="searchResults"></div>
         </div>
         <button class="btn" style="background:none; color:var(--accent); font-size:12px;" onclick="agriEngine.showLogin()">Admin Login</button>
@@ -41,13 +41,13 @@
 
     <div id="adminUI" style="display:none;">
         <div class="card">
-            <h3 style="color: var(--accent);"> Marketplace Manager</h3>
+            <h3 style="color: var(--accent);"> Market Manager</h3>
             <input type="text" id="itemName" placeholder="Crop Name">
-            <input type="text" id="itemPrice" placeholder="Price (e.g. KES 5,000)">
+            <input type="text" id="itemPrice" placeholder="Price">
             <button class="btn" onclick="agriEngine.addProduct()">Add to Live Market</button>
         </div>
         <div class="card">
-            <h3>Current Inventory</h3>
+            <h3>Inventory Management</h3>
             <div id="adminInventory"></div>
             <button class="btn" style="background:#8b0000;" onclick="agriEngine.logout()">Logout</button>
         </div>
@@ -55,31 +55,30 @@
 
     <script>
         const agriEngine = {
+            adminPhone: "254742178833",
             inventory: JSON.parse(localStorage.getItem('agri_inv')) || [
                 {name: "Maize", price: "KES 3,200"},
                 {name: "Beans", price: "KES 8,500"}
             ],
 
             init: function() {
-                if (sessionStorage.getItem('admin_session') === "robin_active") {
-                    this.showAdmin();
-                }
+                if (sessionStorage.getItem('admin_session') === "robin_active") this.showAdmin();
             },
 
             search: function() {
                 const query = document.getElementById('searchInput').value.toLowerCase();
                 const results = document.getElementById('searchResults');
                 results.innerHTML = "";
-                
                 if(query.length < 1) return;
 
                 const filtered = this.inventory.filter(item => item.name.toLowerCase().includes(query));
-                
                 filtered.forEach(item => {
+                    const waLink = "https://wa.me/" + this.adminPhone + "?text=" + encodeURIComponent("Hello, I am interested in buying " + item.name + " at the listed price of " + item.price);
                     results.innerHTML += \
                         <div class="result-card">
                             <strong style="color:var(--accent)">\</strong><br>
-                            <span>Current Market Price: \</span>
+                            <span>Market Price: \</span><br>
+                            <a href="\" target="_blank" class="contact-btn"> Message Seller</a>
                         </div>\;
                 });
             },
@@ -91,14 +90,14 @@
                 this.inventory.push({name, price});
                 localStorage.setItem('agri_inv', JSON.stringify(this.inventory));
                 this.renderAdminInv();
-                alert(name + " added to live market!");
+                alert("Live market updated!");
             },
 
             renderAdminInv: function() {
                 const list = document.getElementById('adminInventory');
                 list.innerHTML = "";
                 this.inventory.forEach((item, index) => {
-                    list.innerHTML += \<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #2d6a4f;">
+                    list.innerHTML += \<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #2d6a4f;">
                         <span>\</span> <span>\</span>
                     </div>\;
                 });
@@ -118,7 +117,6 @@
                 document.getElementById('publicUI').style.display = 'none';
                 document.getElementById('loginUI').style.display = 'none';
                 document.getElementById('adminUI').style.display = 'block';
-                document.getElementById('sub-tag').innerText = "Admin Hub: Active";
                 this.renderAdminInv();
             },
 
