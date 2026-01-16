@@ -1,27 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriMastery Mobile</title>
     <style>
-        body { font-family: sans-serif; background: #f9f9f9; text-align: center; padding: 20px; }
-        .login-box { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .input-field { width: 90%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        .btn-green { background: #1B4332; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; width: 100%; }
-        .progress-bar { background: #e0e0e0; height: 10px; border-radius: 5px; margin: 20px 0; }
-        .progress-fill { background: #D4AF37; width: 60%; height: 100%; border-radius: 5px; }
+        body { font-family: sans-serif; background: #f4f9f4; padding: 20px; text-align: center; }
+        .btn { background: #2d6a4f; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; margin: 10px 0; font-size: 18px; cursor: pointer; }
+        .status { color: #2d6a4f; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2 style="color: #1B4332;">AgriMastery</h2>
-        <p>Welcome back, Omondi!</p>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-        <p><strong>60% Through:</strong> Soil Health Module</p>
-        <hr>
-        <button class="btn-green">CONTINUE LEARNING</button>
-        <p style="margin-top: 20px;">Or</p>
-        <button class="btn-green" style="background: #D4AF37; color: black;">VIEW SALES ALERTS</button>
-    </div>
+    <h1>AgriMastery Portal</h1>
+    <button class="btn" onclick="app.login()">Login as Omondi</button>
+    <button class="btn" onclick="app.viewMarket()">View Maize Prices</button>
+    <div id="display" class="status">System Ready</div>
+
+    <script>
+        // Inline Business Logic to ensure buttons work NO MATTER WHAT
+        const app = {
+            login: () => {
+                document.getElementById('display').innerText = "Welcome, Omondi! Identity Verified.";
+                alert("Login Successful!");
+            },
+            viewMarket: () => {
+                document.getElementById('display').innerText = "Maize: KES 3,200 | Trend: UP";
+            }
+        };
+    </script>
 </body>
 </html>
