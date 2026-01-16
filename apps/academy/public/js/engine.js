@@ -16,7 +16,7 @@ const agriEngine = {
         for (let i = 1; i < 100; i++) window.clearInterval(i);
         setInterval(() => {
             const el = document.getElementById('sys-clock');
-            if(el) el.innerText = new Date().toLocaleTimeString() + " | HARVEST TIMER ACTIVE";
+            if(el) el.innerText = new Date().toLocaleTimeString() + " | LOGISTICS ACTIVE";
         }, 1000);
         this.sync();
     },
@@ -38,26 +38,25 @@ const agriEngine = {
                '<h3>🛠️ Smart Tools</h3>' +
                '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">' +
                '<button class="btn" onclick="agriEngine.calcYield()">📊 Yield</button>' +
-               '<button class="btn" onclick="agriEngine.harvestTimer()" style="background:#57cc99;">📅 Harvest Clock</button>' +
+               '<button class="btn" onclick="agriEngine.storeCalc()" style="background:#7209b7;">🏠 Store Calc</button>' +
+               '<button class="btn" onclick="agriEngine.harvestTimer()" style="background:#57cc99;">📅 Harvest</button>' +
                '<button class="btn" onclick="agriEngine.pestScan()" style="background:#d00000;">🔍 Pest Scan</button>' +
-               '<button class="btn" onclick="agriEngine.soilCalc()" style="background:#3a86ff;">🧪 Soil Lab</button>' +
                '</div></div>';
     },
-    harvestTimer: function() {
-        const pDateStr = prompt("When did you plant? (YYYY-MM-DD)", "2025-10-15");
-        if(!pDateStr) return;
-        const pDate = new Date(pDateStr);
-        if(isNaN(pDate.getTime())) { alert("Invalid date format."); return; }
-        // Average maize maturity is approx 135 days for mid-altitude
-        const maturityDate = new Date(pDate);
-        maturityDate.setDate(pDate.getDate() + 135);
-        const dryingDate = new Date(maturityDate);
-        dryingDate.setDate(maturityDate.getDate() + 14);
-        alert("📅 HARVEST SCHEDULE:\n\n" +
-              "Physiological Maturity: " + maturityDate.toDateString() + "\n" +
-              "(Grain is ready, moisture is high)\n\n" +
-              "Safe Harvest Date: " + dryingDate.toDateString() + "\n" +
-              "(After field drying for 14 days)");
+    storeCalc: function() {
+        const l = prompt("Enter Store Length (feet):", "10");
+        const w = prompt("Enter Store Width (feet):", "10");
+        const h = prompt("Enter Max Stack Height (feet):", "6");
+        if(l && w && h) {
+            // Formula: (L * W * H) / 4.5 cubic feet per 90kg bag (approx)
+            // We subtract 20% for air circulation corridors
+            const volume = l * w * h;
+            const bags = Math.floor((volume * 0.8) / 4.5);
+            alert("🏠 STORAGE ESTIMATE:\n\n" +
+                  "Total Volume: " + volume + " cu.ft\n" +
+                  "Safety Buffer: 20% (for air flow)\n\n" +
+                  "Capacity: Approximately " + bags + " bags (90kg each)");
+        }
     },
     getBroadcastHtml: function() {
         const msg = localStorage.getItem('agri_broadcast');
@@ -87,8 +86,8 @@ const agriEngine = {
     login: function() { const u = prompt("User:"), p = prompt("Pass:"); if(u === this.creds.user && p === this.creds.pass) { this.isAdmin = true; this.sync(); } },
     logout: function() { this.isAdmin = false; this.sync(); },
     calcYield: function() { const a = prompt("Acres:"); if(a) alert("Yield: " + (a*28) + " bags"); },
+    harvestTimer: function() { alert("Use Harvest Clock for timing."); },
     pestScan: function() { alert("Use Pest Scan for identification."); },
-    soilCalc: function() { alert("Use Soil Lab for analysis."); },
     postBroadcast: function() { const m = prompt("Broadcast:"); if(m) { localStorage.setItem('agri_broadcast', m); this.sync(); } }
 };
 agriEngine.init();
