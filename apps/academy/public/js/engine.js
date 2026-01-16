@@ -2,6 +2,12 @@ const agriEngine = {
     author: { name: "Omondi Robin Okoth", phone: "254742178833", email: "okothrobin323@gmail.com" },
     isAdmin: false,
     creds: { user: "robin", pass: "1234" },
+    // PEST DATABASE
+    pestDB: {
+        "1": { name: "Fall Armyworm", symptoms: "Ragged holes in leaves, sawdust-like waste (frass) in the funnel.", action: "Apply Belt or Escort. Rotate chemicals to prevent resistance." },
+        "2": { name: "Maize Lethal Necrosis", symptoms: "Yellowing leaves starting from the top, stunted growth, small cobs.", action: "Uproot infected plants immediately. Practice crop rotation next season." },
+        "3": { name: "Stem Borer", symptoms: "Pin-sized holes in a straight line across the leaf.", action: "Apply granules (e.g., Buldock) into the funnel or use 'Push-Pull' strategy." }
+    },
     init: function() {
         const view = document.getElementById('app-viewport');
         if(!view) return;
@@ -16,7 +22,7 @@ const agriEngine = {
         for (let i = 1; i < 100; i++) window.clearInterval(i);
         setInterval(() => {
             const el = document.getElementById('sys-clock');
-            if(el) el.innerText = new Date().toLocaleTimeString() + " | SOIL ANALYZER ACTIVE";
+            if(el) el.innerText = new Date().toLocaleTimeString() + " | BIO-SECURITY ACTIVE";
         }, 1000);
         this.sync();
     },
@@ -38,19 +44,19 @@ const agriEngine = {
                '<h3>🛠️ Smart Tools</h3>' +
                '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">' +
                '<button class="btn" onclick="agriEngine.calcYield()">📊 Yield</button>' +
-               '<button class="btn" onclick="agriEngine.findSeeds()" style="background:#fb5607;">🌱 Seeds</button>' +
+               '<button class="btn" onclick="agriEngine.pestScan()" style="background:#d00000;">🔍 Pest Scan</button>' +
                '<button class="btn" onclick="agriEngine.soilCalc()" style="background:#3a86ff;">🧪 Soil Lab</button>' +
                '<button class="btn" onclick="agriEngine.sendFeedback()" style="background:#4361ee;">📩 Message</button>' +
                '</div></div>';
     },
-    soilCalc: function() {
-        const level = prompt("Is your soil Nitrogen (N) level:\n1. Low\n2. Medium\n3. High", "1");
-        const acres = prompt("How many acres?", "1");
-        let recommendation = "";
-        if(level == "1") recommendation = "Apply 50kg of DAP at planting and 50kg of CAN per acre as top dress.";
-        else if(level == "2") recommendation = "Apply 25kg of DAP at planting and 50kg of CAN per acre as top dress.";
-        else recommendation = "Soil is fertile. Use organic compost and 25kg of CAN per acre.";
-        alert("SOIL RECOMMENDATION:\nFor " + acres + " Acre(s):\n\n" + recommendation);
+    pestScan: function() {
+        const choice = prompt("What do you see?\n1. Ragged holes & sawdust waste\n2. Yellowing from top & stunting\n3. Small pin-holes in a row", "1");
+        const pest = this.pestDB[choice];
+        if(pest) {
+            alert("IDENTIFIED: " + pest.name + "\n\nSYMPTOMS: " + pest.symptoms + "\n\nACTION: " + pest.action);
+        } else {
+            alert("Pest not found. Please contact Robin via Support for manual ID.");
+        }
     },
     getBroadcastHtml: function() {
         const msg = localStorage.getItem('agri_broadcast');
@@ -80,7 +86,7 @@ const agriEngine = {
     login: function() { const u = prompt("User:"), p = prompt("Pass:"); if(u === this.creds.user && p === this.creds.pass) { this.isAdmin = true; this.sync(); } },
     logout: function() { this.isAdmin = false; this.sync(); },
     calcYield: function() { const a = prompt("Acres:"); if(a) alert("Yield: " + (a*28) + " bags"); },
-    findSeeds: function() { alert("Highland: H614\nLowland: Katumani"); },
+    soilCalc: function() { alert("Use Soil Lab for detailed analysis."); },
     sendFeedback: function() { const m = prompt("Message:"); if(m) { const i = JSON.parse(localStorage.getItem('agri_inbox') || "[]"); i.push({user: "Farmer", msg: m}); localStorage.setItem('agri_inbox', JSON.stringify(i)); alert("Sent!"); } },
     postBroadcast: function() { const m = prompt("Broadcast:"); if(m) { localStorage.setItem('agri_broadcast', m); this.sync(); } },
     contactDev: function() { window.location.href = "https://wa.me/" + this.author.phone; }
