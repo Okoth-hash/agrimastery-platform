@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Admin & Marketplace</title>
+    <title>AgriMastery | Secure Admin Portal</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
         body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
@@ -12,72 +12,80 @@
         .badge { background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         input, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; margin: 8px 0; box-sizing: border-box; }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .admin-panel { border: 2px dashed var(--accent); margin-top: 30px; padding: 15px; border-radius: 12px; }
+        .admin-locked { border: 2px solid #555; padding: 20px; border-radius: 12px; text-align: center; margin-top: 30px; }
+        .admin-unlocked { border: 2px dashed var(--accent); padding: 15px; border-radius: 12px; margin-top: 30px; display: none; }
         .query-box { background: #081c15; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--accent); }
     </style>
 </head>
 <body>
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Enterprise 7-Layer System Active</small>
+        <small>Secure Enterprise Hub</small>
     </div>
 
     <div class="card">
-        <h3> Ask a Question (User)</h3>
+        <h3> Send Query to Admin</h3>
         <input type="text" id="userName" placeholder="Your Name">
-        <textarea id="userQuestion" placeholder="How can we help you today?"></textarea>
-        <button class="btn" onclick="adminEngine.submitQuery()">Submit to Admin</button>
+        <textarea id="userQuestion" placeholder="Ask Omondi a question..."></textarea>
+        <button class="btn" onclick="adminEngine.submitQuery()">Submit Query</button>
     </div>
 
-    <div class="admin-panel" id="adminDashboard">
-        <h3 style="color: var(--accent);"> Admin Query Dashboard</h3>
-        <div id="queryList">
-            <p style="font-size: 12px; opacity: 0.7;">No active queries yet...</p>
-        </div>
+    <div class="admin-locked" id="lockScreen">
+        <h3 style="color: #888;"> Admin Dashboard Locked</h3>
+        <input type="password" id="adminPass" placeholder="Enter Admin Pin" style="width: 60%;">
+        <button class="btn" style="width: 30%; background: #444;" onclick="adminEngine.unlock()">Unlock</button>
+    </div>
+
+    <div class="admin-unlocked" id="adminDashboard">
+        <h3 style="color: var(--accent);"> Live Admin Management</h3>
+        <div id="queryList"></div>
     </div>
 
     <script>
         const adminEngine = {
             queries: [],
+            passcode: "1234",
             adminPhone: "254742178833",
+
+            unlock: function() {
+                const pin = document.getElementById('adminPass').value;
+                if(pin === this.passcode) {
+                    document.getElementById('lockScreen').style.display = 'none';
+                    document.getElementById('adminDashboard').style.display = 'block';
+                } else {
+                    alert("Incorrect Pin");
+                }
+            },
 
             submitQuery: function() {
                 const name = document.getElementById('userName').value;
                 const text = document.getElementById('userQuestion').value;
-                
-                if(!name || !text) { alert("Please fill both fields"); return; }
+                if(!name || !text) return;
 
-                const newQuery = { id: Date.now(), sender: name, message: text, status: "Pending" };
-                this.queries.push(newQuery);
+                this.queries.push({ sender: name, message: text });
                 this.renderQueries();
-                
-                // Clear form
                 document.getElementById('userName').value = "";
                 document.getElementById('userQuestion').value = "";
-                alert("Query sent to Admin Dashboard!");
+                alert("Sent!");
             },
 
             renderQueries: function() {
                 const list = document.getElementById('queryList');
-                list.innerHTML = "";
-                
+                list.innerHTML = this.queries.length ? "" : "No queries.";
                 this.queries.forEach(q => {
                     list.innerHTML += \
                         <div class="query-box">
-                            <strong>From: \</strong> <span class="badge">\</span><br>
-                            <p style="margin: 5px 0;">\</p>
-                            <button class="btn" style="background:#ffca28; color:#000; font-size:12px; padding:5px;" 
-                                onclick="adminEngine.reply('\', '\')">
-                                Reply via WhatsApp
-                            </button>
+                            <strong>From: \</strong><br>
+                            <p>\</p>
+                            <button class="btn" style="background:var(--accent); color:#000; font-size:11px;" 
+                                onclick="adminEngine.reply('\', '\')">Reply via WhatsApp</button>
                         </div>\;
                 });
             },
 
-            reply: function(sender, originalMsg) {
-                const replyText = "Hello " + sender + ", regarding your query: '" + originalMsg + "' - here is the answer: ";
-                const waLink = "https://wa.me/" + this.adminPhone + "?text=" + encodeURIComponent(replyText);
-                window.open(waLink);
+            reply: function(sender, msg) {
+                const link = "https://wa.me/" + this.adminPhone + "?text=" + encodeURIComponent("REPLY TO " + sender + ": ");
+                window.open(link);
             }
         };
     </script>
