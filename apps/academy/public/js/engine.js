@@ -1,19 +1,10 @@
 const agriEngine = {
     author: { name: "Omondi Robin Okoth", phone: "254742178833", email: "okothrobin323@gmail.com" },
-    isAdmin: localStorage.getItem('agri_admin_active') === 'true',
-    // Sample of the 5,000+ Database (Expandable)
-    lexiconData: [
-        { term: "Aflatoxin", desc: "Toxic fungi found in maize due to moisture.", img: "https://images.unsplash.com/photo-1594750801162-431872856578?auto=format&fit=crop&w=300&q=80" },
-        { term: "Agroforestry", desc: "Planting trees among crops for soil health.", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=300&q=80" },
-        { term: "Dormancy", desc: "The resting period of a seed before growth.", img: "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=300&q=80" },
-        { term: "Integrated Pest Management", desc: "Ecological way to control pests.", img: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=300&q=80" },
-        { term: "Tillage", desc: "Preparing soil by digging or plowing.", img: "https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c18?auto=format&fit=crop&w=300&q=80" },
-        { term: "Hydroponics", desc: "Growing plants in water without soil.", img: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?auto=format&fit=crop&w=300&q=80" }
-    ],
+    currentUser: JSON.parse(localStorage.getItem('agri_logged_in_user')),
     init: function() {
         const view = document.getElementById('app-viewport');
         if(!view) return;
-        ['broadcast', 'lexicon', 'academy', 'admin'].forEach(sec => {
+        ['academy'].forEach(sec => {
             if(!document.getElementById('section-' + sec)) {
                 const div = document.createElement('div');
                 div.id = 'section-' + sec;
@@ -23,47 +14,43 @@ const agriEngine = {
         this.sync();
     },
     sync: function() {
-        this.updateSection('lexicon', this.getLexiconHtml());
         this.updateSection('academy', this.getAcademyHtml());
     },
     updateSection: function(id, html) {
         const el = document.getElementById('section-' + id);
         if(el) el.innerHTML = html;
     },
-    getLexiconHtml: function() {
-        let h = '<div class="card" style="background:#fff;">' +
-               '<h2 style="color:#2d6a4f; margin-bottom:5px;">🔍 Agri-Lexicon</h2>' +
-               '<p style="font-size:11px; color:#666; margin-bottom:10px;">Search 5,000+ catchy terms with visuals.</p>' +
-               '<input type="text" id="lex-search" onkeyup="agriEngine.searchLexicon()" placeholder="Type a term (e.g. Aflatoxin)..." style="width:94%; padding:12px; border:2px solid #eee; border-radius:8px; margin-bottom:15px; font-size:16px;">' +
-               '<div id="lex-results" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:400px; overflow-y:auto; padding-bottom:10px;">';
-        // Initial display of first few terms
-        this.lexiconData.slice(0, 4).forEach(item => {
-            h += this.renderLexCard(item);
-        });
-        h += '</div></div>';
-        return h;
+    getAcademyHtml: function() {
+        if(!this.currentUser) return '<div class="card"><h3>🎓 Portal Login</h3><p>Please enter your ID.</p></div>';
+        return '<div class="card" id="course-container" style="background:white; transition: 0.3s;">' +
+               '<h3>📖 Course: Advanced Maize Production</h3>' +
+               '<p>Status: Active Student</p>' +
+               '<div id="immersive-content" style="display:none; padding:40px; background:#fff; overflow-y:auto; height:90vh;">' +
+               '<button onclick="agriEngine.toggleFullScreen()" style="position:fixed; top:20px; right:20px; background:red; color:white; border:none; padding:10px; cursor:pointer; z-index:1000;">✕ Close Full Screen</button>' +
+               '<h1 style="color:#2d6a4f;">Volume 1: Soil Management (Comprehensive)</h1>' +
+               '<p style="font-size:18px; line-height:1.6;">Welcome to the deep-dive training. This section contains over 1,000 pages of research and practical guides...</p>' +
+               '<img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80" style="width:100%; border-radius:15px; margin:20px 0;">' +
+               '<p>Chapter 1: Nitrogen Cycles and Soil PH levels for Kenya Highlands...</p>' +
+               '</div>' +
+               '<button class="btn" style="width:100%; background:#1a73e8;" onclick="agriEngine.toggleFullScreen()">🚀 Launch Full-Screen Course</button>' +
+               '</div>';
     },
-    renderLexCard: function(item) {
-        return '<div class="lex-item" style="border:1px solid #eee; border-radius:10px; overflow:hidden; background:#fdfdfd; box-shadow:0 2px 5px rgba(0,0,0,0.05);">' +
-               '<img src="' + item.img + '" style="width:100%; height:100px; object-fit:cover;">' +
-               '<div style="padding:8px;">' +
-               '<b style="font-size:12px; color:#1b4332; display:block;">' + item.term + '</b>' +
-               '<span style="font-size:10px; color:#555; line-height:1.2; display:block;">' + item.desc + '</span>' +
-               '</div></div>';
-    },
-    searchLexicon: function() {
-        const query = document.getElementById('lex-search').value.toLowerCase();
-        const resultsBox = document.getElementById('lex-results');
-        let matches = this.lexiconData.filter(item => item.term.toLowerCase().includes(query));
-        resultsBox.innerHTML = '';
-        if(matches.length === 0) {
-            resultsBox.innerHTML = '<p style="grid-column: span 2; text-align:center; color:#999; padding:20px;">No matching terms found.</p>';
+    toggleFullScreen: function() {
+        const doc = window.document;
+        const docEl = document.getElementById('course-container');
+        const content = document.getElementById('immersive-content');
+        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+            requestFullScreen.call(docEl).then(() => {
+                content.style.display = 'block';
+                docEl.style.padding = '0';
+            });
         } else {
-            matches.forEach(item => {
-                resultsBox.innerHTML += this.renderLexCard(item);
+            cancelFullScreen.call(doc).then(() => {
+                content.style.display = 'none';
             });
         }
-    },
-    getAcademyHtml: function() { return '<div class="card"><h3>🎓 Academy Active</h3></div>'; }
+    }
 };
 agriEngine.init();
