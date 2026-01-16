@@ -4,17 +4,23 @@ const agriEngine = {
         phone: "254742178833",
         email: "okothrobin323@gmail.com"
     },
-    // Agronomy Data for Weather Card
-    weather: {
-        temp: "24°C",
-        condition: "Partly Cloudy",
-        forecast: "Rain expected in 48hrs",
-        advice: "Good timing for Top-dressing (CAN)."
-    },
+    weather: { temp: "24°C", condition: "Partly Cloudy" },
     lessons: [
-        { title: "Soil pH & Testing", content: "Measure pH before planting. Target 5.8-7.0 for maximum yield." },
-        { title: "Fertilizer Timing", content: "Apply DAP at planting and CAN/Urea 3-4 weeks after germination." },
-        { title: "Pest Management", content: "Scout for Fall Armyworm early morning or late evening." }
+        { 
+            title: "Soil pH & Testing", 
+            content: "Measure pH before planting. Target 5.8-7.0 for maximum yield.",
+            weatherAdvice: "Low wind today. Perfect for taking soil samples without dust interference."
+        },
+        { 
+            title: "Fertilizer Timing", 
+            content: "Apply DAP at planting and CAN/Urea 3-4 weeks after germination.",
+            weatherAdvice: "Rain expected in 48hrs. Ideal time to apply CAN top-dressing!"
+        },
+        { 
+            title: "Pest Management", 
+            content: "Scout for Fall Armyworm early morning or late evening.",
+            weatherAdvice: "High humidity tonight. Watch out for increased fungal activity."
+        }
     ],
     quiz: { q: "Which fertilizer is best for top-dressing maize?", options: ["DAP", "CAN/Urea", "NPK"], correct: 1 },
     init: function() {
@@ -30,12 +36,19 @@ const agriEngine = {
     },
     render: function(view, student, market) {
         let html = '';
-        // --- 1. WEATHER & PLANTING FORECAST (New Utility) ---
+        // Determine Advice based on Student Step
+        let currentAdvice = "Register as a student to get personalized agronomy advice.";
+        if(student && student.step < this.lessons.length) {
+            currentAdvice = this.lessons[student.step].weatherAdvice;
+        } else if (student && student.passed) {
+            currentAdvice = "Mastery Achieved. Keep monitoring local rain patterns for harvest.";
+        }
+        // --- 1. DYNAMIC WEATHER CARD ---
         html += '<div class="card" style="border-left:5px solid #00b4d8; background:rgba(0, 180, 216, 0.05);">' +
-                '<h3 style="color:#00b4d8;">☁️ Weather Forecast</h3>' +
+                '<h3 style="color:#00b4d8;">☁️ Smart Forecast</h3>' +
                 '<div style="display:flex; justify-content:space-between; align-items:center;">' +
                 '<div><h2 style="margin:0;">' + this.weather.temp + '</h2><small>' + this.weather.condition + '</small></div>' +
-                '<div style="text-align:right;"><small style="color:#aaa;">Advice:</small><br><strong>' + this.weather.advice + '</strong></div>' +
+                '<div style="text-align:right; max-width:60%;"><small style="color:#aaa;">Lesson-Linked Advice:</small><br><strong>' + currentAdvice + '</strong></div>' +
                 '</div></div>';
         // --- 2. STUDENT ACADEMY ---
         if(!student) {
@@ -57,7 +70,7 @@ const agriEngine = {
                     '<button class="btn" onclick="agriEngine.nextStep()">Complete Lesson</button></div>';
         }
         // --- 3. MARKET MANAGER ---
-        html += '<div class="card"><h3>📦 Market Manager</h3>' +
+        html += '<div class="card"><h3>📦 Market Logistics</h3>' +
                 '<div style="display:flex; gap:5px;">' +
                 '<input type="text" id="mItem" placeholder="Crop" style="flex:2; padding:8px; background:#000; color:white; border:1px solid #333;">' +
                 '<input type="number" id="mPrice" placeholder="Price" style="flex:1; padding:8px; background:#000; color:white; border:1px solid #333;">' +
@@ -67,9 +80,10 @@ const agriEngine = {
         html += '<div class="card" style="background:#0a0a0a; border:1px solid #444;">' +
                 '<h3>🛡️ Admin Dashboard</h3>' +
                 '<p style="font-size:0.8em;">Author: ' + this.author.name + '</p>' +
-                '<a href="https://wa.me/' + this.author.phone + '" class="btn" style="background:#25d366; color:white; display:block; text-align:center; text-decoration:none; margin:10px 0;">WhatsApp Author</a>' +
-                '<button class="btn" style="background:none; border:1px solid red; color:red; width:100%; font-size:10px;" onclick="agriEngine.reset()">System Reset</button>' +
-                '</div>';
+                '<div style="display:flex; gap:10px;">' +
+                '<a href="https://wa.me/' + this.author.phone + '" class="btn" style="background:#25d366; color:white; flex:1; text-align:center; text-decoration:none;">WhatsApp</a>' +
+                '<button class="btn" style="background:none; border:1px solid red; color:red; flex:1; font-size:10px;" onclick="agriEngine.reset()">Reset</button>' +
+                '</div></div>';
         view.innerHTML = html;
     },
     enroll: function() {
