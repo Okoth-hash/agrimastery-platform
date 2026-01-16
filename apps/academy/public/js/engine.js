@@ -1,10 +1,14 @@
 const agriEngine = {
     lessons: [
-        { title: "Introduction to Soil pH", content: "Maize thrives in pH 5.8 to 7.0. Acidic soil locks nutrients." },
-        { title: "Nitrogen (N) Essentials", content: "Nitrogen drives leaf growth. Apply top-dressing at knee-high stage." },
-        { title: "Phosphorus (P) for Roots", content: "P is critical during planting for strong root establishment." },
-        { title: "Potassium (K) & Strength", content: "K helps the stalk stay strong against wind and pests." }
+        { title: "Soil pH", content: "Maize thrives in pH 5.8 to 7.0. Acidic soil locks nutrients." },
+        { title: "Nitrogen (N)", content: "Nitrogen drives leaf growth. Apply top-dressing at knee-high stage." },
+        { title: "Phosphorus (P)", content: "Critical during planting for strong root establishment." }
     ],
+    quiz: {
+        question: "What is the ideal pH range for Maize production?",
+        options: ["4.0 - 5.0", "5.8 - 7.0", "8.0 - 9.0"],
+        correct: 1
+    },
     init: function() {
         for (let i = 1; i < 100; i++) window.clearInterval(i);
         this.sync();
@@ -13,54 +17,64 @@ const agriEngine = {
         const view = document.getElementById('app-viewport');
         if(!view) return;
         const student = JSON.parse(localStorage.getItem('agri_student'));
-        const market = JSON.parse(localStorage.getItem('agri_market')) || [];
-        this.renderAll(view, student, market);
+        this.renderAll(view, student);
     },
-    renderAll: function(view, student, market) {
+    renderAll: function(view, student) {
         let ui = '';
-        // --- STUDENT DASHBOARD WITH LESSON AREA ---
         if(!student) {
             ui += '<div class="card"><h3>🎓 Enrollment</h3>' +
                   '<input type="text" id="nameIn" placeholder="Full Name" style="width:90%; padding:10px; margin:5px 0; background:#000; color:#fff; border:1px solid #2d6a4f;">' +
                   '<button class="btn" onclick="agriEngine.reg()">Enrol Now</button></div>';
+        } else if (student.passedQuiz) {
+            ui += '<div class="card" style="border:2px solid #ffcc00; text-align:center;">' +
+                  '<h3>🏆 Month 1 Certified</h3>' +
+                  '<p>Congratulations ' + student.name + '! You have unlocked Month 2.</p>' +
+                  '<button class="btn" style="background:#ffcc00; color:#000;">Enter Month 2 Modules</button></div>';
+        } else if (student.currentLesson >= this.lessons.length) {
+            ui += '<div class="card"><h3>📝 Month 1 Final Quiz</h3>' +
+                  '<p>' + this.quiz.question + '</p>';
+            this.quiz.options.forEach((opt, idx) => {
+                ui += '<button class="btn" style="background:#1a1a1a; margin:5px 0; width:100%; text-align:left;" onclick="agriEngine.checkQuiz(' + idx + ')">' + (idx+1) + '. ' + opt + '</button>';
+            });
+            ui += '</div>';
         } else {
-            const progIndex = student.currentLesson || 0;
-            const progPercent = (progIndex / this.lessons.length) * 100;
-            ui += '<div class="card" style="border-left:5px solid #ffcc00;">' +
-                  '<h3>🎓 Student: ' + student.name + '</h3>' +
-                  '<div style="width:100%; background:#333; height:10px; border-radius:5px; margin:10px 0;">' +
-                  '<div style="width:' + progPercent + '%; background:#ffcc00; height:100%; border-radius:5px; transition:0.5s;"></div>' +
-                  '</div>' +
-                  '<div class="result-card" style="background:#1a1a1a; margin-top:15px;">' +
-                  '<h4>📖 ' + this.lessons[progIndex].title + '</h4>' +
-                  '<p style="font-size:0.9em; color:#ddd;">' + this.lessons[progIndex].content + '</p>' +
-                  '</div>' +
-                  '<button class="btn" style="width:100%; margin-top:10px;" onclick="agriEngine.nextLesson()">Complete & Next Lesson</button></div>';
+            const prog = (student.currentLesson / this.lessons.length) * 100;
+            ui += '<div class="card"><h3>🎓 Lesson ' + (student.currentLesson + 1) + '</h3>' +
+                  '<div style="width:100%; background:#333; height:8px; border-radius:4px;"><div style="width:' + prog + '%; background:#ffcc00; height:100%;"></div></div>' +
+                  '<h4>' + this.lessons[student.currentLesson].title + '</h4>' +
+                  '<p>' + this.lessons[student.currentLesson].content + '</p>' +
+                  '<button class="btn" style="width:100%;" onclick="agriEngine.next()">Next Lesson</button></div>';
         }
-        // --- ADMIN DASHBOARD ---
-        ui += '<div class="card" style="background:rgba(0,0,0,0.5);"><h3>🛡️ Admin Oversight</h3>' +
-              '<p>Student Name: ' + (student ? student.name : 'None') + '</p>' +
-              '<p>Lessons Finished: ' + (student ? student.currentLesson : 0) + '</p>' +
-              '<button class="btn" style="background:#500; border:none; font-size:10px;" onclick="agriEngine.reset()">System Reset</button></div>';
+        // --- ADMIN VIEW ---
+        ui += '<div class="card" style="background:rgba(0,0,0,0.5); font-size:0.8em;">' +
+              '<h3>🛡️ Admin Monitor</h3>' +
+              '<p>Student: ' + (student ? student.name : 'None') + '</p>' +
+              '<p>Status: ' + (student?.passedQuiz ? '✅ CERTIFIED' : '📖 LEARNING') + '</p></div>';
         view.innerHTML = ui;
     },
     reg: function() {
         const n = document.getElementById('nameIn').value;
-        if(n) {
-            localStorage.setItem('agri_student', JSON.stringify({name: n, currentLesson: 0}));
-            this.sync();
-        }
+        if(n) { localStorage.setItem('agri_student', JSON.stringify({name: n, currentLesson: 0, passedQuiz: false})); this.sync(); }
     },
-    nextLesson: function() {
+    next: function() {
         let s = JSON.parse(localStorage.getItem('agri_student'));
-        if(s.currentLesson < this.lessons.length - 1) {
-            s.currentLesson += 1;
+        s.currentLesson++;
+        localStorage.setItem('agri_student', JSON.stringify(s));
+        this.sync();
+    },
+    checkQuiz: function(idx) {
+        if(idx === this.quiz.correct) {
+            let s = JSON.parse(localStorage.getItem('agri_student'));
+            s.passedQuiz = true;
             localStorage.setItem('agri_student', JSON.stringify(s));
             this.sync();
         } else {
-            alert("Congratulations! You have completed the Soil Chemistry module.");
+            alert("Incorrect. Review your lessons and try again!");
+            let s = JSON.parse(localStorage.getItem('agri_student'));
+            s.currentLesson = 0; // Reset to start for review
+            localStorage.setItem('agri_student', JSON.stringify(s));
+            this.sync();
         }
-    },
-    reset: function() { localStorage.clear(); location.reload(); }
+    }
 };
 agriEngine.init();
