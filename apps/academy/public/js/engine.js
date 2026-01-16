@@ -24,64 +24,68 @@ const agriEngine = {
         const el = document.getElementById('section-' + id);
         if(el) el.innerHTML = html;
     },
-    // --- GLOBAL BROADCAST LOGIC ---
-    getBroadcastHtml: function() {
-        const msg = localStorage.getItem('agri_global_msg');
-        if(!msg) return '';
-        return '<div style="background:#ffcc00; color:#000; padding:12px; font-weight:bold; text-align:center; border-bottom:2px solid #000; position:relative;">' +
-               '📢 ADMIN NOTICE: ' + msg + 
-               (this.isAdmin ? '<span onclick="agriEngine.clearBroadcast()" style="float:right; cursor:pointer; padding:0 10px;">[X]</span>' : '') +
-               '</div>';
-    },
-    postBroadcast: function() {
-        const msg = prompt("Enter the message for ALL students:");
-        if(msg) {
-            localStorage.setItem('agri_global_msg', msg);
-            this.sync();
-        }
-    },
-    clearBroadcast: function() {
-        localStorage.removeItem('agri_global_msg');
-        this.sync();
-    },
-    // --- ADMIN DASHBOARD ---
-    getAdminHtml: function() {
-        let h = '<div class="card" style="background:#000; color:white; border:1px solid #333;">';
-        if(this.isAdmin) {
-            h += '<h3 style="color:lime; margin-top:0;">👨‍✈️ Master Controller</h3>';
-            h += '<button class="btn" style="width:100%; background:#ff9100; color:black; font-weight:bold; margin-bottom:10px;" onclick="agriEngine.postBroadcast()">📢 Send Global Broadcast</button>';
-            h += '<input type="text" id="admin-search" onkeyup="agriEngine.filterRoster()" placeholder="Search Roster..." style="width:92%; padding:8px; background:#111; color:lime; border:1px solid #333; margin-bottom:10px;">';
-            const roster = JSON.parse(localStorage.getItem('agri_master_roster') || "[]");
-            h += '<div id="roster-container" style="font-size:10px; max-height:180px; overflow-y:auto; background:#050505;">';
-            h += '<table style="width:100%; border-collapse:collapse;" id="roster-table">';
-            roster.forEach(u => {
-                const p = Math.round(((u.month * 4 + u.step) / 16) * 100);
-                h += '<tr class="roster-row" style="border-bottom:1px solid #111;">';
-                h += '<td style="padding:6px;">' + u.name + ' (' + p + '%)</td>';
-                h += '<td align="right" style="color:#666;">' + (u.lastLogin ? u.lastLogin.split(',')[0] : 'N/A') + '</td></tr>';
-            });
-            h += '</table></div>';
-            h += '<button class="btn" style="width:100%; margin-top:10px; background:#d00000;" onclick="agriEngine.adminLogout()">Logout</button>';
+    getAcademyHtml: function() {
+        if(!this.currentUser) return '<div class="card"><h3>🎓 Portal Login</h3><input type="number" id="login-id" placeholder="ID Number"><button class="btn" onclick="agriEngine.portalLogin()">Access Portal</button></div>';
+        const prog = Math.round(((this.currentUser.month * 4 + this.currentUser.step) / 16) * 100);
+        let h = '<div class="card" style="border-left:5px solid #2d6a4f;">' +
+               '<div style="display:flex; justify-content:space-between;"><b>STUDENT PORTAL</b> <span onclick="agriEngine.portalLogout()" style="color:red; cursor:pointer; font-size:12px;">Logout</span></div>' +
+               '<h2>' + this.currentUser.name + '</h2>' +
+               '<div style="background:#eee; height:12px; border-radius:6px; margin:10px 0;"><div style="width:'+prog+'%; background:#409167; height:100%; border-radius:6px;"></div></div>' +
+               '<p>Progress: ' + prog + '%</p>';
+        if(prog >= 100) {
+            h += '<div style="background:#fff9c4; border:1px dashed #fbc02d; padding:15px; text-align:center; border-radius:8px; margin-top:10px;">' +
+                 '🎊 <b>CONGRATULATIONS!</b><br>You are a Certified Master Farmer.<br>' +
+                 '<button class="btn" style="background:#fbc02d; color:#000; width:100%; margin-top:10px;" onclick="agriEngine.generateCert()">📜 Download Certificate</button>' +
+                 '</div>';
         } else {
-            h += '<button class="btn" style="background:none; border:1px solid #444; width:100%; color:#666;" onclick="agriEngine.adminLogin()">Admin Login</button>';
+            h += '<button class="btn" style="width:100%;" onclick="agriEngine.nextStep()">Mark Lesson Complete</button>';
         }
         return h + '</div>';
     },
-    // --- SUPPORTING LOGIC ---
+    generateCert: function() {
+        const date = new Date().toLocaleDateString();
+        const certWindow = window.open('', '_blank');
+        certWindow.document.write(
+            <html>
+            <head><title>Certificate - </title></head>
+            <body style="font-family:serif; text-align:center; padding:50px; border:20px solid #2d6a4f;">
+                <h1 style="font-size:50px; color:#2d6a4f;">AgriMastery Academy</h1>
+                <p style="font-size:20px;">This is to certify that</p>
+                <h2 style="font-size:40px; text-decoration:underline;"></h2>
+                <p style="font-size:20px;">has successfully completed the 4-Month</p>
+                <h3>MASTER FARMER PROGRAM IN MAIZE PRODUCTION</h3>
+                <p>Awarded on: </p>
+                <div style="margin-top:50px;">
+                    <div style="display:inline-block; width:200px; border-top:2px solid #000;">Director of Academy</div>
+                    <div style="display:inline-block; width:50px;"></div>
+                    <div style="display:inline-block; width:200px; border-top:2px solid #000;">Certified By: Robin</div>
+                </div>
+                <div style="margin-top:30px; color:#aaa; font-size:10px;">ID Verification: </div>
+            </body>
+            </html>
+        );
+        certWindow.print();
+    },
+    // --- LOGIC SYNC ---
+    nextStep: function() {
+        if(this.currentUser.month >= 4) return;
+        this.currentUser.step++;
+        if(this.currentUser.step >= 4) { this.currentUser.month++; this.currentUser.step = 0; }
+        localStorage.setItem('agri_logged_in_user', JSON.stringify(this.currentUser));
+        const roster = JSON.parse(localStorage.getItem('agri_master_roster') || "[]");
+        const idx = roster.findIndex(u => u.id === this.currentUser.id);
+        if(idx !== -1) { roster[idx] = this.currentUser; localStorage.setItem('agri_master_roster', JSON.stringify(roster)); }
+        this.sync();
+    },
     adminLogin: function() { if(prompt("User:")==="robin" && prompt("Pass:")==="1234") { this.isAdmin=true; localStorage.setItem('agri_admin_active','true'); this.sync(); } },
     adminLogout: function() { this.isAdmin=false; localStorage.setItem('agri_admin_active','false'); this.sync(); },
-    filterRoster: function() {
-        const input = document.getElementById("admin-search").value.toUpperCase();
-        const tr = document.getElementById("roster-table").getElementsByClassName("roster-row");
-        for (let i = 0; i < tr.length; i++) {
-            const txt = tr[i].innerText || tr[i].textContent;
-            tr[i].style.display = txt.toUpperCase().indexOf(input) > -1 ? "" : "none";
-        }
+    getAdminHtml: function() {
+        let h = '<div class="card" style="background:#000; color:white;">';
+        if(this.isAdmin) h += '<h4>Admin Portal Active</h4><button class="btn" onclick="agriEngine.adminLogout()">Logout</button>';
+        else h += '<button class="btn" style="background:none; color:#666;" onclick="agriEngine.adminLogin()">Admin Login</button>';
+        return h + '</div>';
     },
-    getAcademyHtml: function() {
-        if(!this.currentUser) return '<div class="card"><h3>🎓 Portal Login</h3><input type="number" id="login-id" placeholder="ID Number"><button class="btn" onclick="agriEngine.portalLogin()">Access Portal</button></div>';
-        return '<div class="card"><h3>👋 Welcome, ' + this.currentUser.name + '</h3><button class="btn" onclick="agriEngine.portalLogout()">Exit Portal</button></div>';
-    },
+    getBroadcastHtml: function() { const m = localStorage.getItem('agri_global_msg'); return m ? '<div style="background:#ffcc00; padding:10px; text-align:center;">📢 ' + m + '</div>' : ''; },
     portalLogin: function() {
         const id = document.getElementById('login-id').value;
         const roster = JSON.parse(localStorage.getItem('agri_master_roster') || "[]");
