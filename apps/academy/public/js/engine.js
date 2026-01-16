@@ -2,12 +2,6 @@ const agriEngine = {
     author: { name: "Omondi Robin Okoth", phone: "254742178833", email: "okothrobin323@gmail.com" },
     isAdmin: false,
     creds: { user: "robin", pass: "1234" },
-    // PEST DATABASE
-    pestDB: {
-        "1": { name: "Fall Armyworm", symptoms: "Ragged holes in leaves, sawdust-like waste (frass) in the funnel.", action: "Apply Belt or Escort. Rotate chemicals to prevent resistance." },
-        "2": { name: "Maize Lethal Necrosis", symptoms: "Yellowing leaves starting from the top, stunted growth, small cobs.", action: "Uproot infected plants immediately. Practice crop rotation next season." },
-        "3": { name: "Stem Borer", symptoms: "Pin-sized holes in a straight line across the leaf.", action: "Apply granules (e.g., Buldock) into the funnel or use 'Push-Pull' strategy." }
-    },
     init: function() {
         const view = document.getElementById('app-viewport');
         if(!view) return;
@@ -22,7 +16,7 @@ const agriEngine = {
         for (let i = 1; i < 100; i++) window.clearInterval(i);
         setInterval(() => {
             const el = document.getElementById('sys-clock');
-            if(el) el.innerText = new Date().toLocaleTimeString() + " | BIO-SECURITY ACTIVE";
+            if(el) el.innerText = new Date().toLocaleTimeString() + " | HARVEST TIMER ACTIVE";
         }, 1000);
         this.sync();
     },
@@ -44,19 +38,26 @@ const agriEngine = {
                '<h3>🛠️ Smart Tools</h3>' +
                '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">' +
                '<button class="btn" onclick="agriEngine.calcYield()">📊 Yield</button>' +
+               '<button class="btn" onclick="agriEngine.harvestTimer()" style="background:#57cc99;">📅 Harvest Clock</button>' +
                '<button class="btn" onclick="agriEngine.pestScan()" style="background:#d00000;">🔍 Pest Scan</button>' +
                '<button class="btn" onclick="agriEngine.soilCalc()" style="background:#3a86ff;">🧪 Soil Lab</button>' +
-               '<button class="btn" onclick="agriEngine.sendFeedback()" style="background:#4361ee;">📩 Message</button>' +
                '</div></div>';
     },
-    pestScan: function() {
-        const choice = prompt("What do you see?\n1. Ragged holes & sawdust waste\n2. Yellowing from top & stunting\n3. Small pin-holes in a row", "1");
-        const pest = this.pestDB[choice];
-        if(pest) {
-            alert("IDENTIFIED: " + pest.name + "\n\nSYMPTOMS: " + pest.symptoms + "\n\nACTION: " + pest.action);
-        } else {
-            alert("Pest not found. Please contact Robin via Support for manual ID.");
-        }
+    harvestTimer: function() {
+        const pDateStr = prompt("When did you plant? (YYYY-MM-DD)", "2025-10-15");
+        if(!pDateStr) return;
+        const pDate = new Date(pDateStr);
+        if(isNaN(pDate.getTime())) { alert("Invalid date format."); return; }
+        // Average maize maturity is approx 135 days for mid-altitude
+        const maturityDate = new Date(pDate);
+        maturityDate.setDate(pDate.getDate() + 135);
+        const dryingDate = new Date(maturityDate);
+        dryingDate.setDate(maturityDate.getDate() + 14);
+        alert("📅 HARVEST SCHEDULE:\n\n" +
+              "Physiological Maturity: " + maturityDate.toDateString() + "\n" +
+              "(Grain is ready, moisture is high)\n\n" +
+              "Safe Harvest Date: " + dryingDate.toDateString() + "\n" +
+              "(After field drying for 14 days)");
     },
     getBroadcastHtml: function() {
         const msg = localStorage.getItem('agri_broadcast');
@@ -86,9 +87,8 @@ const agriEngine = {
     login: function() { const u = prompt("User:"), p = prompt("Pass:"); if(u === this.creds.user && p === this.creds.pass) { this.isAdmin = true; this.sync(); } },
     logout: function() { this.isAdmin = false; this.sync(); },
     calcYield: function() { const a = prompt("Acres:"); if(a) alert("Yield: " + (a*28) + " bags"); },
-    soilCalc: function() { alert("Use Soil Lab for detailed analysis."); },
-    sendFeedback: function() { const m = prompt("Message:"); if(m) { const i = JSON.parse(localStorage.getItem('agri_inbox') || "[]"); i.push({user: "Farmer", msg: m}); localStorage.setItem('agri_inbox', JSON.stringify(i)); alert("Sent!"); } },
-    postBroadcast: function() { const m = prompt("Broadcast:"); if(m) { localStorage.setItem('agri_broadcast', m); this.sync(); } },
-    contactDev: function() { window.location.href = "https://wa.me/" + this.author.phone; }
+    pestScan: function() { alert("Use Pest Scan for identification."); },
+    soilCalc: function() { alert("Use Soil Lab for analysis."); },
+    postBroadcast: function() { const m = prompt("Broadcast:"); if(m) { localStorage.setItem('agri_broadcast', m); this.sync(); } }
 };
 agriEngine.init();
