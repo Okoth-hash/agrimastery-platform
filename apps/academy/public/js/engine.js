@@ -1,4 +1,4 @@
-const agriEngine = {
+﻿const agriEngine = {
     inventory: JSON.parse(localStorage.getItem('agri_inv')) || [{name: "Maize", price: "KES 3,200"}],
     modules: {
         public: \<div class='card'><h3> Marketplace</h3><input type='text' id='searchInput' placeholder='Search...' onkeyup='agriEngine.search()'><div id='searchResults'></div></div><button class='btn' style='background:none;color:var(--accent);' onclick='agriEngine.load(\"login\")'>Admin Portal</button>\,
