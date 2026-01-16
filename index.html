@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Robin L1 Physical</title>
+    <title>AgriMastery | Market Master</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
-        body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
+        body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
         .header { text-align: center; padding: 10px; border-bottom: 2px solid var(--primary); }
-        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); position: relative; z-index: 2; }
-        .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        input { width: 90%; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid var(--primary); background: #081c15; color: white; }
-        #bitStream { position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: rgba(45, 106, 79, 0.2); font-family: monospace; font-size: 10px; line-height: 10px; overflow: hidden; z-index: 1; pointer-events: none; }
+        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--primary); }
+        .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid var(--primary); background: #081c15; color: white; box-sizing: border-box; }
+        .product-item { background: #081c15; padding: 10px; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--primary); }
     </style>
 </head>
 <body onload="agriEngine.init()">
-
-    <div id="bitStream"></div>
 
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
@@ -24,62 +22,89 @@
     </div>
 
     <div class="card" id="lockScreen" style="text-align:center;">
-        <h3 style="color: var(--accent);">Final Layer Authorization</h3>
-        <p style="font-size:12px;">Pulse: 101011001...</p>
+        <h3>Admin Secure Access</h3>
         <input type="text" id="adminUser" placeholder="Username (robin)">
         <input type="password" id="adminPass" placeholder="Password (1234)">
-        <button class="btn" onclick="agriEngine.login()">Sync with Hardware</button>
+        <button class="btn" onclick="agriEngine.login()">Authorize</button>
     </div>
 
     <div id="adminDashboard" style="display:none;">
         <div class="card">
-            <h3>Full 7-Layer Stack: <span style="color:#25d366">ONLINE</span></h3>
-            <p>Authorized User: <strong>Robin</strong></p>
-            <hr style="border:0; border-top:1px solid #444;">
-            <p><strong>System Diagnostics:</strong></p>
-            <div style="font-size: 12px; line-height: 1.6; background: #081c15; padding: 10px; border-radius: 8px;">
-                L7: App UI Active<br>
-                L6: Memory Persistent<br>
-                L5: Session Secured<br>
-                L4: TCP Optimized<br>
-                L3: Route: Eldoret -> GitHub<br>
-                L2: MAC: 00-B0-D0...<br>
-                L1: Physical Bits flowing
-            </div>
-            <button class="btn" style="margin-top:15px; background:#8b0000;" onclick="agriEngine.logout()">System Shutdown</button>
+            <h3 style="color: var(--accent);"> Marketplace Manager</h3>
+            <p>Add new products for the Kenya Hub.</p>
+            <input type="text" id="itemName" placeholder="Crop Name (e.g. Wheat)">
+            <input type="text" id="itemPrice" placeholder="Price (e.g. KES 4,500)">
+            <button class="btn" onclick="agriEngine.addProduct()">Add to Marketplace</button>
+        </div>
+
+        <div class="card">
+            <h3>Current Inventory</h3>
+            <div id="inventoryList"></div>
+            <button class="btn" style="background:#8b0000;" onclick="agriEngine.logout()">System Shutdown</button>
         </div>
     </div>
 
     <script>
         const agriEngine = {
+            // LAYER 6: Persistent Inventory
+            inventory: JSON.parse(localStorage.getItem('agri_inv')) || [
+                {name: "Maize", price: "KES 3,200"},
+                {name: "Beans", price: "KES 8,500"}
+            ],
+
             init: function() {
-                this.generateBits();
                 if (sessionStorage.getItem('admin_session') === "robin_active") this.showDashboard();
             },
-            generateBits: function() {
-                const stream = document.getElementById('bitStream');
-                let bits = "";
-                for(let i=0; i<3000; i++) { bits += Math.round(Math.random()); }
-                stream.innerText = bits;
-            },
+
             login: function() {
-                const u = document.getElementById('adminUser').value.toLowerCase().trim(); // Fixes capitalization
+                const u = document.getElementById('adminUser').value.toLowerCase().trim();
                 const p = document.getElementById('adminPass').value.trim();
-                
                 if(u === "robin" && p === "1234") {
                     sessionStorage.setItem('admin_session', 'robin_active');
                     this.showDashboard();
-                } else { 
-                    alert("Signal Rejected: Check your username/password."); 
-                }
+                } else { alert("Rejected."); }
             },
-            logout: function() {
-                sessionStorage.removeItem('admin_session');
-                location.reload();
-            },
+
             showDashboard: function() {
                 document.getElementById('lockScreen').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
+                this.renderInventory();
+            },
+
+            addProduct: function() {
+                const name = document.getElementById('itemName').value;
+                const price = document.getElementById('itemPrice').value;
+                if(!name || !price) return;
+
+                this.inventory.push({name, price});
+                localStorage.setItem('agri_inv', JSON.stringify(this.inventory));
+                this.renderInventory();
+                
+                document.getElementById('itemName').value = "";
+                document.getElementById('itemPrice').value = "";
+            },
+
+            renderInventory: function() {
+                const list = document.getElementById('inventoryList');
+                list.innerHTML = "";
+                this.inventory.forEach((item, index) => {
+                    list.innerHTML += 
+                        <div class="product-item">
+                            <span><strong>\</strong>: \</span>
+                            <button onclick="agriEngine.removeProduct(\)" style="background:none; border:none; color:#d90429; font-weight:bold; cursor:pointer;">X</button>
+                        </div>;
+                });
+            },
+
+            removeProduct: function(index) {
+                this.inventory.splice(index, 1);
+                localStorage.setItem('agri_inv', JSON.stringify(this.inventory));
+                this.renderInventory();
+            },
+
+            logout: function() {
+                sessionStorage.removeItem('admin_session');
+                location.reload();
             }
         };
     </script>
