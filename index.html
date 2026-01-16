@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMastery | Secure Admin Portal</title>
+    <title>AgriMastery | Layer 6 Persistence</title>
     <style>
         :root { --primary: #2d6a4f; --accent: #ffca28; --bg: #0b1d12; --card: #1b4332; }
         body { background: var(--bg); color: #e8f5e9; font-family: sans-serif; margin: 0; padding: 15px; }
@@ -12,7 +12,6 @@
         .badge { background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         input, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--primary); background: #081c15; color: white; margin: 8px 0; box-sizing: border-box; }
         .btn { background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .admin-locked { border: 2px solid #555; padding: 20px; border-radius: 12px; text-align: center; margin-top: 30px; }
         .admin-unlocked { border: 2px dashed var(--accent); padding: 15px; border-radius: 12px; margin-top: 30px; display: none; }
         .query-box { background: #081c15; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--accent); }
     </style>
@@ -20,74 +19,81 @@
 <body>
     <div class="header">
         <h1 style="color: var(--accent); margin: 0;">AGRIMASTERY</h1>
-        <small>Secure Enterprise Hub</small>
+        <small>Layer 6: Permanent Persistence Active</small>
     </div>
 
     <div class="card">
-        <h3> Send Query to Admin</h3>
+        <h3> Customer Support (User)</h3>
         <input type="text" id="userName" placeholder="Your Name">
-        <textarea id="userQuestion" placeholder="Ask Omondi a question..."></textarea>
-        <button class="btn" onclick="adminEngine.submitQuery()">Submit Query</button>
+        <textarea id="userQuestion" placeholder="Type your query..."></textarea>
+        <button class="btn" onclick="agriEngine.saveQuery()">Submit Query</button>
     </div>
 
-    <div class="admin-locked" id="lockScreen">
-        <h3 style="color: #888;"> Admin Dashboard Locked</h3>
-        <input type="password" id="adminPass" placeholder="Enter Admin Pin" style="width: 60%;">
-        <button class="btn" style="width: 30%; background: #444;" onclick="adminEngine.unlock()">Unlock</button>
+    <div class="card" id="lockScreen" style="text-align:center;">
+        <input type="password" id="adminPass" placeholder="Admin Pin" style="width:60%">
+        <button class="btn" style="width:30%; background:#444;" onclick="agriEngine.unlock()">Admin</button>
     </div>
 
     <div class="admin-unlocked" id="adminDashboard">
-        <h3 style="color: var(--accent);"> Live Admin Management</h3>
+        <h3 style="color: var(--accent);"> Query Archive (L6 Storage)</h3>
+        <button class="btn" style="background:#8b0000; margin-bottom:10px;" onclick="agriEngine.clearL6()">Wipe All Data</button>
         <div id="queryList"></div>
     </div>
 
     <script>
-        const adminEngine = {
-            queries: [],
-            passcode: "1234",
-            adminPhone: "254742178833",
+        const agriEngine = {
+            // LAYER 6: PERSISTENCE LOGIC
+            // Load existing data from storage on startup
+            queries: JSON.parse(localStorage.getItem('agri_queries')) || [],
 
-            unlock: function() {
-                const pin = document.getElementById('adminPass').value;
-                if(pin === this.passcode) {
-                    document.getElementById('lockScreen').style.display = 'none';
-                    document.getElementById('adminDashboard').style.display = 'block';
-                } else {
-                    alert("Incorrect Pin");
-                }
-            },
-
-            submitQuery: function() {
+            saveQuery: function() {
                 const name = document.getElementById('userName').value;
                 const text = document.getElementById('userQuestion').value;
                 if(!name || !text) return;
 
-                this.queries.push({ sender: name, message: text });
+                const newQuery = { sender: name, msg: text, time: new Date().toLocaleString() };
+                
+                // Add to memory
+                this.queries.push(newQuery);
+                
+                // LAYER 6: COMMIT TO STORAGE
+                localStorage.setItem('agri_queries', JSON.stringify(this.queries));
+                
                 this.renderQueries();
-                document.getElementById('userName').value = "";
-                document.getElementById('userQuestion').value = "";
-                alert("Sent!");
+                alert("Query stored in Layer 6!");
             },
 
             renderQueries: function() {
                 const list = document.getElementById('queryList');
-                list.innerHTML = this.queries.length ? "" : "No queries.";
-                this.queries.forEach(q => {
+                list.innerHTML = "";
+                this.queries.forEach((q, index) => {
                     list.innerHTML += \
                         <div class="query-box">
-                            <strong>From: \</strong><br>
+                            <strong>\</strong> <small>\</small><br>
                             <p>\</p>
-                            <button class="btn" style="background:var(--accent); color:#000; font-size:11px;" 
-                                onclick="adminEngine.reply('\', '\')">Reply via WhatsApp</button>
+                            <button class="btn" style="background:var(--accent); color:#000; font-size:10px; padding:4px;" 
+                            onclick="window.open('https://wa.me/254742178833?text=Reply to \:')">Reply</button>
                         </div>\;
                 });
             },
 
-            reply: function(sender, msg) {
-                const link = "https://wa.me/" + this.adminPhone + "?text=" + encodeURIComponent("REPLY TO " + sender + ": ");
-                window.open(link);
+            unlock: function() {
+                if(document.getElementById('adminPass').value === "1234") {
+                    document.getElementById('lockScreen').style.display = 'none';
+                    document.getElementById('adminDashboard').style.display = 'block';
+                    this.renderQueries();
+                }
+            },
+
+            clearL6: function() {
+                if(confirm("Wipe Layer 6 Storage?")) {
+                    localStorage.removeItem('agri_queries');
+                    this.queries = [];
+                    this.renderQueries();
+                }
             }
         };
+        // Auto-load Layer 6 data if already unlocked
     </script>
 </body>
 </html>
