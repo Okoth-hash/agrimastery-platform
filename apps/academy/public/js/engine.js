@@ -1,70 +1,62 @@
 const agriEngine = {
     init: function() {
-        // Stop any old loops from the 'Syncing' error
         for (let i = 1; i < 100; i++) window.clearInterval(i);
-        console.log('AgriMastery: Integrated System Live');
         this.sync();
     },
     sync: function() {
         const view = document.getElementById('app-viewport');
         if(!view) return;
-        // Shared Data Layer (L6)
         const student = JSON.parse(localStorage.getItem('agri_student'));
         const market = JSON.parse(localStorage.getItem('agri_market')) || [];
         this.renderAll(view, student, market);
     },
     renderAll: function(view, student, market) {
         let ui = '';
-        // --- STUDENT DASHBOARD ---
+        // --- STUDENT DASHBOARD WITH PROGRESS BAR ---
         if(!student) {
             ui += '<div class="card"><h3>🎓 Enrollment</h3>' +
                   '<input type="text" id="nameIn" placeholder="Full Name" style="width:90%; padding:10px; margin:5px 0; background:#000; color:#fff; border:1px solid #2d6a4f;">' +
                   '<button class="btn" onclick="agriEngine.reg()">Enrol Now</button></div>';
         } else {
+            const prog = student.progress || 10; // Default 10% on start
             ui += '<div class="card" style="border-left:5px solid #ffcc00;">' +
                   '<h3>🎓 Student: ' + student.name + '</h3>' +
-                  '<p>Status: Active | Month 1</p></div>';
+                  '<p>Course: Maize Mastery | Month 1</p>' +
+                  '<div style="width:100%; background:#333; height:10px; border-radius:5px; margin:10px 0;">' +
+                  '<div style="width:' + prog + '%; background:#ffcc00; height:100%; border-radius:5px; transition:0.5s;"></div>' +
+                  '</div>' +
+                  '<small>' + prog + '% Complete</small>' +
+                  '<button class="btn" style="width:100%; margin-top:10px;" onclick="agriEngine.updateProg()">Read Next Lesson</button></div>';
         }
-        // --- MARKET MANAGER ---
-        ui += '<div class="card"><h3>📦 Market</h3>' +
-              '<input type="text" id="itemIn" placeholder="Crop" style="width:45%;"> ' +
-              '<input type="number" id="priceIn" placeholder="Price" style="width:45%;">' +
-              '<button class="btn" style="margin-top:10px; width:100%;" onclick="agriEngine.addM()">Update Market</button>';
-        market.slice(-2).forEach(m => {
-            ui += '<div class="result-card">' + m.name + ' - KES ' + m.price + '</div>';
-        });
+        // --- MARKET & ADMIN ---
+        ui += '<div class="card"><h3>📦 Market</h3>';
+        market.slice(-1).forEach(m => { ui += '<p>' + m.name + ': KES ' + m.price + '</p>'; });
         ui += '</div>';
-        // --- ADMIN DASHBOARD (COMMUNICATING SECTION) ---
-        ui += '<div class="card" style="background:rgba(0,0,0,0.5); border:1px dashed #444;">' +
-              '<h3>🛡️ Admin Dashboard</h3>' +
-              '<p>Active Students: ' + (student ? '1' : '0') + '</p>' +
-              '<p>Market Items: ' + market.length + '</p>' +
-              '<button class="btn" style="background:#800; color:white; width:100%; margin-top:10px;" onclick="agriEngine.hardReset()">⚠️ HARD RESET SYSTEM</button>' +
-              '</div>';
+        ui += '<div class="card" style="background:rgba(0,0,0,0.5);"><h3>🛡️ Admin</h3>' +
+              '<p>Student Progress: ' + (student ? (student.progress || 10) + '%' : 'N/A') + '</p>' +
+              '<button class="btn" style="background:red;" onclick="agriEngine.hardReset()">Hard Reset</button></div>';
         view.innerHTML = ui;
     },
     reg: function() {
         const n = document.getElementById('nameIn').value;
         if(n) {
-            localStorage.setItem('agri_student', JSON.stringify({name: n}));
+            localStorage.setItem('agri_student', JSON.stringify({name: n, progress: 10}));
             this.sync();
         }
     },
-    addM: function() {
-        const i = document.getElementById('itemIn').value;
-        const p = document.getElementById('priceIn').value;
-        if(i && p) {
-            let m = JSON.parse(localStorage.getItem('agri_market')) || [];
-            m.push({name: i, price: p});
-            localStorage.setItem('agri_market', JSON.stringify(m));
+    updateProg: function() {
+        let s = JSON.parse(localStorage.getItem('agri_student'));
+        if(s.progress < 100) {
+            s.progress += 15; // Increase by 15% per "lesson"
+            localStorage.setItem('agri_student', JSON.stringify(s));
             this.sync();
+        } else {
+            alert("Month 1 Complete! Certification Pending...");
         }
     },
     hardReset: function() {
-        if(confirm("This will delete ALL students and market data. Continue?")) {
-            localStorage.clear();
-            location.reload();
-        }
+        localStorage.clear();
+        location.reload();
     }
 };
 agriEngine.init();
