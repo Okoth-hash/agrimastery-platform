@@ -366,3 +366,44 @@ agriEngine.runTool = function(id) {
     }
     window.scrollTo({top: 0, behavior: 'smooth'});
 };
+// 1. CROP PH DATA REFERENCE
+agriEngine.cropData = {
+    "Maize": { min: 5.5, max: 7.0, note: "Prefers well-drained loamy soil." },
+    "Coffee": { min: 4.5, max: 6.0, note: "Acidic soil is best for Kenyan Arabica." },
+    "Potatoes": { min: 5.0, max: 6.5, note: "Slightly acidic soil prevents common scab." },
+    "Tea": { min: 4.5, max: 5.5, note: "Requires high acidity for optimal growth." },
+    "Beans": { min: 6.0, max: 7.5, note: "Neutral soil improves nitrogen fixation." }
+};
+// 2. UPDATED pH TOOL LOGIC
+const originalRunTool = agriEngine.runTool;
+agriEngine.runTool = function(id) {
+    const out = document.getElementById('tool-output');
+    out.style.display = "block";
+    if(id === "soil") {
+        const ph = parseFloat(prompt("Enter your Soil pH Reading:", "6.0"));
+        if(!isNaN(ph)) {
+            let advice = "";
+            let recommendations = Object.entries(this.cropData).map(([crop, data]) => {
+                const isIdeal = ph >= data.min && ph <= data.max;
+                return `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
+                    <span style="font-weight:bold; color:${isIdeal ? '#2d6a4f' : '#75757a'};">${crop}</span>
+                    <span style="font-size:11px;">${data.min}-${data.max} pH ${isIdeal ? '?' : '?'}</span>
+                </div>`;
+            }).join('');
+            if(ph < 5.5) advice = "Soil is acidic. Consider adding Lime.";
+            else if(ph > 7.5) advice = "Soil is alkaline. Consider adding Gypsum/Sulphur.";
+            else advice = "Soil is neutral/optimal for most crops.";
+            out.innerHTML = `
+                <div style="font-size:14px; margin-bottom:10px;"><strong>Soil Health Report (pH: ${ph})</strong></div>
+                <div style="background:#f4f4f4; padding:10px; border-radius:5px; margin-bottom:10px; font-size:12px;">${advice}</div>
+                <div style="font-size:11px; color:#333;"><strong>Crop Compatibility:</strong></div>
+                ${recommendations}
+                <button onclick="agriEngine.saveCalc('Soil Health','pH ${ph}: ${advice}')" style="margin-top:10px; padding:8px 12px; background:#1b4332; color:white; border:none; border-radius:5px; font-size:11px; width:100%; cursor:pointer;">?? SAVE TO HISTORY</button>
+            `;
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            return;
+        }
+    }
+    // Call the original runTool for all other IDs
+    originalRunTool.call(this, id);
+};
