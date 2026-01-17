@@ -1,69 +1,74 @@
+/**
+ * AGRIMASTERY UNIFIED ENGINE v4.0 (REACTIVATED)
+ * Integrated: Admin, Academy, Market, Glossary, PDF Export
+ */
 const agriEngine = {
-    author: { name: "Omondi Robin Okoth", phone: "254742178833", email: "okothrobin323@gmail.com" },
-    lang: localStorage.getItem('agri_lang') || 'en',
+    isAdmin: localStorage.getItem('agri_admin_active') === 'true',
     user: JSON.parse(localStorage.getItem('agri_logged_in_user') || 'null'),
+    lang: localStorage.getItem('agri_lang') || 'en',
     dict: {
         en: { 
-            export: "Download Progress as PDF", 
-            loading: "Generating E-Book...",
-            title: "AgriMastery Personal Farming Manual"
+            status: "SYSTEM ACTIVE", academy: "Academy (1,000 Pages)", 
+            market: "Market Intel", glossary: "Visual Glossary", 
+            pdf: "Export E-Book", admin: "Admin Console"
         },
         sw: { 
-            export: "Pakua Maendeleo kama PDF", 
-            loading: "Inatengeneza Kitabu...",
-            title: "Mwongozo wa Kilimo wa AgriMastery"
+            status: "MFUMO UKO HAI", academy: "Chuo cha Kilimo", 
+            market: "Bei za Soko", glossary: "Kamusi ya Picha", 
+            pdf: "Pakua Kitabu", admin: "Kidhibiti cha Admin"
         }
     },
     init: function() {
-        // Load the PDF Library via CDN dynamically
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-        document.head.appendChild(script);
-        this.renderAll();
+        // Load PDF Library Dependencies
+        const pdfScript = document.createElement('script');
+        pdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        document.head.appendChild(pdfScript);
+        this.renderUI();
+        this.pulse();
+        // Perpetual Persistence Listeners
+        window.onclick = () => this.pulse();
+        window.onscroll = () => this.pulse();
     },
-    renderAll: function() {
+    pulse: function() {
+        const d = this.dict[this.lang];
+        const bar = document.getElementById('status-bar');
+        if(bar) {
+            bar.innerHTML = \<span>🛰️ \</span> <span>\</span>\;
+        }
+    },
+    renderUI: function() {
         const d = this.dict[this.lang];
         document.body.style = "margin:0; background:#f0f2f5; font-family:sans-serif;";
         document.body.innerHTML = \
-            <div id="pdf-content" style="padding:40px; background:white; display:none;">
-                <h1 style="color:#2d6a4f;">\</h1>
-                <hr>
-                <h3>Student Name: \</h3>
-                <p>Current Progress: Page \ of 1,000</p>
-                <p style="font-size:12px; color:#666;">Generated on: \</p>
-                <div style="margin-top:20px; border:1px solid #ddd; padding:20px;">
-                    [Chapter Content Placeholder for 1,000-Page Repository]
+            <div id="status-bar" style="background:#000; color:#0f0; padding:10px 20px; font-family:monospace; font-size:11px; display:flex; justify-content:space-between; position:sticky; top:0; z-index:9999;"></div>
+            <div style="max-width:900px; margin:auto; padding:20px;">
+                <div id="sec-admin" style="margin-bottom:15px;">\
+                </div>
+                <div style="background:white; padding:25px; border-radius:15px; border-left:8px solid #2d6a4f; box-shadow:0 4px 6px rgba(0,0,0,0.05); margin-bottom:20px;">
+                    <h2>🎓 \</h2>
+                    <p>Current Progress: \ / 1000</p>
+                    <button onclick="agriEngine.exportPDF()" style="background:#1b4332; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">📥 \</button>
+                </div>
+                <div style="background:#fff7ed; padding:20px; border-radius:15px; border-top:5px solid #ea580c; margin-bottom:20px;">
+                    <h3>📈 \</h3>
+                    <div style="display:flex; justify-content:space-between;"><span>Nairobi</span><b>KSh 4,200</b></div>
+                </div>
+                <div style="background:white; padding:20px; border-radius:15px; border:1px solid #ddd;">
+                    <h3>🔍 \</h3>
+                    <input type="text" placeholder="Search..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
                 </div>
             </div>
-            <div style="max-width:800px; margin:auto; padding:20px;">
-                <div style="background:white; padding:30px; border-radius:15px; border-left:10px solid #2d6a4f; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
-                    <h2 style="margin:0;">📄 \</h2>
-                    <p style="color:#666; margin-bottom:20px;">Convert your training into an offline e-book.</p>
-                    <button onclick="agriEngine.generatePDF()" id="pdf-btn" style="width:100%; padding:15px; background:#1b4332; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">
-                        📥 START EXPORT
-                    </button>
-                </div>
+            <div id="pdf-template" style="display:none; padding:50px;">
+                <h1>AgriMastery Farming Manual</h1>
+                <p>Student: \</p>
+                <p>Progress achieved in 2026.</p>
             </div>\;
     },
-    generatePDF: function() {
-        const d = this.dict[this.lang];
-        const btn = document.getElementById('pdf-btn');
-        const element = document.getElementById('pdf-content');
-        btn.innerText = d.loading;
-        btn.style.opacity = "0.5";
+    exportPDF: function() {
+        const element = document.getElementById('pdf-template');
         element.style.display = "block";
-        const opt = {
-            margin: 1,
-            filename: 'AgriMastery_Manual.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save().then(() => {
-            element.style.display = "none";
-            btn.innerText = "✅ EXPORT COMPLETE";
-            btn.style.opacity = "1";
-        });
-    }
+        html2pdf().from(element).save().then(() => { element.style.display = "none"; });
+    },
+    login: function() { if(prompt("Key:")==="1234") { localStorage.setItem('agri_admin_active','true'); location.reload(); } }
 };
 window.onload = () => agriEngine.init();
