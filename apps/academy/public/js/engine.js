@@ -863,3 +863,43 @@ agriEngine.enterCourse = function(id) {
 };
 // Refresh UI
 if(agriEngine.state.activeTab === 'student') agriEngine.renderAcademy();
+// --- GLOBAL ACADEMY REPAIR ---
+(function() {
+    // 1. Force Course Data into State immediately
+    const curriculumData = [
+        { id: "crop101", n: "Crop Science Mastery", i: "??", desc: "Soil health and yield optimization.", progress: 35, hasVideo: true },
+        { id: "live201", n: "Livestock Management", i: "??", desc: "Feeding, health, and breeding.", progress: 0, hasVideo: true },
+        { id: "biz301", n: "Agri-Business Expert", i: "??", desc: "Marketing and farm accounting.", progress: 10, hasVideo: true }
+    ];
+    // 2. Overwrite the render function to ensure it CANNOT be blank
+    agriEngine.renderAcademy = function(v) {
+        const target = v || document.getElementById('viewport');
+        if (!target) return;
+        target.innerHTML = `
+            <div style="background:#2d6a4f; color:white; padding:25px; border-radius:0 0 25px 25px; margin-bottom:20px;">
+                <h2 style="margin:0;">Agri-Academy</h2>
+                <p style="margin:5px 0 0 0; opacity:0.8; font-size:13px;">Online Learning Portal</p>
+            </div>
+            <div id="lesson-overlay" style="display:none; margin:0 15px 20px 15px; padding:20px; background:white; border-radius:15px; border-top:5px solid #2d6a4f; box-shadow:0 10px 30px rgba(0,0,0,0.1);"></div>
+            <div style="padding:0 15px;">
+                <h4 style="margin:0 0 15px 0; color:#333;">Your Active Courses</h4>
+                ${curriculumData.map(c => `
+                    <div onclick="agriEngine.enterCourse('${c.id}')" style="background:white; padding:15px; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; gap:15px; box-shadow:0 4px 6px rgba(0,0,0,0.03); cursor:pointer; border:1px solid #f1f1f2;">
+                        <div style="font-size:35px;">${c.i}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; color:#2d6a4f; font-size:14px;">${c.n}</div>
+                            <div style="font-size:10px; color:#2d6a4f; margin:2px 0;">?? Video Included</div>
+                            <div style="width:100%; height:6px; background:#eee; border-radius:10px; margin-top:8px;">
+                                <div style="width:${c.progress}%; height:100%; background:#40916c; border-radius:10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    };
+    // 3. Force a refresh if the user is currently on the Academy tab
+    if(localStorage.getItem('agri_tab') === 'student') {
+        setTimeout(() => agriEngine.renderAcademy(), 500);
+    }
+})();
