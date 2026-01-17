@@ -182,3 +182,65 @@ agriEngine.runTool = function(id) {
     }
     window.scrollTo({top: 0, behavior: 'smooth'});
 };
+// Extending agriEngine to handle tool history
+agriEngine.state.toolHistory = JSON.parse(localStorage.getItem('agri_tool_history') || '[]');
+agriEngine.saveCalculation = function(title, result) {
+    const entry = {
+        date: new Date().toLocaleString(),
+        title: title,
+        result: result
+    };
+    this.state.toolHistory.unshift(entry);
+    localStorage.setItem('agri_tool_history', JSON.stringify(this.state.toolHistory));
+    alert("Result saved to your history!");
+    this.renderTools(document.getElementById('viewport'));
+};
+// Updated runTool to include the Save button
+agriEngine.runTool = function(id) {
+    const out = document.getElementById('tool-output');
+    out.style.display = "block";
+    let title = "";
+    let resultText = "";
+    if(id === "harv") {
+        const area = prompt("Enter Area (Acres):", "1");
+        const yieldPer = prompt("Est. Yield per Acre (bags):", "30");
+        if(area && yieldPer) {
+            title = "Harvest Estimate";
+            resultText = `${area} acres = ${area * yieldPer} bags`;
+        }
+    } else if (id === "prof") {
+        const cost = prompt("Enter Total Production Cost (KSh):", "20000");
+        const price = prompt("Expected Selling Price (KSh):", "40000");
+        if(cost && price) {
+            title = "Profit Projection";
+            resultText = `Profit: KSh ${(price - cost).toLocaleString()}`;
+        }
+    }
+    if(title) {
+        out.innerHTML = `
+            <strong>${title}:</strong><br>${resultText}<br>
+            <button onclick="agriEngine.saveCalculation('${title}', '${resultText}')" style="margin-top:10px; padding:5px 10px; background:#1b4332; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer;">?? SAVE TO HISTORY</button>
+        `;
+    } else {
+        out.innerHTML = `<strong>Tool Notice:</strong> Feature active. Results for ${id} will appear here.`;
+    }
+};
+// Update tools render to show history at the bottom
+const originalRenderTools = agriEngine.renderTools;
+agriEngine.renderTools = function(v) {
+    originalRenderTools.call(this, v);
+    if(this.state.toolHistory.length > 0) {
+        const historyHTML = `
+            <div style="margin:20px 15px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc;">
+                <h4 style="margin:0 0 10px 0; color:#1b4332;">Recent History</h4>
+                ${this.state.toolHistory.slice(0, 5).map(h => `
+                    <div style="font-size:11px; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px;">
+                        <span style="color:#75757a;">${h.date}</span><br>
+                        <b>${h.title}:</b> ${h.result}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        v.innerHTML += historyHTML;
+    }
+};
