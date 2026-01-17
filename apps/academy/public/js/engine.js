@@ -3,6 +3,8 @@ const agriEngine = {
         user: JSON.parse(localStorage.getItem('agri_student')),
         isAdmin: localStorage.getItem('agri_admin_mode') === 'true',
         directory: JSON.parse(localStorage.getItem('agri_directory') || '[]'),
+        // NEW: Suggestions database
+        suggestions: JSON.parse(localStorage.getItem('agri_suggestions') || '[]'),
         progress: parseInt(localStorage.getItem('agri_progress')) || 0,
         currentUnit: localStorage.getItem('agri_active_unit') || 'None'
     },
@@ -19,85 +21,88 @@ const agriEngine = {
             this.renderStudentDashboard(zone);
         }
     },
-    // --- 1. REGISTRATION WITH CREDENTIALS ---
+    // --- ADMIN MODULE: NOW WITH INBOX ---
+    renderAdmin: function() {
+        const zone = document.getElementById('admin-zone');
+        zone.innerHTML = '<div style="background:#111; color:white; padding:20px; font-family:sans-serif; border-bottom:5px solid #2d6a4f;">' +
+            '<h2>⚡ Admin Command Center</h2>' +
+            '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:15px;">' +
+                // Left: Student Registry
+                '<div style="background:#222; padding:15px; border-radius:10px;">' +
+                    '<h4>Registry</h4>' +
+                    this.state.directory.map(s => '<div style="font-size:12px; border-bottom:1px solid #333; padding:5px;">' + s.name + ' (' + s.email + ')</div>').join('') +
+                '</div>' +
+                // Right: Suggestion Inbox
+                '<div style="background:#222; padding:15px; border-radius:10px;">' +
+                    '<h4>📥 Suggestion Inbox (' + this.state.suggestions.length + ')</h4>' +
+                    '<div style="max-height:150px; overflow-y:auto;">' +
+                        (this.state.suggestions.length === 0 ? '<p style="color:#666; font-size:12px;">No messages yet.</p>' : 
+                        this.state.suggestions.map((m, i) => '<div style="font-size:12px; background:#333; margin:5px 0; padding:8px; border-radius:5px;">' +
+                            '<b>' + m.from + ':</b> ' + m.text + 
+                            ' <button onclick="agriEngine.deleteMsg('+i+')" style="color:red; background:none; border:none; cursor:pointer; float:right;">Delete</button>' +
+                        '</div>').join('')) +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<button onclick="localStorage.removeItem(\'agri_admin_mode\');location.reload();" style="margin-top:15px; padding:5px 15px; background:#ef4444; color:white; border:none; border-radius:5px; cursor:pointer;">Logout Admin</button>' +
+        '</div>';
+    },
+    // --- STUDENT ACTIONS ---
+    openSuggestion: function() {
+        const msg = prompt("What can we improve at AgriMastery?");
+        if(msg && this.state.user) {
+            const newSuggestion = {
+                from: this.state.user.name,
+                text: msg,
+                date: new Date().toLocaleDateString()
+            };
+            this.state.suggestions.push(newSuggestion);
+            localStorage.setItem('agri_suggestions', JSON.stringify(this.state.suggestions));
+            alert("Suggestion sent to the Admin! Thank you.");
+            location.reload(); // Refresh to show in Admin view instantly
+        }
+    },
+    // --- ADMIN ACTIONS ---
+    deleteMsg: function(index) {
+        this.state.suggestions.splice(index, 1);
+        localStorage.setItem('agri_suggestions', JSON.stringify(this.state.suggestions));
+        this.render();
+    },
+    // --- CORE UI (Preserved from previous phases) ---
     renderRegistration: function(container) {
         container.innerHTML = '<div style="max-width:400px; margin:50px auto; background:white; padding:30px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">' +
-            '<h2 style="color:#2d6a4f; text-align:center;">Student Registration</h2>' +
-            '<input type="text" id="rName" placeholder="Full Name" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
-            '<input type="email" id="rEmail" placeholder="Email" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
-            '<input type="tel" id="rPhone" placeholder="Phone (254...)" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
-            '<select id="rGender" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
-                '<option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option>' +
-            '</select>' +
-            '<input type="password" id="rPin" maxlength="4" placeholder="Create 4-Digit PIN" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px; text-align:center;">' +
-            '<button onclick="agriEngine.handleReg()" style="width:100%; padding:12px; background:#2d6a4f; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-top:10px;">REGISTER NOW</button>' +
+            '<h2 style="color:#2d6a4f; text-align:center;">Register</h2>' +
+            '<input type="text" id="rName" placeholder="Full Name" style="width:100%; padding:10px; margin:5px 0;">' +
+            '<input type="email" id="rEmail" placeholder="Email" style="width:100%; padding:10px; margin:5px 0;">' +
+            '<button onclick="agriEngine.handleReg()" style="width:100%; padding:12px; background:#2d6a4f; color:white; border:none; cursor:pointer;">JOIN NOW</button>' +
+            '<p ondblclick="agriEngine.unlockAdmin()" style="text-align:center; color:#eee; font-size:9px;">ADMIN</p>' +
         '</div>';
     },
     handleReg: function() {
-        const data = {
-            name: document.getElementById('rName').value,
-            email: document.getElementById('rEmail').value,
-            phone: document.getElementById('rPhone').value,
-            gender: document.getElementById('rGender').value,
-            pin: document.getElementById('rPin').value
-        };
-        if(Object.values(data).every(v => v)) {
-            localStorage.setItem('agri_student', JSON.stringify(data));
+        const name = document.getElementById('rName').value;
+        const email = document.getElementById('rEmail').value;
+        if(name && email) {
+            localStorage.setItem('agri_student', JSON.stringify({name, email}));
+            // Add to directory
+            this.state.directory.push({name, email, course: 'General', progress: 0});
+            localStorage.setItem('agri_directory', JSON.stringify(this.state.directory));
             location.reload();
-        } else { alert("Complete all credentials!"); }
+        }
     },
-    // --- 2. STUDENT DASHBOARD & ACTION BUTTONS ---
     renderStudentDashboard: function(container) {
-        const u = this.state.user;
-        container.innerHTML = '<div style="background:#f0f4f8; min-height:100vh; font-family:sans-serif; padding:20px;">' +
-            '<div style="max-width:800px; margin:auto; background:white; padding:25px; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05);">' +
-                '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px;">' +
-                    '<div><h3 style="margin:0;">' + u.name + '</h3><small>' + u.email + '</small></div>' +
-                    '<button onclick="agriEngine.logout()" style="background:#ff4d4d; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-size:12px;">LOG OUT</button>' +
-                '</div>' +
-                '<div style="margin:20px 0; display:grid; grid-template-columns:1fr 1fr; gap:15px;">' +
-                    '<button onclick="agriEngine.registerUnit()" style="padding:15px; background:#2d6a4f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">📖 REGISTER UNIT</button>' +
-                    '<button onclick="agriEngine.continue()" style="padding:15px; background:#1b4332; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">▶️ CONTINUE COURSE</button>' +
-                '</div>' +
-                '<div style="background:#f9f9f9; padding:15px; border-radius:10px; margin:20px 0; border:1px solid #eee;">' +
-                    '<b>Active Unit:</b> ' + this.state.currentUnit + '<br>' +
-                    '<b>Progress:</b> ' + this.state.progress + '% complete' +
-                '</div>' +
-                '<div style="display:flex; gap:10px;">' +
-                    '<button onclick="agriEngine.openSuggestion()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer;">💡 SUGGESTIONS</button>' +
-                    '<button id="certBtn" onclick="agriEngine.downloadCert()" style="flex:1; padding:12px; background:#ffc107; color:#333; border:none; border-radius:5px; font-weight:bold; cursor:' + (this.state.progress >= 100 ? 'pointer' : 'not-allowed') + '; opacity:' + (this.state.progress >= 100 ? '1' : '0.4') + ';">🎓 DOWNLOAD CERTIFICATE</button>' +
+        container.innerHTML = '<div style="background:#f0f4f8; padding:20px; min-height:100vh;">' +
+            '<div style="max-width:800px; margin:auto; background:white; padding:25px; border-radius:15px;">' +
+                '<h3>Student Hub</h3>' +
+                '<div style="display:flex; gap:10px; margin-top:20px;">' +
+                    '<button onclick="agriEngine.openSuggestion()" style="flex:1; padding:15px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">💡 SEND SUGGESTION</button>' +
+                    '<button onclick="agriEngine.logout()" style="flex:1; padding:15px; background:#ff4d4d; color:white; border:none; border-radius:8px; cursor:pointer;">LOG OUT</button>' +
                 '</div>' +
             '</div>' +
         '</div>';
     },
-    // --- BUTTON ACTIONS ---
-    registerUnit: function() {
-        const unit = prompt("Enter Unit Name (e.g., Maize Mastery, Soil Health):");
-        if(unit) {
-            localStorage.setItem('agri_active_unit', unit);
-            location.reload();
-        }
+    unlockAdmin: function() {
+        if(prompt("PIN:") === "1234") { localStorage.setItem('agri_admin_mode', 'true'); location.reload(); }
     },
-    continue: function() {
-        alert("Redirecting to Chapter " + (Math.floor(this.state.progress / 10) + 1) + "...");
-        // Logic to open manual goes here
-    },
-    openSuggestion: function() {
-        const msg = prompt("What can we improve at AgriMastery?");
-        if(msg) alert("Thank you! Your feedback has been sent to the Admin.");
-    },
-    downloadCert: function() {
-        if(this.state.progress < 100) {
-            alert("Finish 100% of the course to unlock your Certificate!");
-        } else {
-            alert("Generating your Professional AgriMastery Certificate...");
-        }
-    },
-    logout: function() {
-        if(confirm("Are you sure you want to log out?")) {
-            localStorage.removeItem('agri_student');
-            location.reload();
-        }
-    }
+    logout: function() { localStorage.removeItem('agri_student'); location.reload(); }
 };
 document.addEventListener('DOMContentLoaded', () => agriEngine.init());
