@@ -645,3 +645,95 @@ agriEngine.renderAcademy = function(v) {
 if (agriEngine.state.activeTab === 'student') {
     agriEngine.renderAcademy(document.getElementById('viewport'));
 }
+// 1. ADMIN RENDER OVERHAUL
+agriEngine.renderAdmin = function(v) {
+    const stats = {
+        totalItems: this.state.inventory.length || 1000,
+        activeStudents: 1, // Current user
+        systemWallet: this.state.wallet.toLocaleString(),
+        support: this.state.contact
+    };
+    v.innerHTML = `
+        <div style="background:#1e3a8a; color:white; padding:25px; border-radius:0 0 25px 25px; margin-bottom:20px; box-shadow:0 4px 12px rgba(30,58,138,0.2);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0;">Control Center</h2>
+                <div style="background:rgba(255,255,255,0.2); padding:5px 12px; border-radius:15px; font-size:11px;">Admin Active</div>
+            </div>
+            <p style="margin:5px 0 0 0; opacity:0.8; font-size:13px;">Managing EasyShop & Academy</p>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 15px; margin-bottom:20px;">
+            <div style="background:white; padding:15px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                <div style="color:#75757a; font-size:10px; font-weight:bold; text-transform:uppercase;">Student Wallet</div>
+                <div style="font-size:18px; font-weight:900; color:#1e3a8a; margin-top:5px;">KSh ${stats.systemWallet}</div>
+            </div>
+            <div style="background:white; padding:15px; border-radius:12px; box-shadow:0(0,0,0,0.05);">
+                <div style="color:#75757a; font-size:10px; font-weight:bold; text-transform:uppercase;">Inventory</div>
+                <div style="font-size:18px; font-weight:900; color:#1e3a8a; margin-top:5px;">${stats.totalItems} Items</div>
+            </div>
+        </div>
+        <div style="padding:0 15px;">
+            <div style="background:white; border-radius:15px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                <div style="padding:15px; background:#f8fafc; border-bottom:1px solid #eee; font-weight:bold; color:#1e3a8a; display:flex; justify-content:space-between;">
+                    <span>System Controls</span>
+                    <span>???</span>
+                </div>
+                <div style="padding:10px;">
+                    <div onclick="agriEngine.adminAddCash()" style="display:flex; align-items:center; gap:15px; padding:12px; border-bottom:1px solid #f1f1f2; cursor:pointer;">
+                        <div style="font-size:20px;">??</div>
+                        <div style="flex:1;"><div style="font-size:13px; font-weight:bold;">Top-up Student Wallet</div><div style="font-size:11px; color:#75757a;">Manual balance adjustment</div></div>
+                    </div>
+                    <div onclick="agriEngine.adminEditContact()" style="display:flex; align-items:center; gap:15px; padding:12px; border-bottom:1px solid #f1f1f2; cursor:pointer;">
+                        <div style="font-size:20px;">??</div>
+                        <div style="flex:1;"><div style="font-size:13px; font-weight:bold;">Support Line</div><div style="font-size:11px; color:#75757a;">Current: ${stats.support}</div></div>
+                    </div>
+                    <div onclick="agriEngine.adminViewHistory()" style="display:flex; align-items:center; gap:15px; padding:12px; cursor:pointer;">
+                        <div style="font-size:20px;">??</div>
+                        <div style="flex:1;"><div style="font-size:13px; font-weight:bold;">Audit Logs</div><div style="font-size:11px; color:#75757a;">View all tool calculations</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="admin-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:20000; padding:40px 20px;">
+            <div style="background:white; border-radius:20px; padding:20px; position:relative;">
+                <div onclick="document.getElementById('admin-modal').style.display='none'" style="position:absolute; right:15px; top:15px; font-size:20px; color:#999;">?</div>
+                <div id="admin-modal-content"></div>
+            </div>
+        </div>
+    `;
+};
+// 2. ADMIN ACTIONS
+agriEngine.adminAddCash = function() {
+    const amt = prompt("Enter amount to add to student wallet (KSh):", "1000");
+    if(amt) {
+        this.state.wallet += parseInt(amt);
+        localStorage.setItem('agri_wallet', this.state.wallet);
+        alert(`Successfully added KSh ${amt}`);
+        this.render();
+    }
+};
+agriEngine.adminEditContact = function() {
+    const newNum = prompt("Enter new support contact number:", this.state.contact);
+    if(newNum) {
+        this.state.contact = newNum;
+        localStorage.setItem('agri_contact', newNum);
+        alert("Support contact updated!");
+        this.render();
+    }
+};
+agriEngine.adminViewHistory = function() {
+    const modal = document.getElementById('admin-modal');
+    const content = document.getElementById('admin-modal-content');
+    const history = JSON.parse(localStorage.getItem('agri_tool_history') || '[]');
+    modal.style.display = "block";
+    content.innerHTML = `
+        <h3 style="color:#1e3a8a; margin-top:0;">Tool Audit Logs</h3>
+        <div style="max-height:300px; overflow-y:auto; border-top:1px solid #eee;">
+            ${history.length === 0 ? '<p>No history found.</p>' : history.map(h => `
+                <div style="padding:10px 0; border-bottom:1px solid #eee; font-size:12px;">
+                    <span style="color:#75757a;">${h.date}</span><br>
+                    <strong>${h.title}</strong>: ${h.result}
+                </div>
+            `).join('')}
+        </div>
+    `;
+};
