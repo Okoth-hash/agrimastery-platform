@@ -903,3 +903,20 @@ if(agriEngine.state.activeTab === 'student') agriEngine.renderAcademy();
         setTimeout(() => agriEngine.renderAcademy(), 500);
     }
 })();
+// FORCE REFRESH TRIGGER
+console.log("AgriMastery Engine Updated: " + new Date().getTime());
+// Re-sync all tabs to ensure Academy and Tools are visible
+agriEngine.setTab = function(id) { 
+    this.state.activeTab = id; 
+    localStorage.setItem('agri_tab', id); 
+    const view = document.getElementById('viewport');
+    if (id === 'student') this.renderAcademy(view);
+    else if (id === 'tools') this.renderTools(view);
+    else if (id === 'market') this.renderEasyShop(view);
+    else if (id === 'admin') this.renderAdmin(view);
+};
+// Immediate check for current tab
+window.onload = () => {
+    const currentTab = localStorage.getItem('agri_tab') || 'market';
+    agriEngine.setTab(currentTab);
+};
