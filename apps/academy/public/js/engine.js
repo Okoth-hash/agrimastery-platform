@@ -1133,3 +1133,102 @@ agriEngine.runTool = function(id) {
     `;
     window.scrollTo({top: 0, behavior: 'smooth'});
 };
+// 1. RESTORE SUPPORT & WALLET HEADER
+agriEngine.renderNav = function() {
+    const nav = document.getElementById('nav');
+    nav.innerHTML = `
+        <div style="background:#f68b1e; color:white; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:bold;">
+            <span>?? Help: 0742178833</span>
+            <span style="background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:10px;">Balance: KSh ${this.state.wallet.toLocaleString()}</span>
+        </div>
+        <div style="background:white; display:flex; justify-content:space-around; padding:10px 0; border-bottom:1px solid #eee;">
+            <div onclick="agriEngine.setTab('market')" style="text-align:center; color:${this.state.activeTab==='market'?'#f68b1e':'#75757a'}; cursor:pointer;">
+                <div style="font-size:20px;">??</div><div style="font-size:10px;">Market</div>
+            </div>
+            <div onclick="agriEngine.setTab('student')" style="text-align:center; color:${this.state.activeTab==='student'?'#2d6a4f':'#75757a'}; cursor:pointer;">
+                <div style="font-size:20px;">??</div><div style="font-size:10px;">Academy</div>
+            </div>
+            <div onclick="agriEngine.setTab('tools')" style="text-align:center; color:${this.state.activeTab==='tools'?'#1b4332':'#75757a'}; cursor:pointer;">
+                <div style="font-size:20px;">???</div><div style="font-size:10px;">Tools</div>
+            </div>
+            <div onclick="agriEngine.setTab('admin')" style="text-align:center; color:${this.state.activeTab==='admin'?'#1e3a8a':'#75757a'}; cursor:pointer;">
+                <div style="font-size:20px;">??</div><div style="font-size:10px;">Admin</div>
+            </div>
+        </div>
+    `;
+};
+// 2. JUMIA-STYLE MARKET RENDER WITH ACTIVE BUTTONS
+agriEngine.renderEasyShop = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    const cartCount = this.state.cart.reduce((a, b) => a + b.qty, 0);
+    v.innerHTML = `
+        <div style="padding:15px; background:#f1f1f2; min-height:100vh;">
+            <div style="background:white; padding:15px; border-radius:10px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; color:#f68b1e;">Flash Sales</h3>
+                <div onclick="agriEngine.showCart()" style="position:relative; cursor:pointer; font-size:24px;">
+                    ?? <span style="position:absolute; top:-5px; right:-10px; background:#f68b1e; color:white; border-radius:50%; padding:2px 6px; font-size:10px;">${cartCount}</span>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                ${this.state.inventory.slice(0, 20).map(item => `
+                    <div style="background:white; border-radius:8px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                        <div style="height:120px; background:#fafafa; display:flex; align-items:center; justify-content:center; font-size:40px;">??</div>
+                        <div style="padding:10px; flex:1;">
+                            <div style="font-size:12px; height:32px; overflow:hidden; margin-bottom:5px;">${item.n}</div>
+                            <div style="font-weight:bold; color:#333; font-size:14px;">KSh ${item.p.toLocaleString()}</div>
+                            <div style="font-size:10px; color:#f68b1e; text-decoration:line-through;">KSh ${(item.p * 1.2).toFixed(0)}</div>
+                        </div>
+                        <button onclick="agriEngine.addToCart(${item.id})" style="width:100%; background:#f68b1e; color:white; border:none; padding:10px; font-weight:bold; font-size:12px; cursor:pointer;">ADD TO CART</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+};
+// 3. RESTORE CART VIEW & BUTTONS
+agriEngine.showCart = function() {
+    const v = document.getElementById('viewport');
+    const total = this.state.cart.reduce((sum, item) => sum + (item.p * item.qty), 0);
+    v.innerHTML = `
+        <div style="padding:20px; background:white; min-height:100vh;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f1f1f2; padding-bottom:15px; margin-bottom:20px;">
+                <h2 style="margin:0;">My Cart (${this.state.cart.length})</h2>
+                <button onclick="agriEngine.render()" style="background:none; border:none; color:#f68b1e; font-weight:bold;">CLOSE</button>
+            </div>
+            ${this.state.cart.length === 0 ? '<p style="text-align:center; color:#999; margin-top:50px;">Your cart is empty</p>' : 
+              this.state.cart.map(item => `
+                <div style="display:flex; gap:15px; padding:15px 0; border-bottom:1px solid #f1f1f2;">
+                    <div style="width:60px; height:60px; background:#eee; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:20px;">??</div>
+                    <div style="flex:1;">
+                        <div style="font-size:13px; font-weight:bold;">${item.n}</div>
+                        <div style="color:#f68b1e; font-weight:bold; margin-top:5px;">KSh ${item.p.toLocaleString()}</div>
+                        <div style="display:flex; align-items:center; gap:15px; margin-top:10px;">
+                            <button onclick="agriEngine.updateQty(${item.id}, -1)" style="width:25px; height:25px; border-radius:50%; border:1px solid #ddd; background:white;">-</button>
+                            <span>${item.qty}</span>
+                            <button onclick="agriEngine.updateQty(${item.id}, 1)" style="width:25px; height:25px; border-radius:50%; border:1px solid #ddd; background:white;">+</button>
+                        </div>
+                    </div>
+                </div>
+              `).join('')}
+            <div style="position:fixed; bottom:0; left:0; width:100%; background:white; padding:20px; box-shadow:0 -5px 15px rgba(0,0,0,0.05); box-sizing:border-box;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold;">
+                    <span>Total:</span>
+                    <span style="color:#f68b1e; font-size:18px;">KSh ${total.toLocaleString()}</span>
+                </div>
+                <button onclick="window.location.href='https://wa.me/254742178833?text=Order%20Total:%20KSh%20${total}'" style="width:100%; background:#25D366; color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; font-size:14px; cursor:pointer;">CHECKOUT VIA WHATSAPP</button>
+            </div>
+        </div>
+    `;
+};
+agriEngine.updateQty = function(id, delta) {
+    const item = this.state.cart.find(i => i.id === id);
+    if(item) {
+        item.qty += delta;
+        if(item.qty <= 0) {
+            this.state.cart = this.state.cart.filter(i => i.id !== id);
+        }
+        localStorage.setItem('agri_cart', JSON.stringify(this.state.cart));
+        this.showCart();
+    }
+};
+agriEngine.render();
