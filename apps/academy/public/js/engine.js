@@ -1,5 +1,4 @@
 const agriEngine = {
-    // --- MODULE 1: GLOBAL STATE ---
     state: {
         user: JSON.parse(localStorage.getItem('agri_student')),
         page: parseInt(localStorage.getItem('agri_progress')) || 1,
@@ -7,10 +6,8 @@ const agriEngine = {
         notices: JSON.parse(localStorage.getItem('agri_notices') || '[]'),
         directory: JSON.parse(localStorage.getItem('agri_directory') || '[{"id":"S001","name":"John Doe","course":"Maize","progress":45},{"id":"S002","name":"Mary Wanjiku","course":"Soil Science","progress":12}]')
     },
-    // --- MODULE 2: CONTENT ---
     market: [ { id: 101, loc: "Nairobi", price: "4,200" } ],
     chapters: [ { id: 1, title: "Course Introduction", content: "Welcome to your specialized professional track." } ],
-    // --- MODULE 3: INITIALIZATION ---
     init: function() {
         document.body.innerHTML = '<div id="app-viewport" style="background:#f4f7f6; min-height:100vh; font-family:sans-serif; margin:0;"></div>';
         this.render();
@@ -27,14 +24,12 @@ const agriEngine = {
         }
         view.innerHTML = html;
     },
-    // --- MODULE 4: SECURITY LAYER (Updated PIN) ---
-    adminToggle: function() {
-        const pass = prompt("Enter 4-Digit Admin PIN:");
+    // --- HIDDEN SECURITY LOGIC ---
+    secretUnlock: function() {
+        const pass = prompt("Command Center Security Key:");
         if(pass === "1234") {
             localStorage.setItem('agri_admin_mode', 'true');
             location.reload();
-        } else {
-            alert("Access Denied: Invalid PIN");
         }
     },
     renderAdminHeader: function() {
@@ -50,14 +45,14 @@ const agriEngine = {
             '<h3 style="color:#2d6a4f;">👥 Student Directory</h3>' +
             '<table style="width:100%; border-collapse:collapse; font-size:14px;">' +
                 '<tr style="background:#f0f2f5; text-align:left;">' +
-                    '<th style="padding:10px;">Student Name</th><th style="padding:10px;">Course</th><th style="padding:10px;">Manage</th>' +
+                    '<th style="padding:10px;">Name</th><th style="padding:10px;">Course</th><th style="padding:10px;">Manage</th>' +
                 '</tr>' +
                 this.state.directory.map((s, index) => '<tr>' +
                     '<td style="padding:10px; border-bottom:1px solid #eee;">' + s.name + '</td>' +
                     '<td style="padding:10px; border-bottom:1px solid #eee;">' + s.course + '</td>' +
                     '<td style="padding:10px; border-bottom:1px solid #eee;">' +
-                        '<button onclick="agriEngine.targetStudent(\''+s.name+'\')" style="color:#007bff; border:none; background:none; cursor:pointer; font-weight:bold;">PM</button>' +
-                        '<button onclick="agriEngine.removeStudent('+index+')" style="color:#ef4444; border:none; background:none; cursor:pointer; margin-left:10px;">Del</button>' +
+                        '<button onclick="agriEngine.targetStudent(\''+s.name+'\')" style="color:#007bff; border:none; background:none; cursor:pointer;">Message</button>' +
+                        '<button onclick="agriEngine.removeStudent('+index+')" style="color:#ef4444; border:none; background:none; cursor:pointer; margin-left:10px;">Remove</button>' +
                     '</td>' +
                 '</tr>').join('') +
             '</table>' +
@@ -65,9 +60,9 @@ const agriEngine = {
     },
     renderBroadcastPanel: function() {
         return '<div style="max-width:900px; margin:20px auto; background:#1a1a1a; color:white; padding:20px; border-radius:15px;">' +
-            '<h3>📢 Broadcast Message</h3>' +
-            '<input id="targetInput" placeholder="Target: All or Course Name" style="width:100%; padding:10px; border-radius:5px; margin-bottom:10px; background:#333; color:white; border:1px solid #444;">' +
-            '<textarea id="noticeMsg" placeholder="Type message..." style="width:100%; padding:10px; border-radius:5px; min-height:80px; box-sizing:border-box;"></textarea>' +
+            '<h3>📢 Send Notice</h3>' +
+            '<input id="targetInput" placeholder="Target Group or Name" style="width:100%; padding:10px; border-radius:5px; margin-bottom:10px; background:#333; color:white; border:1px solid #444;">' +
+            '<textarea id="noticeMsg" placeholder="Message content..." style="width:100%; padding:10px; border-radius:5px; min-height:80px; box-sizing:border-box;"></textarea>' +
             '<button onclick="agriEngine.sendNotice()" style="width:100%; margin-top:10px; padding:12px; background:#2d6a4f; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Blast Message</button>' +
         '</div>';
     },
@@ -77,8 +72,9 @@ const agriEngine = {
         return '<div style="max-width:800px; margin:20px auto; padding:0 20px;">' +
             noticeHtml +
             '<div style="background:white; padding:30px; border-radius:15px; border-left:10px solid #2d6a4f;">' +
-                '<h3>Academy</h3><p>Course content is live.</p>' +
-                '<p onclick="agriEngine.adminToggle()" style="font-size:10px; color:#ccc; cursor:pointer; margin-top:50px;">Admin Access</p>' +
+                '<h3 ondblclick="agriEngine.secretUnlock()" style="cursor:default; user-select:none;">Academy Dashboard</h3>' +
+                '<p>Your specialized course content is ready.</p>' +
+                '<div style="height:100px;"></div>' +
             '</div>' +
         '</div>';
     },
@@ -93,7 +89,7 @@ const agriEngine = {
         }
     },
     removeStudent: function(i) {
-        if(confirm("Delete?")) { this.state.directory.splice(i, 1); localStorage.setItem('agri_directory', JSON.stringify(this.state.directory)); this.render(); }
+        if(confirm("Delete student record?")) { this.state.directory.splice(i, 1); localStorage.setItem('agri_directory', JSON.stringify(this.state.directory)); this.render(); }
     }
 };
 document.addEventListener('DOMContentLoaded', () => agriEngine.init());
