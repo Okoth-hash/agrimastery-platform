@@ -3,135 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriMastery V65 - Jumia Style</title>
+    <title>AgriMastery V66 - Ultra Integrated</title>
     <style>
-        :root { --orange: #f68b1e; --green: #065f46; --dark: #0f172a; --slate: #1e293b; --cyan: #22d3ee; --bg: #f1f1f2; }
-        body { margin: 0; font-family: Roboto, -apple-system, sans-serif; background: var(--bg); color: #313133; }
-        /* JUMIA STYLE HEADER */
-        .jumia-header { background: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .logo { font-weight: 900; color: var(--orange); font-size: 20px; letter-spacing: -1px; }
-        .wallet-box { background: #fe9900; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
-        /* BROADCAST BANNER */
-        #alert-bar { background: #282828; color: white; padding: 8px; text-align: center; font-size: 12px; display: none; }
-        /* PRODUCT GRID */
-        .promo-banner { background: #e07000; height: 120px; margin: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden; }
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
-        .product-card { background: white; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
-        .product-card img { width: 100%; height: 140px; object-fit: cover; }
-        .p-info { padding: 8px; flex-grow: 1; }
-        .p-name { font-size: 13px; margin: 0; color: #313133; height: 32px; overflow: hidden; }
-        .p-price { font-size: 16px; font-weight: bold; margin: 5px 0; }
-        .p-old-price { font-size: 11px; text-decoration: line-through; color: #75757a; }
-        .add-btn { background: var(--orange); color: white; border: none; width: 100%; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 0 0 4px 4px; text-transform: uppercase; font-size: 12px; }
+        :root { --orange: #f68b1e; --green: #065f46; --dark: #0f172a; --slate: #1e293b; --cyan: #22d3ee; --bg: #f5f5f7; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: #333; }
+        /* PERSISTENT ADMIN ALERTS */
+        #broadcast-banner { background: var(--orange); color: white; padding: 10px; text-align: center; font-weight: 800; font-size: 13px; display: none; position: sticky; top: 0; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* JUMIA-STYLE TOP BAR */
+        .top-bar { background: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .logo { font-weight: 900; font-size: 22px; color: var(--orange); }
+        .wallet { background: #ff9900; color: white; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        /* CONTENT & GRID */
+        #viewport { padding-bottom: 90px; min-height: 100vh; }
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .card { background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .card img { width: 100%; height: 130px; object-fit: cover; }
+        .card-body { padding: 10px; flex-grow: 1; }
+        .buy-btn { background: var(--orange); color: white; border: none; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        /* ACADEMY & MESSAGING */
+        .msg-box { background: #e0f2fe; padding: 12px; border-radius: 8px; border-left: 5px solid var(--cyan); margin-bottom: 10px; position: relative; }
+        .reply-btn { color: var(--orange); font-weight: bold; font-size: 11px; cursor: pointer; background: none; border: none; float: right; }
         /* NAV */
-        #nav { position: fixed; bottom: 0; width: 100%; height: 60px; background: white; display: flex; border-top: 1px solid #e2e8f0; z-index: 2000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #75757a; cursor: pointer; }
-        .nav-active { color: var(--orange); }
-        /* ADMIN & ACADEMY */
-        .admin-view { background: var(--dark); color: white; min-height: 100vh; padding: 20px; font-family: monospace; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .input-field { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        .terminal { background: black; color: #4ade80; padding: 10px; height: 100px; overflow-y: auto; font-size: 10px; border: 1px solid #334155; }
+        #nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #ddd; z-index: 2000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #777; cursor: pointer; }
+        .active-nav { color: var(--orange); }
+        /* ADMIN TERMINAL */
+        .admin-bg { background: var(--dark); color: white; min-height: 100vh; padding: 20px; font-family: monospace; }
+        .terminal { background: black; color: #4ade80; padding: 10px; height: 150px; overflow-y: auto; border-radius: 5px; font-size: 11px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div id="alert-bar"></div>
+    <div id="broadcast-banner"></div>
     <div id="viewport"></div>
-    <div id="nav"></div>
+    <nav id="nav"></nav>
     <script>
-    const storageKey = 'AgriJumia_v65';
+    const storageKey = 'AgriUltra_v66';
     const db = JSON.parse(localStorage.getItem(storageKey)) || {
-        wallet: 950000,
+        wallet: 990000,
         users: [], 
         currentUser: null,
-        logs: ["Jumia-Style Market Online"],
+        logs: ["System V66: Fully Initialized"],
         adminLocked: true,
         broadcast: "",
-        adminInbox: [],
-        userMsgs: {}
+        messages: {}, // {username: [{txt, id, reply: null}]}
+        adminInbox: [] // [{from, msg, time}]
     };
-    const products = [
-        { id: 1, n: "Hybrid Maize Seeds - 2kg", p: 1200, op: 1500, img: "https://images.unsplash.com/photo-1551008471-013b946b551b?w=300" },
-        { id: 2, n: "Organic Fertilizer Premium", p: 4500, op: 5500, img: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=300" },
-        { id: 3, n: "Drip Irrigation Starter Kit", p: 8900, op: 12000, img: "https://images.unsplash.com/photo-1589923188900-85dae523342b?w=300" },
-        { id: 4, n: "Professional Pruning Shears", p: 2100, op: 2800, img: "https://images.unsplash.com/photo-1617576621334-904099496738?w=300" },
-        { id: 5, n: "NPK 17-17-17 (50kg Bag)", p: 6800, op: 7500, img: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" }
-    ];
     function save() { localStorage.setItem(storageKey, JSON.stringify(db)); }
     function log(m) { db.logs.push(`[${new Date().toLocaleTimeString()}] ${m}`); save(); }
+    const products = [
+        { id: 1, n: "F1 Greenhouse Tomato Seeds", p: 2500, op: 3200, img: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" },
+        { id: 2, n: "Solar Irrigation Pump", p: 45000, op: 52000, img: "https://images.unsplash.com/photo-1589923188900-85dae523342b?w=300" },
+        { id: 3, n: "Liquid Foliar Fertilizer", p: 1800, op: 2200, img: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=300" },
+        { id: 4, n: "Soil pH Digital Meter", p: 3500, op: 4500, img: "https://images.unsplash.com/photo-1617576621334-904099496738?w=300" }
+    ];
     function render() {
         const v = document.getElementById('viewport');
         const n = document.getElementById('nav');
-        const ab = document.getElementById('alert-bar');
+        const b = document.getElementById('broadcast-banner');
         const tab = window.activeTab || 'market';
-        if (db.broadcast) { ab.innerText = "?? ALERT: " + db.broadcast; ab.style.display = "block"; } 
-        else { ab.style.display = "none"; }
+        if(db.broadcast) { b.innerText = "?? " + db.broadcast; b.style.display = 'block'; }
+        else { b.style.display = 'none'; }
         if (tab === 'market') {
             v.innerHTML = `
-                <div class="jumia-header"><div class="logo">AGRI-JUMIA</div><div class="wallet-box">KSh ${db.wallet.toLocaleString()}</div></div>
-                <div class="promo-banner"><img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=500" style="width:100%; opacity:0.6; position:absolute;"> <span style="position:relative; z-index:1;">PLANTING SEASON DEALS</span></div>
+                <div class="top-bar"><div class="logo">AGRI-JUMIA</div><div class="wallet">KSh ${db.wallet.toLocaleString()}</div></div>
                 <div class="market-grid">
                     ${products.map(p => `
-                        <div class="product-card">
+                        <div class="card">
                             <img src="${p.img}">
-                            <div class="p-info">
-                                <p class="p-name">${p.n}</p>
-                                <p class="p-price">KSh ${p.p.toLocaleString()}</p>
-                                <p class="p-old-price">KSh ${p.op.toLocaleString()}</p>
+                            <div class="card-body">
+                                <p style="font-size:13px; margin:0;">${p.n}</p>
+                                <b style="font-size:16px;">KSh ${p.p.toLocaleString()}</b><br>
+                                <small style="text-decoration:line-through; color:#999;">KSh ${p.op.toLocaleString()}</small>
                             </div>
-                            <button onclick="buy(${p.p}, '${p.n}')" class="add-btn">ADD TO CART</button>
+                            <button onclick="buy(${p.p}, '${p.n}')" class="buy-btn">BUY NOW</button>
                         </div>
                     `).join('')}
                 </div>`;
-        } else if (tab === 'admin') {
-            if (db.adminLocked) {
-                v.innerHTML = `<div class="admin-view" style="display:flex; justify-content:center; align-items:center; flex-direction:column;">
-                    <h2 style="color:var(--orange);">ADMIN LOGIN</h2>
-                    <input id="pin" type="password" class="input-field" style="width:140px; text-align:center;">
-                    <button onclick="if(document.getElementById('pin').value==='1234'){db.adminLocked=false; render()}" class="add-btn" style="width:140px; margin-top:10px;">UNLOCK</button>
-                </div>`;
-            } else {
-                v.innerHTML = `<div class="admin-view">
-                    <h3>SYSTEM MASTER</h3>
-                    <div class="card" style="background:#1e293b; color:white;">
-                        <p style="font-size:10px;">BROADCAST (Pushes to Market/Academy)</p>
-                        <input id="bc" class="input-field" placeholder="Message...">
-                        <button onclick="db.broadcast=document.getElementById('bc').value; log('BC SENT'); render();" class="add-btn">PUSH ALERT</button>
-                    </div>
-                    <div class="card" style="background:#1e293b; color:white;">
-                        <p style="font-size:10px;">STUDENT REPLIES</p>
-                        ${db.adminInbox.map(m => `<div><b>${m.from}:</b> ${m.msg}</div>`).join('')}
-                    </div>
-                    <div class="terminal">${db.logs.map(l => `> ${l}`).reverse().join('<br>')}</div>
-                </div>`;
-            }
         } else if (tab === 'academy') {
             if (!db.currentUser) {
-                v.innerHTML = `<div style="padding:20px;"><div class="card"><h3>Academy Access</h3><input id="u" class="input-field"><button onclick="login()" class="add-btn">JOIN</button></div></div>`;
+                v.innerHTML = `<div style="padding:40px;"><div class="card" style="padding:20px;"><h3>Student Portal</h3><input id="u" class="buy-btn" style="background:white; color:black; border:1px solid #ddd; margin-bottom:10px;" placeholder="Your Name"><button onclick="login()" class="buy-btn">ACCESS ACADEMY</button></div></div>`;
             } else {
-                const msgs = db.userMsgs[db.currentUser] || [];
-                v.innerHTML = `<div style="padding:20px;">
-                    <h3>Hello, ${db.currentUser}</h3>
-                    <div class="card">
-                        <h4>Inbox</h4>
-                        ${msgs.map((m, i) => `<div style="padding:10px; background:#f9f9f9; margin-bottom:10px; border-left:4px solid var(--orange);">${m} <button onclick="reply(${i})" style="float:right; border:none; background:none; color:var(--orange); font-weight:bold;">REPLY</button></div>`).join('')}
+                const userMsgs = db.messages[db.currentUser] || [];
+                v.innerHTML = `<div style="padding:15px;">
+                    <div style="display:flex; justify-content:space-between;"><h3>${db.currentUser}'s Academy</h3><button onclick="db.currentUser=null; render()" style="background:none; border:none; color:red; font-weight:bold;">LOGOUT</button></div>
+                    <div class="card" style="padding:15px; margin-bottom:20px;">
+                        <h4>?? Private Instructions</h4>
+                        ${userMsgs.length === 0 ? '<p style="color:#999;">No messages from Admin.</p>' : userMsgs.map((m, i) => `
+                            <div class="msg-box">
+                                <b>Admin:</b> ${m.txt}
+                                <button class="reply-btn" onclick="toggleRep(${i})">REPLY</button>
+                                <div id="rep-area-${i}" style="display:none; margin-top:10px;">
+                                    <input id="input-${i}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" placeholder="Type reply...">
+                                    <button onclick="sendRep(${i})" class="buy-btn" style="padding:8px; margin-top:5px;">SEND REPLY</button>
+                                </div>
+                            </div>
+                        `).reverse().join('')}
                     </div>
+                </div>`;
+            }
+        } else if (tab === 'admin') {
+            if (db.adminLocked) {
+                v.innerHTML = `<div class="admin-bg" style="display:flex; flex-direction:column; align-items:center; justify-content:center;"><h2>ADMIN SECURE</h2><input id="pin" type="password" style="padding:15px; text-align:center;"><button onclick="if(document.getElementById('pin').value==='1234'){db.adminLocked=false; render()}" class="buy-btn" style="width:150px; margin-top:10px;">UNLOCK</button></div>`;
+            } else {
+                v.innerHTML = `<div class="admin-bg">
+                    <div style="display:flex; justify-content:space-between;"><span>V66 MASTER CONTROL</span><button onclick="db.adminLocked=true; render()" style="color:red; background:none; border:none;">[LOCK]</button></div>
+                    <div class="card" style="background:#1e293b; color:white; border:1px solid #334155; margin-top:15px; padding:15px;">
+                        <p style="font-size:11px; color:var(--cyan);">1. GLOBAL BROADCAST</p>
+                        <input id="bc-msg" style="width:100%; padding:10px; background:black; color:white; border:1px solid #444;" placeholder="Message to all...">
+                        <button onclick="db.broadcast=document.getElementById('bc-msg').value; log('BC Updated'); render();" class="buy-btn" style="margin-top:5px;">UPDATE BANNER</button>
+                    </div>
+                    <div class="card" style="background:#1e293b; color:white; border:1px solid #334155; padding:15px;">
+                        <p style="font-size:11px; color:var(--orange);">2. TARGETED DIRECT MESSAGE</p>
+                        <select id="target" style="width:100%; padding:10px; background:black; color:white; margin-bottom:5px;">
+                            <option value="">-- SELECT STUDENT --</option>
+                            ${db.users.map(u => `<option value="${u}">${u}</option>`).join('')}
+                        </select>
+                        <input id="dm-msg" style="width:100%; padding:10px; background:black; color:white; border:1px solid #444;" placeholder="Private message...">
+                        <button onclick="sendDM()" class="buy-btn" style="margin-top:5px; background:var(--cyan); color:black;">PUSH PRIVATE MESSAGE</button>
+                    </div>
+                    <p style="font-size:11px; color:var(--cyan); margin-top:15px;">STUDENT FEEDBACK</p>
+                    <div class="terminal">${db.adminInbox.length === 0 ? '> Waiting for student replies...' : db.adminInbox.map(m => `> [${m.from}] ${m.msg}`).reverse().join('<br>')}</div>
                 </div>`;
             }
         }
         n.innerHTML = `
-            <div onclick="window.activeTab='market'; render()" class="nav-item ${tab==='market'?'nav-active':''}">Home</div>
-            <div onclick="window.activeTab='academy'; render()" class="nav-item ${tab==='academy'?'nav-active':''}">Academy</div>
-            <div onclick="window.activeTab='admin'; render()" class="nav-item ${tab==='admin'?'nav-active':''}">Admin</div>
+            <div onclick="window.activeTab='market'; render()" class="nav-item ${tab==='market'?'active-nav':''}">Market</div>
+            <div onclick="window.activeTab='academy'; render()" class="nav-item ${tab==='academy'?'active-nav':''}">Academy</div>
+            <div onclick="window.activeTab='admin'; render()" class="nav-item ${tab==='admin'?'active-nav':''}">Admin</div>
         `;
     }
     window.buy = function(p, n) {
-        if(db.wallet >= p) { db.wallet -= p; log('BOUGHT: ' + n); save(); render(); alert('Successfully Ordered ' + n); }
+        if(db.wallet >= p) { db.wallet -= p; log('BOUGHT: ' + n); save(); render(); alert('Ordered: ' + n); }
         else { alert('Insufficient Balance'); }
     };
     window.login = function() {
         const u = document.getElementById('u').value;
-        if(u) { db.currentUser = u; if(!db.users.includes(u)) db.users.push(u); save(); render(); }
+        if(u) { db.currentUser = u; if(!db.users.includes(u)) db.users.push(u); log('LOGIN: ' + u); save(); render(); }
+    };
+    window.sendDM = function() {
+        const t = document.getElementById('target').value;
+        const m = document.getElementById('dm-msg').value;
+        if(t && m) { 
+            if(!db.messages[t]) db.messages[t] = [];
+            db.messages[t].push({txt: m, id: Date.now()});
+            log('DM TO ' + t); save(); render(); alert('Message Sent!');
+        }
+    };
+    window.toggleRep = function(i) { const el = document.getElementById('rep-area-'+i); el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
+    window.sendRep = function(i) {
+        const txt = document.getElementById('input-'+i).value;
+        if(txt) {
+            db.adminInbox.push({from: db.currentUser, msg: txt, time: new Date().toLocaleTimeString()});
+            log('REPLY FROM ' + db.currentUser); save(); render(); alert('Reply Sent to Admin!');
+        }
     };
     render();
     </script>
