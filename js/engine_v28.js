@@ -1,94 +1,71 @@
-// 1. DATA LOCK SYSTEM (LocalStorage)
-const savedData = JSON.parse(localStorage.getItem('agriMasteryData')) || {};
-agriEngine.state = {
-    activeTab: 'academy',
-    wallet: savedData.wallet || 15000,
+// 1. DATA PERSISTENCE (Safe Load)
+const saved = JSON.parse(localStorage.getItem('agriMasteryData')) || {};
+agriEngine.state = agriEngine.state || {
+    activeTab: 'admin',
+    wallet: saved.wallet || 15000,
     isLoggedIn: false,
-    selectedCourse: null,
-    registeredUnits: savedData.registeredUnits || [],
-    inClassroom: false,
-    currentUnit: null,
-    classPage: 1,
+    registeredUnits: saved.registeredUnits || [],
     inventory: []
 };
-// Function to save data every time something changes
+// 2. DATA PROTECTION (Save Function)
 agriEngine.save = function() {
-    const toSave = {
+    localStorage.setItem('agriMasteryData', JSON.stringify({
         wallet: this.state.wallet,
         registeredUnits: this.state.registeredUnits
-    };
-    localStorage.setItem('agriMasteryData', JSON.stringify(toSave));
+    }));
 };
-// 2. RESTORE MARKET (110 Items)
-for(let i=1; i<=110; i++) {
-    agriEngine.state.inventory.push({
-        id: i, n: "Agri-Master Pro SKU-" + i, p: 1250 + (i * 25), op: 2800,
-        i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300"
-    });
+// 3. RESTORE MARKET DATA
+if(agriEngine.state.inventory.length === 0) {
+    for(let i=1; i<=110; i++) {
+        agriEngine.state.inventory.push({
+            id: i, n: "Agri-Master Pro SKU-" + i, p: 1250 + (i * 25), op: 2800,
+            i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300"
+        });
+    }
 }
-// 3. QUIZ DATABASE
-const unitQuizzes = {
-    'Crop Economics': { q: "To increase profit, should you sell when supply is High or Low?", a: "Low", reward: 2000 },
-    'pH Optimization': { q: "Which material is used to raise the pH of acidic soil?", a: "Lime", reward: 2500 }
-};
-// 4. CLASSROOM & QUIZ RENDERER
-agriEngine.renderAcademy = (v) => {
-    if (!agriEngine.state.isLoggedIn) {
-        v.innerHTML = `<div style="padding:40px 20px; text-align:center; background:#f8fafc; min-height:100vh;">
-            <div style="background:white; padding:30px; border-radius:25px; box-shadow:0 15px 35px rgba(0,0,0,0.1);">
-                <img src="https://cdn-icons-png.flaticon.com/128/3443/3443421.png" style="width:80px; margin-bottom:15px;">
-                <h2 style="color:#065f46; margin:0;">Student Portal</h2>
-                <p style="color:#64748b; font-size:12px; margin-bottom:20px;">Welcome back, Omondi Robin</p>
-                <input type="password" id="p" placeholder="PIN" style="width:80px; padding:15px; border:2px solid #ddd; border-radius:10px; text-align:center; font-size:20px;">
-                <button onclick="if(document.getElementById('p').value==='1234'){agriEngine.state.isLoggedIn=true; agriEngine.render();}" style="width:100%; background:#065f46; color:white; border:none; padding:18px; border-radius:12px; font-weight:bold; margin-top:20px;">SIGN IN</button>
-            </div>
-        </div>`;
-        return;
-    }
-    if (agriEngine.state.inClassroom) {
-        const quiz = unitQuizzes[agriEngine.state.currentUnit];
-        v.innerHTML = `<div style="padding:20px; background:white; min-height:100vh;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <button onclick="agriEngine.state.inClassroom=false; agriEngine.render();" style="background:#eee; border:none; padding:8px 15px; border-radius:5px;">Exit</button>
-                <span style="font-weight:bold; color:#065f46;">Unit: ${agriEngine.state.currentUnit}</span>
-            </div>
-            <div style="background:#fff7ed; padding:25px; border-radius:20px; border:2px dashed #f68b1e; text-align:center;">
-                <h3 style="color:#f68b1e; margin-top:0;">Final Unit Quiz</h3>
-                <p style="font-size:16px;">${quiz.q}</p>
-                <input type="text" id="ans" placeholder="Your Answer" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:10px; margin-bottom:15px; text-align:center;">
-                <button onclick="if(document.getElementById('ans').value.toLowerCase()==='${quiz.a.toLowerCase()}'){agriEngine.state.wallet+=${quiz.reward}; agriEngine.save(); alert('Correct! KSh ${quiz.reward} added to wallet.'); agriEngine.state.inClassroom=false; agriEngine.render();}else{alert('Try again!')}" 
-                    style="width:100%; background:#f68b1e; color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">SUBMIT FOR REWARD</button>
-            </div>
-        </div>`;
-        return;
-    }
-    v.innerHTML = `<div style="padding:20px; background:#f1f5f9; min-height:100vh;">
-        <div style="background:white; padding:15px; border-radius:15px; display:flex; align-items:center; margin-bottom:20px;">
-            <img src="https://cdn-icons-png.flaticon.com/128/201/201614.png" style="width:50px;">
-            <div style="margin-left:15px;"><h4 style="margin:0;">OMONDI ROBIN</h4><p style="margin:0; font-size:11px; color:green;">Wallet: KSh ${agriEngine.state.wallet.toLocaleString()}</p></div>
+// 4. NEW ADMIN RENDERER (Enhanced)
+agriEngine.renderAdmin = (v) => {
+    v.innerHTML = `<div style="padding:20px; background:#0f172a; min-height:100vh; color:white;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="color:#38bdf8; margin:0;">SYSTEM ADMIN</h2>
+            <div style="background:#10b981; padding:5px 10px; border-radius:20px; font-size:10px; font-weight:bold;">DATA LOCKED ??</div>
         </div>
-        <h3>My Courses</h3>
-        ${agriEngine.state.registeredUnits.map(unit => `<div style="background:white; padding:20px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border-left:5px solid #065f46;">
-            <span>${unit}</span><button onclick="agriEngine.state.currentUnit='${unit}'; agriEngine.state.inClassroom=true; agriEngine.render();" style="background:#065f46; color:white; border:none; padding:8px 15px; border-radius:5px;">TAKE QUIZ</button>
-        </div>`).join('')}
-        <button onclick="if(!agriEngine.state.registeredUnits.includes('Crop Economics')){agriEngine.state.registeredUnits.push('Crop Economics'); agriEngine.save(); agriEngine.render();}" style="width:100%; padding:15px; background:white; border:1px solid #065f46; border-radius:10px; color:#065f46; font-weight:bold;">+ Enroll: Crop Economics</button>
+        <div style="background:#1e293b; padding:20px; border-radius:15px; border:1px solid #334155; margin-bottom:15px;">
+            <p style="font-size:12px; color:#94a3b8; margin:0;">WALLET BALANCE</p>
+            <h2 style="margin:5px 0; color:#4ade80;">KSh ${agriEngine.state.wallet.toLocaleString()}</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:15px;">
+                <button onclick="agriEngine.state.wallet+=5000; agriEngine.save(); agriEngine.render();" style="background:#334155; color:white; border:none; padding:10px; border-radius:5px; font-size:11px; cursor:pointer;">+5K</button>
+                <button onclick="agriEngine.state.wallet+=10000; agriEngine.save(); agriEngine.render();" style="background:#334155; color:white; border:none; padding:10px; border-radius:5px; font-size:11px; cursor:pointer;">+10K</button>
+                <button onclick="agriEngine.state.wallet+=50000; agriEngine.save(); agriEngine.render();" style="background:#38bdf8; color:#0f172a; border:none; padding:10px; border-radius:5px; font-weight:bold; font-size:11px; cursor:pointer;">+50K</button>
+            </div>
+        </div>
+        <div style="background:#1e293b; padding:20px; border-radius:15px; border:1px solid #334155;">
+            <h4 style="margin:0 0 15px; color:#38bdf8;">STUDENT PROGRESS</h4>
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
+                <span>Registered Units:</span>
+                <span style="color:#4ade80; font-weight:bold;">${agriEngine.state.registeredUnits.length}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
+                <span>Market Inventory:</span>
+                <span style="color:#4ade80; font-weight:bold;">110 Items</span>
+            </div>
+            <button onclick="if(confirm('Wipe all local data?')){localStorage.clear(); location.reload();}" style="width:100%; background:none; border:1px solid #ef4444; color:#ef4444; padding:10px; border-radius:5px; margin-top:10px; font-size:11px; cursor:pointer;">SYSTEM RESET</button>
+        </div>
     </div>`;
 };
-// 5. MASTER SYNC
+// 5. MASTER RENDERER SYNC
 agriEngine.render = function() {
     const v = document.getElementById('viewport');
     const n = document.getElementById('bottom-nav');
-    if(this.state.activeTab === 'admin') {
-        v.innerHTML = `<div style="padding:20px;"><h2>ADMIN</h2><p>Wallet: KSh ${this.state.wallet.toLocaleString()}</p><button onclick="agriEngine.state.wallet+=5000; agriEngine.save(); agriEngine.render();" style="padding:15px; width:100%; background:green; color:white; border-radius:10px;">GIFT 5K</button></div>`;
-    } 
+    if(this.state.activeTab === 'admin') this.renderAdmin(v);
     else if(this.state.activeTab === 'academy') this.renderAcademy(v);
     else if(this.state.activeTab === 'tools') {
-        v.innerHTML = `<div style="padding:20px;"><h3>20 TOOLS ACTIVE</h3></div>`;
+        v.innerHTML = `<div style="padding:20px;"><h3>TOOLS</h3><p>20 Agri-Calculators Loaded</p></div>`;
     }
     else {
-        v.innerHTML = `<div style="background:#f68b1e; padding:15px; color:white; font-weight:bold;">?? MARKET | Wallet: KSh ${this.state.wallet.toLocaleString()}</div><div style="padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">${this.state.inventory.slice(0,6).map(i=>`<div style="background:white; padding:10px; border-radius:5px;"><div style="font-size:11px;">${i.n}</div><div style="font-weight:bold; color:#f68b1e;">KSh ${i.p}</div></div>`).join('')}</div>`;
+        v.innerHTML = `<div style="background:#f68b1e; color:white; padding:15px; font-weight:bold;">?? MARKET | Wallet: KSh ${this.state.wallet.toLocaleString()}</div>`;
     }
     const tabs = [{id:'admin', l:'ADMIN'}, {id:'academy', l:'ACADEMY'}, {id:'tools', l:'TOOLS'}, {id:'market', l:'MARKET'}];
-    n.innerHTML = tabs.map(t => `<div onclick="agriEngine.state.activeTab='${t.id}'; agriEngine.render();" style="flex:1; text-align:center; padding:25px 0; color:${this.state.activeTab===t.id?'#f68b1e':'#94a3af'}; font-weight:bold; font-size:11px;">${t.l}</div>`).join('');
+    n.innerHTML = tabs.map(t => `<div onclick="agriEngine.state.activeTab='${t.id}'; agriEngine.render();" style="flex:1; text-align:center; padding:25px 0; color:${this.state.activeTab===t.id?'#f68b1e':'#94a3af'}; font-weight:bold; font-size:11px; cursor:pointer;">${t.l}</div>`).join('');
 };
 agriEngine.render();
