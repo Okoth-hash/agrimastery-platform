@@ -1398,3 +1398,54 @@ agriEngine.exitManual = function() {
 // 3. RE-SYNC DASHBOARD
 agriEngine.renderNav();
 agriEngine.render();
+// 1. EXPANDED JUMIA INVENTORY (100+ Items with Real Images)
+agriEngine.state.inventory = [
+    { id: 1, n: "Pioneer Maize Seeds (10kg)", p: 2450, i: "https://images.unsplash.com/photo-1551009175-8a68da93d5f9?w=200", cat: "Seeds" },
+    { id: 2, n: "NPK 17:17:17 Fertilizer (50kg)", p: 5800, i: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=200", cat: "Fertilizer" },
+    { id: 3, n: "Solar Water Pump System", p: 15500, i: "https://images.unsplash.com/photo-1581094288338-2314dddb7903?w=200", cat: "Equipment" },
+    { id: 4, n: "Organic Compost (25kg)", p: 850, i: "https://images.unsplash.com/photo-1615811361523-6bd03d7748e7?w=200", cat: "Fertilizer" },
+    { id: 5, n: "Steel Hand Hoe", p: 450, i: "https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?w=200", cat: "Tools" }
+    // Note: Logic below will dynamically fill up to 100+ items for demonstration
+];
+// Dynamically generate the remaining items to reach 100+
+for(let i=6; i<=105; i++) {
+    agriEngine.state.inventory.push({
+        id: i,
+        n: `Agri-Product SKU-${1000 + i}`,
+        p: Math.floor(Math.random() * 5000) + 200,
+        i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=200",
+        cat: i % 2 === 0 ? "General" : "Supplies"
+    });
+}
+// 2. JUMIA-STYLE MARKET RENDERER
+agriEngine.renderEasyShop = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    v.innerHTML = `
+        <div style="background:#f1f1f2; min-height:100vh; padding-bottom:100px;">
+            <div style="background:#f68b1e; color:white; padding:10px 15px; font-weight:bold; font-size:12px; display:flex; justify-content:space-between;">
+                <span>?? Help: 0742178833</span>
+                <span>KSh ${this.state.wallet.toLocaleString()}</span>
+            </div>
+            <div style="background:white; padding:15px; border-bottom:1px solid #ddd; margin-bottom:10px;">
+                <h2 style="margin:0; color:#f68b1e; font-size:18px;">Agri-Flash Sales</h2>
+                <p style="margin:0; font-size:10px; color:#75757a;">Top Agricultural Deals in Kenya</p>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 8px;">
+                ${this.state.inventory.map(item => `
+                    <div style="background:white; border-radius:4px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+                        <img src="${item.i}" style="width:100%; height:120px; object-fit:cover;">
+                        <div style="padding:8px; flex:1;">
+                            <div style="font-size:11px; color:#333; height:30px; overflow:hidden; line-height:1.2;">${item.n}</div>
+                            <div style="font-weight:bold; font-size:14px; margin-top:5px;">KSh ${item.p.toLocaleString()}</div>
+                            <div style="font-size:10px; color:#f68b1e; text-decoration:line-through;">KSh ${(item.p * 1.3).toFixed(0)}</div>
+                        </div>
+                        <button onclick="agriEngine.addToCart(${item.id})" style="width:100%; background:#f68b1e; color:white; border:none; padding:8px; font-weight:bold; font-size:11px; cursor:pointer; border-radius:0 0 4px 4px;">ADD TO CART</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+};
+// 3. FINAL UI RESYNC (Ensures Nav is always on bottom)
+agriEngine.state.activeTab = 'market'; // Set Market as default starting page
+agriEngine.render();
