@@ -1260,3 +1260,43 @@ vLabel.style.cssText = "position:fixed; top:5px; left:5px; background:red; color
 vLabel.innerText = "LIVE SYNC V5";
 document.body.appendChild(vLabel);
 agriEngine.init();
+// --- HIGH PRIORITY APPEND LAYER (V6) ---
+// 1. PIN & SECURITY INITIALIZATION
+agriEngine.adminState = { isLocked: true, correctPin: "1234" };
+// 2. FORCE ACADEMY DATA INJECTION
+agriEngine.curriculum = [
+    { id: "crop101", n: "Crop Science Mastery", i: "??", progress: 35, desc: "Yield optimization." },
+    { id: "live201", n: "Livestock Management", i: "??", progress: 0, desc: "Health & Breeding." },
+    { id: "biz301", n: "Agri-Business Expert", i: "??", progress: 10, desc: "Market Scaling." }
+];
+// 3. MULTI-COLOR TOOL DATA
+agriEngine.toolsList = [
+    { id: "harv", n: "Harvest Calc", i: "??", c: "#2d6a4f" },
+    { id: "soil", n: "pH Guide", i: "??", c: "#ae2012" },
+    { id: "rain", n: "Rainfall Log", i: "???", c: "#0077b6" },
+    { id: "prof", n: "Profit Proj", i: "??", c: "#f68b1e" }
+    // ... logic handles the rest dynamically
+];
+// 4. THE OVERRIDE DISPATCHER (Forces visibility on all tabs)
+const finalDispatch = function() {
+    const v = document.getElementById('viewport');
+    if(!v) return;
+    const active = agriEngine.state.activeTab;
+    // Header check for Support Number
+    const nav = document.getElementById('nav');
+    if(nav && !nav.innerHTML.includes('0742178833')) {
+        agriEngine.renderNav();
+    }
+    if (active === 'student') agriEngine.renderAcademy(v);
+    if (active === 'tools') agriEngine.renderTools(v);
+    if (active === 'admin') agriEngine.renderAdmin(v);
+    if (active === 'market') agriEngine.renderEasyShop(v);
+};
+// 5. CACHE BREAKER & AUTO-EXECUTE
+console.log("APPEND V6: System Layered Successfully.");
+setInterval(finalDispatch, 1500); // Forces the UI to stay updated every 1.5 seconds
+// VISUAL CONFIRMATION TAG
+const statusTag = document.createElement('div');
+statusTag.style.cssText = "position:fixed; top:10px; left:10px; background:#25d366; color:white; font-size:9px; padding:3px 8px; border-radius:20px; z-index:100000; font-weight:bold;";
+statusTag.innerText = "APPEND V6 ACTIVE";
+document.body.appendChild(statusTag);
