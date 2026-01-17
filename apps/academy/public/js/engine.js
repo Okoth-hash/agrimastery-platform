@@ -1,94 +1,95 @@
 const agriEngine = {
-    // --- MODULE: DATA ---
     state: {
         user: JSON.parse(localStorage.getItem('agri_student')),
         page: parseInt(localStorage.getItem('agri_progress')) || 1,
-        isAdmin: localStorage.getItem('agri_admin_mode') === 'true'
+        isAdmin: localStorage.getItem('agri_admin_mode') === 'true',
+        notices: JSON.parse(localStorage.getItem('agri_notices') || '[]')
     },
-    chapters: [
-        { id: 1, title: "Soil Chemistry", content: "Focus on Nitrogen levels for early maize growth." },
-        { id: 2, title: "Seed Selection", content: "Choose certified hybrids for Kenya's Climate." }
+    // --- MARKET DATABASE ---
+    market: [
+        { id: 101, loc: "Nairobi", price: "4,200" },
+        { id: 102, loc: "Eldoret", price: "3,800" }
     ],
-    // --- MODULE: ADMIN LOGIC (New Append) ---
-    admin: {
-        stats: { totalStudents: 124, activeToday: 18, completions: 5 },
-        toggle: function() {
-            const pass = prompt("Enter Admin Security Key:");
-            if(pass === "2026") {
-                localStorage.setItem('agri_admin_mode', 'true');
-                location.reload();
-            }
-        },
-        logout: function() {
-            localStorage.removeItem('agri_admin_mode');
-            location.reload();
-        }
-    },
+    // --- ACADEMY DATABASE ---
+    chapters: [
+        { id: 1, title: "Soil Chemistry", content: "Focus on Nitrogen levels." },
+        { id: 2, title: "Seed Selection", content: "Choose certified hybrids." }
+    ],
     init: function() {
         document.body.innerHTML = '<div id="app-viewport" style="background:#f4f7f6; min-height:100vh; font-family:sans-serif; margin:0;"></div>';
         this.render();
     },
     render: function() {
         const view = document.getElementById('app-viewport');
-        // 1. Always Render the Admin Header if in Admin Mode
         let html = '';
         if(this.state.isAdmin) {
             html += this.renderAdminDashboard();
-        }
-        // 2. Render Student Content or Login
-        if (!this.state.user && !this.state.isAdmin) {
-            html += this.renderLogin();
+            html += this.renderDatabaseManager();
+            html += this.renderBroadcastPanel();
         } else {
-            html += this.renderStudentManual();
+            html += this.renderStudentView();
         }
         view.innerHTML = html;
     },
-    renderAdminDashboard: function() {
-        return '<div style="background:#1a1a1a; color:white; padding:20px; border-bottom:4px solid #2d6a4f;">' +
-            '<div style="max-width:800px; margin:auto; display:flex; justify-content:space-between; align-items:center;">' +
-                '<div><h2 style="margin:0; color:#0f0;">⚡ Admin Command</h2><p style="font-size:12px; margin:0;">System Health: Optimal</p></div>' +
-                '<button onclick="agriEngine.admin.logout()" style="background:#cc0000; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Exit Admin</button>' +
-            '</div>' +
-            '<div style="max-width:800px; margin:15px auto 0; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">' +
-                '<div style="background:#333; padding:10px; border-radius:8px; text-align:center;"><b>' + this.admin.stats.totalStudents + '</b><br><small>Students</small></div>' +
-                '<div style="background:#333; padding:10px; border-radius:8px; text-align:center;"><b>' + this.admin.stats.activeToday + '</b><br><small>Active</small></div>' +
-                '<div style="background:#333; padding:10px; border-radius:8px; text-align:center;"><b>' + this.admin.stats.completions + '</b><br><small>Certificates</small></div>' +
-            '</div>' +
-        '</div>';
-    },
-    renderLogin: function() {
-        return '<div style="max-width:400px; margin:100px auto; background:white; padding:30px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.1); text-align:center;">' +
-            '<h2>AgriMastery Login</h2>' +
-            '<input type="text" id="uName" placeholder="Student Name" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px;">' +
-            '<button onclick="agriEngine.login()" style="width:100%; padding:12px; background:#2d6a4f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Enter Academy</button>' +
-            '<p onclick="agriEngine.admin.toggle()" style="font-size:11px; color:#999; margin-top:20px; cursor:pointer;">Admin Portal</p>' +
-        '</div>';
-    },
-    renderStudentManual: function() {
-        const ch = this.chapters.find(c => c.id === this.state.page) || this.chapters[0];
-        const userName = this.state.user ? this.state.user.name : "Administrator";
-        return '<div style="max-width:800px; margin:20px auto; padding:0 20px;">' +
-            '<div style="background:white; padding:30px; border-radius:15px; border-left:10px solid #2d6a4f; box-shadow:0 4px 6px rgba(0,0,0,0.05);">' +
-                '<small style="color:#666;">Student: ' + userName + ' | Page ' + this.state.page + ' of 1000</small>' +
-                '<h3>' + ch.title + '</h3>' +
-                '<p style="line-height:1.6; color:#444;">' + ch.content + '</p>' +
-                '<div style="margin-top:20px; display:flex; gap:10px;">' +
-                    '<button onclick="agriEngine.move(-1)" style="padding:10px 20px; border:1px solid #ddd; background:white; border-radius:5px; cursor:pointer;">Previous</button>' +
-                    '<button onclick="agriEngine.move(1)" style="padding:10px 20px; background:#2d6a4f; color:white; border:none; border-radius:5px; cursor:pointer;">Next Chapter</button>' +
+    // --- NEW: DATABASE MANAGEMENT UI ---
+    renderDatabaseManager: function() {
+        return '<div style="max-width:800px; margin:20px auto; background:white; padding:20px; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05);">' +
+            '<h3 style="color:#2d6a4f;">📂 Database Management</h3>' +
+            '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">' +
+                '<div><h4>Market Prices</h4>' + 
+                this.market.map(m => '<div style="font-size:12px; border-bottom:1px solid #eee; padding:5px 0;">' + m.loc + ': ' + m.price + ' <button style="font-size:9px; color:red; border:none; background:none; cursor:pointer;">Edit</button></div>').join('') +
+                '</div>' +
+                '<div><h4>Academy Chapters</h4>' + 
+                this.chapters.map(c => '<div style="font-size:12px; border-bottom:1px solid #eee; padding:5px 0;">' + c.id + '. ' + c.title + ' <button style="font-size:9px; color:red; border:none; background:none; cursor:pointer;">Edit Content</button></div>').join('') +
                 '</div>' +
             '</div>' +
+            '<button style="margin-top:15px; background:#2d6a4f; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; width:100%;">Add New Database Entry +</button>' +
         '</div>';
     },
-    login: function() {
-        const n = document.getElementById('uName').value;
-        if(n) {
-            localStorage.setItem('agri_student', JSON.stringify({name: n}));
+    // --- NEW: BROADCAST PANEL ---
+    renderBroadcastPanel: function() {
+        return '<div style="max-width:800px; margin:20px auto; background:#1a1a1a; color:white; padding:20px; border-radius:15px;">' +
+            '<h3>📢 Broadcast Notice</h3>' +
+            '<select id="targetGroup" style="width:100%; padding:10px; border-radius:5px; margin-bottom:10px;">' +
+                '<option value="all">All Students</option>' +
+                '<option value="maize">Maize Group</option>' +
+                '<option value="individual">Specific ID (Individual)</option>' +
+            '</select>' +
+            '<textarea id="noticeMsg" placeholder="Type message here..." style="width:100%; padding:10px; border-radius:5px; min-height:80px; box-sizing:border-box;"></textarea>' +
+            '<button onclick="agriEngine.sendNotice()" style="width:100%; margin-top:10px; padding:12px; background:#007bff; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Send Broadcast</button>' +
+        '</div>';
+    },
+    sendNotice: function() {
+        const target = document.getElementById('targetGroup').value;
+        const msg = document.getElementById('noticeMsg').value;
+        if(msg) {
+            const newNotice = { target, msg, date: new Date().toLocaleDateString() };
+            const allNotices = this.state.notices;
+            allNotices.push(newNotice);
+            localStorage.setItem('agri_notices', JSON.stringify(allNotices));
+            alert("Broadcast sent to: " + target);
             location.reload();
         }
     },
+    renderStudentView: function() {
+        // Filter notices for this specific student
+        const myNotices = this.state.notices.filter(n => n.target === 'all' || (this.state.user && n.target === this.state.user.name));
+        let noticeHtml = '';
+        if(myNotices.length > 0) {
+            noticeHtml = myNotices.map(n => '<div style="background:#fff3cd; padding:15px; border-radius:10px; border-left:5px solid #ffc107; margin-bottom:15px;"><b>🔔 Notice:</b> ' + n.msg + '</div>').join('');
+        }
+        const ch = this.chapters.find(c => c.id === this.state.page) || this.chapters[0];
+        return '<div style="max-width:800px; margin:20px auto; padding:0 20px;">' +
+            noticeHtml +
+            '<div style="background:white; padding:30px; border-radius:15px; border-left:10px solid #2d6a4f; box-shadow:0 4px 6px rgba(0,0,0,0.05);">' +
+                '<h3>' + ch.title + '</h3>' +
+                '<p>' + ch.content + '</p>' +
+                '<button onclick="agriEngine.move(1)" style="padding:10px 20px; background:#2d6a4f; color:white; border:none; border-radius:5px; cursor:pointer;">Next Chapter</button>' +
+            '</div>' +
+        '</div>';
+    },
     move: function(dir) {
         this.state.page += dir;
-        if(this.state.page < 1) this.state.page = 1;
         localStorage.setItem('agri_progress', this.state.page);
         this.render();
     }
