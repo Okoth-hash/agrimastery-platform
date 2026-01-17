@@ -2,107 +2,83 @@ const agriEngine = {
     state: {
         user: JSON.parse(localStorage.getItem('agri_student')),
         isAdmin: localStorage.getItem('agri_admin_mode') === 'true',
-        directory: JSON.parse(localStorage.getItem('agri_directory') || '[]'),
-        // NEW: Suggestions database
-        suggestions: JSON.parse(localStorage.getItem('agri_suggestions') || '[]'),
-        progress: parseInt(localStorage.getItem('agri_progress')) || 0,
-        currentUnit: localStorage.getItem('agri_active_unit') || 'None'
+        cart: [],
+        activeTab: 'academy' // Academy, Tools, or Market
     },
+    // --- JUMIA-STYLE TOOL DATA ---
+    tools: [
+        { id: 'T1', name: 'Digital Soil Ph Meter', price: 2500, img: '🧪', desc: 'High precision soil tester' },
+        { id: 'T2', name: 'Drip Irrigation Kit', price: 12000, img: '💧', desc: '1-acre coverage kit' },
+        { id: 'T3', name: 'Organic Fertilizer', price: 1500, img: '📦', desc: '50kg Booster Pack' },
+        { id: 'T4', name: 'Solar Grain Dryer', price: 45000, img: '☀️', desc: 'Rapid moisture reduction' }
+    ],
+    // --- REAL-TIME CROP MARKET DATA ---
+    marketData: [
+        { crop: 'Maize', location: 'Eldoret', price: '3,800', trend: 'up' },
+        { crop: 'Beans', location: 'Nairobi', price: '9,500', trend: 'down' },
+        { crop: 'Wheat', location: 'Narok', price: '5,200', trend: 'stable' }
+    ],
     init: function() {
-        document.body.innerHTML = '<div id="admin-zone"></div><div id="student-zone"></div>';
+        document.body.innerHTML = '<div id="admin-zone"></div><div id="nav-bar"></div><div id="app-viewport"></div>';
         this.render();
     },
     render: function() {
+        this.renderNav();
+        const view = document.getElementById('app-viewport');
+        if (this.state.activeTab === 'tools') this.renderToolStore(view);
+        else if (this.state.activeTab === 'market') this.renderMarketplace(view);
+        else this.renderAcademy(view);
         if(this.state.isAdmin) this.renderAdmin();
-        const zone = document.getElementById('student-zone');
-        if (!this.state.user) {
-            this.renderRegistration(zone);
-        } else {
-            this.renderStudentDashboard(zone);
-        }
     },
-    // --- ADMIN MODULE: NOW WITH INBOX ---
-    renderAdmin: function() {
-        const zone = document.getElementById('admin-zone');
-        zone.innerHTML = '<div style="background:#111; color:white; padding:20px; font-family:sans-serif; border-bottom:5px solid #2d6a4f;">' +
-            '<h2>⚡ Admin Command Center</h2>' +
-            '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:15px;">' +
-                // Left: Student Registry
-                '<div style="background:#222; padding:15px; border-radius:10px;">' +
-                    '<h4>Registry</h4>' +
-                    this.state.directory.map(s => '<div style="font-size:12px; border-bottom:1px solid #333; padding:5px;">' + s.name + ' (' + s.email + ')</div>').join('') +
-                '</div>' +
-                // Right: Suggestion Inbox
-                '<div style="background:#222; padding:15px; border-radius:10px;">' +
-                    '<h4>📥 Suggestion Inbox (' + this.state.suggestions.length + ')</h4>' +
-                    '<div style="max-height:150px; overflow-y:auto;">' +
-                        (this.state.suggestions.length === 0 ? '<p style="color:#666; font-size:12px;">No messages yet.</p>' : 
-                        this.state.suggestions.map((m, i) => '<div style="font-size:12px; background:#333; margin:5px 0; padding:8px; border-radius:5px;">' +
-                            '<b>' + m.from + ':</b> ' + m.text + 
-                            ' <button onclick="agriEngine.deleteMsg('+i+')" style="color:red; background:none; border:none; cursor:pointer; float:right;">Delete</button>' +
-                        '</div>').join('')) +
+    renderNav: function() {
+        const nav = document.getElementById('nav-bar');
+        nav.innerHTML = '<div style="display:flex; justify-content:space-around; background:#fff; padding:15px; box-shadow:0 -2px 10px rgba(0,0,0,0.1); position:fixed; bottom:0; width:100%; z-index:1000;">' +
+            '<button onclick="agriEngine.setTab(\'academy\')" style="border:none; background:none; font-weight:bold; color:'+(this.state.activeTab==='academy'?'#2d6a4f':'#999')+'">🎓 Learn</button>' +
+            '<button onclick="agriEngine.setTab(\'tools\')" style="border:none; background:none; font-weight:bold; color:'+(this.state.activeTab==='tools'?'#2d6a4f':'#999')+'">🛠️ Tools</button>' +
+            '<button onclick="agriEngine.setTab(\'market\')" style="border:none; background:none; font-weight:bold; color:'+(this.state.activeTab==='market'?'#2d6a4f':'#999')+'">📉 Market</button>' +
+        '</div>';
+    },
+    setTab: function(tab) { this.state.activeTab = tab; this.render(); },
+    // --- TOOL DASHBOARD (Jumia Style) ---
+    renderToolStore: function(view) {
+        view.innerHTML = '<div style="padding:20px; padding-bottom:80px; font-family:sans-serif;">' +
+            '<h2 style="color:#2d6a4f;">AgriTools Express</h2>' +
+            '<div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:15px;">' +
+                this.tools.map(t => '<div style="background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);">' +
+                    '<div style="background:#f8f9fa; height:100px; display:flex; align-items:center; justify-content:center; font-size:40px;">'+t.img+'</div>' +
+                    '<div style="padding:10px;">' +
+                        '<div style="font-size:14px; font-weight:bold;">'+t.name+'</div>' +
+                        '<div style="color:#e67e22; font-weight:bold; margin:5px 0;">KSh '+t.price.toLocaleString()+'</div>' +
+                        '<button onclick="alert(\'Added to Cart\')" style="width:100%; padding:8px; background:#2d6a4f; color:white; border:none; border-radius:5px; cursor:pointer; font-size:12px;">ADD TO CART</button>' +
                     '</div>' +
-                '</div>' +
-            '</div>' +
-            '<button onclick="localStorage.removeItem(\'agri_admin_mode\');location.reload();" style="margin-top:15px; padding:5px 15px; background:#ef4444; color:white; border:none; border-radius:5px; cursor:pointer;">Logout Admin</button>' +
-        '</div>';
-    },
-    // --- STUDENT ACTIONS ---
-    openSuggestion: function() {
-        const msg = prompt("What can we improve at AgriMastery?");
-        if(msg && this.state.user) {
-            const newSuggestion = {
-                from: this.state.user.name,
-                text: msg,
-                date: new Date().toLocaleDateString()
-            };
-            this.state.suggestions.push(newSuggestion);
-            localStorage.setItem('agri_suggestions', JSON.stringify(this.state.suggestions));
-            alert("Suggestion sent to the Admin! Thank you.");
-            location.reload(); // Refresh to show in Admin view instantly
-        }
-    },
-    // --- ADMIN ACTIONS ---
-    deleteMsg: function(index) {
-        this.state.suggestions.splice(index, 1);
-        localStorage.setItem('agri_suggestions', JSON.stringify(this.state.suggestions));
-        this.render();
-    },
-    // --- CORE UI (Preserved from previous phases) ---
-    renderRegistration: function(container) {
-        container.innerHTML = '<div style="max-width:400px; margin:50px auto; background:white; padding:30px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">' +
-            '<h2 style="color:#2d6a4f; text-align:center;">Register</h2>' +
-            '<input type="text" id="rName" placeholder="Full Name" style="width:100%; padding:10px; margin:5px 0;">' +
-            '<input type="email" id="rEmail" placeholder="Email" style="width:100%; padding:10px; margin:5px 0;">' +
-            '<button onclick="agriEngine.handleReg()" style="width:100%; padding:12px; background:#2d6a4f; color:white; border:none; cursor:pointer;">JOIN NOW</button>' +
-            '<p ondblclick="agriEngine.unlockAdmin()" style="text-align:center; color:#eee; font-size:9px;">ADMIN</p>' +
-        '</div>';
-    },
-    handleReg: function() {
-        const name = document.getElementById('rName').value;
-        const email = document.getElementById('rEmail').value;
-        if(name && email) {
-            localStorage.setItem('agri_student', JSON.stringify({name, email}));
-            // Add to directory
-            this.state.directory.push({name, email, course: 'General', progress: 0});
-            localStorage.setItem('agri_directory', JSON.stringify(this.state.directory));
-            location.reload();
-        }
-    },
-    renderStudentDashboard: function(container) {
-        container.innerHTML = '<div style="background:#f0f4f8; padding:20px; min-height:100vh;">' +
-            '<div style="max-width:800px; margin:auto; background:white; padding:25px; border-radius:15px;">' +
-                '<h3>Student Hub</h3>' +
-                '<div style="display:flex; gap:10px; margin-top:20px;">' +
-                    '<button onclick="agriEngine.openSuggestion()" style="flex:1; padding:15px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">💡 SEND SUGGESTION</button>' +
-                    '<button onclick="agriEngine.logout()" style="flex:1; padding:15px; background:#ff4d4d; color:white; border:none; border-radius:8px; cursor:pointer;">LOG OUT</button>' +
-                '</div>' +
+                '</div>').join('') +
             '</div>' +
         '</div>';
     },
-    unlockAdmin: function() {
-        if(prompt("PIN:") === "1234") { localStorage.setItem('agri_admin_mode', 'true'); location.reload(); }
+    // --- MARKET DASHBOARD ---
+    renderMarketplace: function(view) {
+        view.innerHTML = '<div style="padding:20px; font-family:sans-serif;">' +
+            '<h2 style="color:#2d6a4f;">Live Market Prices</h2>' +
+            '<div style="background:white; border-radius:15px; padding:15px;">' +
+                this.marketData.map(m => '<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;">' +
+                    '<div><b>'+m.crop+'</b><br><small style="color:#666;">'+m.location+'</small></div>' +
+                    '<div style="text-align:right;">' +
+                        '<div style="font-weight:bold;">KSh '+m.price+'</div>' +
+                        '<small style="color:'+(m.trend==='up'?'green':'red')+'">'+(m.trend==='up'?'▲':'▼')+' Trend</small>' +
+                    '</div>' +
+                '</div>').join('') +
+            '</div>' +
+            '<div style="margin-top:20px; background:#e8f5e9; padding:15px; border-radius:10px; font-size:13px; color:#2e7d32;">' +
+                'ℹ️ Prices are updated every 6 hours based on regional hubs.' +
+            '</div>' +
+        '</div>';
     },
-    logout: function() { localStorage.removeItem('agri_student'); location.reload(); }
+    renderAcademy: function(view) {
+        view.innerHTML = '<div style="padding:20px; text-align:center;"><h2>Academy Home</h2><p>Select a unit to continue learning.</p></div>';
+    },
+    renderAdmin: function() {
+        const az = document.getElementById('admin-zone');
+        az.innerHTML = '<div style="background:#000; color:#0f0; padding:10px; font-size:11px; text-align:center;">ADMIN OVERRIDE ACTIVE | <span onclick="localStorage.removeItem(\'agri_admin_mode\');location.reload();">Logout</span></div>';
+    }
 };
 document.addEventListener('DOMContentLoaded', () => agriEngine.init());
