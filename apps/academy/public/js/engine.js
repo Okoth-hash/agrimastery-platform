@@ -1,73 +1,87 @@
 /**
- * AGRIMASTERY STUDENT ENGINE v9.0
- * Features: LocalStorage Persistence, Registration & Dashboard Rendering
+ * AGRIMASTERY MASTER MANUAL ENGINE v10.0
+ * Author: Omondi Robin Okoth
+ * Features: 1000-Page Structure, Registration, & Progress Vault
  */
 const agriEngine = {
-    course: { 
-        id: 'MZ-01', 
-        title: 'Professional Maize Mastery', 
-        duration: '90 Days' 
-    },
+    // 1. DATA REPOSITORY (The beginning of your 1,000 pages)
+    chapters: [
+        { id: 1, title: "Soil Chemistry & Preparation", content: "Understanding soil pH and nutrient density is the foundation of high-yield maize farming..." },
+        { id: 2, title: "Seed Selection & Germination", content: "Selecting the right hybrid for your ecological zone (Highland vs. Lowland)..." },
+        { id: 3, title: "Advanced Irrigation Techniques", content: "Maximizing water efficiency using drip systems and mulching..." }
+    ],
     init: function() {
-        console.log("AgriMastery Engine L7: Initialized");
+        this.user = JSON.parse(localStorage.getItem('agri_student'));
+        this.currentPage = parseInt(localStorage.getItem('agri_progress')) || 1;
         this.render();
     },
     render: function() {
         const view = document.getElementById('app-viewport');
         if (!view) return;
-        // Retrieve student data from the "Vault" (LocalStorage)
-        const user = JSON.parse(localStorage.getItem('agri_student'));
-        if (!user) {
-            // STEP 1: RENDER REGISTRATION FORM
-            view.innerHTML = \
-                <div class="card" style="background:white; padding:30px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:500px; margin:auto;">
-                    <h2 style="color:#2d6a4f; margin-top:0;">👨‍🌾 Student Registration</h2>
-                    <p style="color:#666;">Enroll in the 3-Month Professional Certification</p>
-                    <input type="text" id="sName" placeholder="Full Name" 
-                        style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box; font-size:16px;">
-                    <input type="text" id="sPhone" placeholder="WhatsApp Number" 
-                        style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box; font-size:16px;">
-                    <button onclick="agriEngine.register()" 
-                        style="width:100%; padding:15px; background:#2d6a4f; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:10px;">
-                        Register & Begin Month 1
-                    </button>
-                </div>\;
+        if (!this.user) {
+            this.renderRegistration(view);
         } else {
-            // STEP 2: RENDER ACTIVE DASHBOARD
-            view.innerHTML = \
-                <div class="card" style="background:white; padding:30px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:500px; margin:auto;">
-                    <h2 style="color:#2d6a4f; margin-top:0;">Welcome, \</h2>
-                    <div style="background:#f9f9f9; padding:20px; border-radius:12px; border-left:5px solid #ffcc00; margin:15px 0;">
-                        <h3 style="margin:0; color:#1b4332;">📖 \</h3>
-                        <p style="margin:10px 0;">Progress: <strong>Month 1 (Soil Chemistry)</strong></p>
-                        <button onclick="alert('Accessing Soil Chemistry Modules...')" 
-                            style="width:100%; padding:12px; background:#1b4332; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
-                            Continue Learning
-                        </button>
-                    </div>
-                    <button onclick="agriEngine.logout()" 
-                        style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; text-decoration:underline; width:100%; text-align:center;">
-                        Logout / Reset Profile
-                    </button>
-                </div>\;
+            this.renderManual(view);
         }
     },
-    register: function() {
-        const name = document.getElementById('sName').value;
-        const phone = document.getElementById('sPhone').value;
-        if (name && phone) {
-            localStorage.setItem('agri_student', JSON.stringify({ name, phone }));
+    renderRegistration: function(view) {
+        view.innerHTML = \
+            <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.1); max-width:450px; margin:40px auto; text-align:center;">
+                <h1 style="color:#1b4332; font-size:24px;">AgriMastery Academy</h1>
+                <p style="color:#666;">Enter your details to unlock the 1,000-page Professional Manual.</p>
+                <input type="text" id="regName" placeholder="Full Name" style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+                <input type="text" id="regPhone" placeholder="WhatsApp Number" style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+                <button onclick="agriEngine.saveUser()" style="width:100%; padding:15px; background:#2d6a4f; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">BEGIN CERTIFICATION</button>
+            </div>\;
+    },
+    renderManual: function(view) {
+        const currentChapter = this.chapters.find(c => c.id === this.currentPage) || this.chapters[0];
+        view.innerHTML = \
+            <div style="background:#000; color:#0f0; padding:10px 20px; font-family:monospace; font-size:11px; display:flex; justify-content:space-between;">
+                <span>STUDENT: \</span>
+                <span>PAGE \ / 1000</span>
+            </div>
+            <div style="max-width:800px; margin:auto; padding:20px;">
+                <div style="background:white; padding:30px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); min-height:400px;">
+                    <h2 style="color:#2d6a4f; border-bottom:2px solid #f0f2f5; padding-bottom:10px;">Chapter \: \</h2>
+                    <p style="line-height:1.8; color:#333; font-size:17px;">\</p>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button onclick="agriEngine.prevPage()" style="padding:15px 30px; border-radius:10px; border:1px solid #ddd; background:white; cursor:pointer;">Previous</button>
+                    <button onclick="agriEngine.nextPage()" style="padding:15px 30px; border-radius:10px; border:none; background:#2d6a4f; color:white; font-weight:bold; cursor:pointer;">Next Chapter</button>
+                </div>
+                <p style="text-align:center; margin-top:30px;"><a href="#" onclick="agriEngine.reset()" style="color:#ef4444; font-size:12px;">Logout & Exit Manual</a></p>
+            </div>\;
+    },
+    saveUser: function() {
+        const name = document.getElementById('regName').value;
+        const phone = document.getElementById('regPhone').value;
+        if(name && phone) {
+            localStorage.setItem('agri_student', JSON.stringify({name, phone}));
+            location.reload();
+        }
+    },
+    nextPage: function() {
+        if(this.currentPage < 1000) {
+            this.currentPage++;
+            localStorage.setItem('agri_progress', this.currentPage);
             this.render();
-        } else {
-            alert("Please provide both Name and WhatsApp Number.");
+            window.scrollTo(0,0);
         }
     },
-    logout: function() {
-        if(confirm("Are you sure you want to reset your progress?")) {
-            localStorage.removeItem('agri_student');
+    prevPage: function() {
+        if(this.currentPage > 1) {
+            this.currentPage--;
+            localStorage.setItem('agri_progress', this.currentPage);
+            this.render();
+            window.scrollTo(0,0);
+        }
+    },
+    reset: function() {
+        if(confirm("Exit and reset progress?")) {
+            localStorage.clear();
             location.reload();
         }
     }
 };
-// Start the engine
 document.addEventListener('DOMContentLoaded', () => agriEngine.init());
