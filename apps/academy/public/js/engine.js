@@ -920,3 +920,26 @@ window.onload = () => {
     const currentTab = localStorage.getItem('agri_tab') || 'market';
     agriEngine.setTab(currentTab);
 };
+// 1. VERSION STAMPING
+const APP_VERSION = "Build: 2026.01.17.V4";
+// 2. APPEND VERSION FOOTER
+const footer = document.createElement('div');
+footer.id = "version-footer";
+footer.style.cssText = "position:fixed; bottom:65px; width:100%; text-align:center; font-size:9px; color:#aaa; z-index:9000; pointer-events:none;";
+footer.innerText = APP_VERSION;
+document.body.appendChild(footer);
+// 3. ULTIMATE RE-INITIALIZATION (Ensures Academy isn't blank)
+agriEngine.curriculum = [
+    { id: "crop101", n: "Crop Science Mastery", i: "??", progress: 35, hasVideo: true },
+    { id: "live201", n: "Livestock Management", i: "??", progress: 0, hasVideo: true },
+    { id: "biz301", n: "Agri-Business Expert", i: "??", progress: 10, hasVideo: true }
+];
+// 4. FORCE RENDER TRIGGER
+const checkDisplay = setInterval(() => {
+    const view = document.getElementById('viewport');
+    if(view && agriEngine.state.activeTab === 'student' && view.innerHTML.length < 100) {
+        console.log("Detecting blank Academy... forcing render.");
+        agriEngine.renderAcademy(view);
+    }
+}, 1000);
+console.log("AgriMastery " + APP_VERSION + " is active.");
