@@ -24,19 +24,27 @@ const agriEngine = {
         }
         view.innerHTML = html;
     },
-    // --- HIDDEN SECURITY LOGIC ---
-    secretUnlock: function() {
-        const pass = prompt("Command Center Security Key:");
-        if(pass === "1234") {
-            localStorage.setItem('agri_admin_mode', 'true');
-            location.reload();
-        }
+    // --- NEW: EXPORT LOGIC ---
+    exportToCSV: function() {
+        const rows = [["ID", "Name", "Course", "Progress"]];
+        this.state.directory.forEach(s => rows.push([s.id, s.name, s.course, s.progress]));
+        let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "AgriMastery_Students_" + new Date().toLocaleDateString() + ".csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     },
     renderAdminHeader: function() {
         return '<div style="background:#1a1a1a; color:white; padding:20px; border-bottom:4px solid #2d6a4f;">' +
             '<div style="max-width:900px; margin:auto; display:flex; justify-content:space-between; align-items:center;">' +
                 '<h2>⚡ Command Center</h2>' +
-                '<button onclick="localStorage.removeItem(\'agri_admin_mode\');location.reload();" style="background:#ef4444; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">Logout</button>' +
+                '<div>' +
+                    '<button onclick="agriEngine.exportToCSV()" style="background:#2d6a4f; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; margin-right:10px; font-weight:bold;">📥 Export Excel</button>' +
+                    '<button onclick="localStorage.removeItem(\'agri_admin_mode\');location.reload();" style="background:#ef4444; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">Logout</button>' +
+                '</div>' +
             '</div>' +
         '</div>';
     },
@@ -44,15 +52,14 @@ const agriEngine = {
         return '<div style="max-width:900px; margin:20px auto; background:white; padding:20px; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05);">' +
             '<h3 style="color:#2d6a4f;">👥 Student Directory</h3>' +
             '<table style="width:100%; border-collapse:collapse; font-size:14px;">' +
-                '<tr style="background:#f0f2f5; text-align:left;">' +
-                    '<th style="padding:10px;">Name</th><th style="padding:10px;">Course</th><th style="padding:10px;">Manage</th>' +
-                '</tr>' +
+                '<tr style="background:#f0f2f5; text-align:left;"><th style="padding:10px;">Name</th><th style="padding:10px;">Course</th><th style="padding:10px;">Progress</th><th style="padding:10px;">Manage</th></tr>' +
                 this.state.directory.map((s, index) => '<tr>' +
                     '<td style="padding:10px; border-bottom:1px solid #eee;">' + s.name + '</td>' +
                     '<td style="padding:10px; border-bottom:1px solid #eee;">' + s.course + '</td>' +
+                    '<td style="padding:10px; border-bottom:1px solid #eee;">Page ' + s.progress + '</td>' +
                     '<td style="padding:10px; border-bottom:1px solid #eee;">' +
-                        '<button onclick="agriEngine.targetStudent(\''+s.name+'\')" style="color:#007bff; border:none; background:none; cursor:pointer;">Message</button>' +
-                        '<button onclick="agriEngine.removeStudent('+index+')" style="color:#ef4444; border:none; background:none; cursor:pointer; margin-left:10px;">Remove</button>' +
+                        '<button onclick="agriEngine.targetStudent(\''+s.name+'\')" style="color:#007bff; border:none; background:none; cursor:pointer;">PM</button>' +
+                        '<button onclick="agriEngine.removeStudent('+index+')" style="color:#ef4444; border:none; background:none; cursor:pointer; margin-left:10px;">Del</button>' +
                     '</td>' +
                 '</tr>').join('') +
             '</table>' +
@@ -69,24 +76,22 @@ const agriEngine = {
     renderStudentView: function() {
         const myNotices = this.state.notices.filter(n => n.target === 'all' || (this.state.user && n.target === this.state.user.name));
         let noticeHtml = myNotices.map(n => '<div style="background:#fff3cd; padding:15px; border-radius:10px; border-left:5px solid #ffc107; margin-bottom:15px;"><b>🔔 Admin:</b> ' + n.msg + '</div>').join('');
-        return '<div style="max-width:800px; margin:20px auto; padding:0 20px;">' +
-            noticeHtml +
+        return '<div style="max-width:800px; margin:20px auto; padding:0 20px;">' + noticeHtml +
             '<div style="background:white; padding:30px; border-radius:15px; border-left:10px solid #2d6a4f;">' +
                 '<h3 ondblclick="agriEngine.secretUnlock()" style="cursor:default; user-select:none;">Academy Dashboard</h3>' +
                 '<p>Your specialized course content is ready.</p>' +
-                '<div style="height:100px;"></div>' +
             '</div>' +
         '</div>';
+    },
+    secretUnlock: function() {
+        const pass = prompt("Enter PIN:");
+        if(pass === "1234") { localStorage.setItem('agri_admin_mode', 'true'); location.reload(); }
     },
     targetStudent: function(name) { document.getElementById('targetInput').value = name; },
     sendNotice: function() {
         const t = document.getElementById('targetInput').value || 'all';
         const m = document.getElementById('noticeMsg').value;
-        if(m) {
-            this.state.notices.push({ target: t, msg: m });
-            localStorage.setItem('agri_notices', JSON.stringify(this.state.notices));
-            location.reload();
-        }
+        if(m) { this.state.notices.push({ target: t, msg: m }); localStorage.setItem('agri_notices', JSON.stringify(this.state.notices)); location.reload(); }
     },
     removeStudent: function(i) {
         if(confirm("Delete student record?")) { this.state.directory.splice(i, 1); localStorage.setItem('agri_directory', JSON.stringify(this.state.directory)); this.render(); }
