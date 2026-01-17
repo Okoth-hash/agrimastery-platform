@@ -540,3 +540,60 @@ agriEngine.completeLesson = function(id) {
     this.renderAcademy(document.getElementById('viewport'));
     document.getElementById('lesson-viewer').style.display = 'none';
 };
+// 1. QUIZ DATA BANK
+agriEngine.quizzes = {
+    "crop101": [
+        { q: "What is the ideal pH for Maize?", a: "5.5 - 7.0", o: ["4.0 - 5.0", "5.5 - 7.0", "8.0 - 9.0"] },
+        { q: "Which nutrient is primary for leaf growth?", a: "Nitrogen", o: ["Zinc", "Iron", "Nitrogen"] }
+    ],
+    "live201": [
+        { q: "Which breed is best for milk in Kenya?", a: "Friesian", o: ["Friesian", "Boran", "Dorper"] },
+        { q: "What is the gestation period of a cow?", a: "283 Days", o: ["150 Days", "283 Days", "365 Days"] }
+    ]
+};
+// 2. OVERRIDE COMPLETION LOGIC WITH QUIZ
+agriEngine.completeLesson = function(id) {
+    const quiz = this.quizzes[id];
+    if(!quiz) {
+        this.applyProgress(id);
+        return;
+    }
+    const viewer = document.getElementById('lesson-viewer');
+    viewer.innerHTML = `
+        <div style="border-bottom:2px solid #f68b1e; padding-bottom:10px; margin-bottom:15px;">
+            <b style="color:#1b4332;">Final Assessment: ${id.toUpperCase()}</b>
+        </div>
+        ${quiz.map((item, idx) => `
+            <div style="margin-bottom:15px;">
+                <p style="font-size:13px; font-weight:bold; margin-bottom:8px;">${idx + 1}. ${item.q}</p>
+                ${item.o.map(opt => `
+                    <label style="display:block; font-size:12px; margin-bottom:5px; padding:8px; background:#f9f9f9; border-radius:5px;">
+                        <input type="radio" name="q${idx}" value="${opt}"> ${opt}
+                    </label>
+                `).join('')}
+            </div>
+        `).join('')}
+        <button onclick="agriEngine.validateQuiz('${id}')" style="width:100%; background:#f68b1e; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SUBMIT ANSWERS</button>
+    `;
+};
+agriEngine.validateQuiz = function(id) {
+    const quiz = this.quizzes[id];
+    let score = 0;
+    quiz.forEach((item, idx) => {
+        const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+        if(selected && selected.value === item.a) score++;
+    });
+    if(score === quiz.length) {
+        alert("Perfect Score! 100% Correct.");
+        this.applyProgress(id);
+    } else {
+        alert(`You got ${score}/${quiz.length}. Please review the lesson and try again!`);
+    }
+};
+agriEngine.applyProgress = function(id) {
+    const course = this.courses.find(c => c.id === id);
+    course.progress = Math.min(course.progress + 33.4, 100);
+    localStorage.setItem('agri_courses', JSON.stringify(this.courses));
+    this.renderAcademy(document.getElementById('viewport'));
+    document.getElementById('lesson-viewer').style.display = 'none';
+};
