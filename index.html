@@ -3,146 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriMastery Total v58</title>
+    <title>AgriMastery Interactive v59</title>
     <style>
-        :root { --orange: #f68b1e; --green: #065f46; --dark: #0f172a; --slate: #1e293b; --cyan: #22d3ee; }
-        body { margin: 0; font-family: -apple-system, sans-serif; background: #f8fafc; color: var(--slate); overflow-x: hidden; }
-        /* GLOBAL COMPONENTS */
+        :root { --orange: #f68b1e; --green: #065f46; --dark: #0f172a; --slate: #1e293b; }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: #f8fafc; color: var(--slate); }
+        /* NAVIGATION & HEADER */
         .header { background: white; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo-box { display: flex; gap: 8px; }
-        .logo-box img { width: 32px; height: 32px; }
-        .wallet-pill { background: var(--green); color: white; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 12px; }
         #nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; border-top: 1px solid #e2e8f0; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #94a3af; cursor: pointer; text-transform: uppercase; }
         .nav-active { color: var(--orange); border-top: 4px solid var(--orange); }
-        /* VIEWS */
+        /* CONTENT VIEWS */
         #viewport { min-height: 100vh; padding-bottom: 90px; }
         .view-padding { padding: 15px; }
-        /* MARKETPLACE */
+        /* ACADEMY CARDS */
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .course-row { border-bottom: 1px solid #eee; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
+        .progress-container { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--green); transition: width 0.3s ease; }
+        .lesson-content { background: #fdf2f2; padding: 15px; border-radius: 10px; border-left: 4px solid var(--orange); margin-top: 10px; font-size: 14px; }
+        /* MARKET & ADMIN */
         .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .p-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .p-card img { width: 100%; height: 100px; object-fit: cover; }
-        .p-btn { width: 100%; background: var(--orange); color: white; border: none; padding: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
-        /* ACADEMY & AUTH */
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .input-field { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .msg-box { background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--cyan); font-size: 12px; }
-        /* ADMIN DASHBOARD */
+        .p-btn { width: 100%; background: var(--orange); color: white; border: none; padding: 12px; font-weight: bold; cursor: pointer; }
         .admin-dark { background: var(--dark); color: white; min-height: 100vh; padding: 20px; font-family: monospace; }
-        .terminal { background: black; color: #4ade80; padding: 10px; height: 150px; overflow-y: auto; font-size: 10px; border-radius: 5px; border: 1px solid #334155; }
-        .broadcast-banner { background: var(--orange); color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 13px; position: sticky; top: 56px; z-index: 999; }
+        .terminal { background: black; color: #4ade80; padding: 10px; height: 150px; overflow-y: auto; font-size: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <div id="broadcast-area"></div>
     <div id="viewport"></div>
     <div id="nav"></div>
     <script>
-    const storageKey = 'AgriTotal_v58';
+    const storageKey = 'AgriInteractive_v59';
     const db = JSON.parse(localStorage.getItem(storageKey)) || {
-        wallet: 550000,
+        wallet: 600000,
         users: [], 
         currentUser: null,
-        logs: ["System v58 Fully Online"],
-        adminLocked: true,
-        broadcast: "",
-        messages: {}
+        logs: ["System v59: Academy Update Live"],
+        adminLocked: true
     };
+    const courseList = [
+        { name: "Organic Soil Prep", lesson: "Lesson 1: Understanding Nitrogen cycles and composting techniques." },
+        { name: "Drip System Setup", lesson: "Lesson 1: Pressure regulators and emitter spacing for tomatoes." },
+        { name: "Fish Feed Logic", lesson: "Lesson 1: Calculating protein ratios for Tilapia growth stages." }
+    ];
     function save() { localStorage.setItem(storageKey, JSON.stringify(db)); }
-    function log(msg) { db.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`); save(); }
-    const products = [];
-    for(let i=1; i<=110; i++) {
-        products.push({ id: i, n: "Agri-Pro SKU-" + (800+i), p: 1400 + (i*18), img: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" });
-    }
+    function log(m) { db.logs.push(`[${new Date().toLocaleTimeString()}] ${m}`); save(); }
     function render() {
         const v = document.getElementById('viewport');
         const n = document.getElementById('nav');
-        const b = document.getElementById('broadcast-area');
-        const tab = window.activeTab || 'market';
-        // Global Broadcast Banner
-        b.innerHTML = db.broadcast ? `<div class="broadcast-banner">?? ADMIN: ${db.broadcast}</div>` : '';
-        if (tab === 'market') {
-            v.innerHTML = `
-                <div class="header">
-                    <div class="logo-box"><img src="https://cdn-icons-png.flaticon.com/128/2972/2972215.png"><img src="https://cdn-icons-png.flaticon.com/128/143/143438.png"></div>
-                    <div class="wallet-pill">KSh ${db.wallet.toLocaleString()}</div>
-                    <div style="font-size:20px;">??</div>
-                </div>
-                <div class="view-padding"><div class="market-grid">${products.slice(0,24).map(p => `
-                    <div class="p-card">
-                        <img src="${p.img}">
-                        <div style="padding:10px;"><div style="font-size:11px; height:32px; overflow:hidden;">${p.n}</div><b style="color:var(--orange);">KSh ${p.p.toLocaleString()}</b></div>
-                        <button onclick="buyItem(${p.p}, '${p.n}')" class="p-btn">BUY NOW</button>
-                    </div>`).join('')}</div></div>`;
-        } else if (tab === 'academy') {
+        const tab = window.activeTab || 'academy';
+        if (tab === 'academy') {
             if (!db.currentUser) {
                 v.innerHTML = `<div class="view-padding">
                     <div class="card">
-                        <h2 style="color:var(--green); margin-top:0;">Student Portal</h2>
-                        <input id="u" class="input-field" placeholder="Student Name">
-                        <button onclick="join()" class="p-btn" style="background:var(--green); border-radius:8px;">LOGIN / REGISTER</button>
+                        <h3>Academy Student Login</h3>
+                        <input id="u" placeholder="Your Name" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+                        <button onclick="login()" class="p-btn" style="background:var(--green); border-radius:8px;">ENTER ACADEMY</button>
                     </div>
                 </div>`;
             } else {
-                const myMsgs = db.messages[db.currentUser] || [];
+                const user = db.users.find(u => u.name === db.currentUser);
                 v.innerHTML = `<div class="view-padding">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3>Welcome, ${db.currentUser}</h3>
-                        <button onclick="db.currentUser=null; render()" style="color:red; border:none; background:none; font-weight:bold;">LOGOUT</button>
-                    </div>
+                    <div style="display:flex; justify-content:space-between;"><h3>${user.name}'s Portal</h3><button onclick="db.currentUser=null; render()" style="border:none; background:none; color:red; font-weight:bold;">LOGOUT</button></div>
                     <div class="card">
-                        <h4>?? Inbox</h4>
-                        ${myMsgs.length === 0 ? '<p style="font-size:12px;">No new messages from Admin.</p>' : myMsgs.map(m => `<div class="msg-box">${m}</div>`).join('')}
+                        <h4>My Courses</h4>
+                        ${user.courses.length === 0 ? '<p style="font-size:12px;">Enroll below to start learning.</p>' : user.courses.map(c => `
+                            <div class="course-row">
+                                <div><b>${c}</b><div class="progress-container"><div class="progress-bar" style="width:40%"></div></div></div>
+                                <button onclick="alert('Module: ' + '${courseList.find(x=>x.name===c).lesson}')" style="background:var(--green); color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px;">READ</button>
+                            </div>`).join('')}
                     </div>
+                    <h4>Catalog</h4>
+                    ${courseList.filter(x => !user.courses.includes(x.name)).map(x => `
+                        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>${x.name}</span>
+                            <button onclick="enroll('${x.name}')" style="background:var(--orange); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold; font-size:10px;">ENROLL</button>
+                        </div>`).join('')}
                 </div>`;
             }
+        } else if (tab === 'market') {
+            v.innerHTML = `<div class="header"><div><b>AGRI-MARKET</b></div><div style="background:var(--green); color:white; padding:5px 10px; border-radius:15px;">KSh ${db.wallet.toLocaleString()}</div></div>
+            <div class="view-padding"><div class="market-grid">
+                ${[1,2,3,4].map(i => `<div class="p-card"><img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" style="width:100%;"><div style="padding:10px;"><b>SKU-00${i}</b><br><small>KSh 2,500</small></div><button class="p-btn" onclick="buy(${2500}, 'SKU-00${i}')">BUY</button></div>`).join('')}
+            </div></div>`;
         } else if (tab === 'admin') {
             if (db.adminLocked) {
-                v.innerHTML = `<div class="admin-dark" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                    <h2 style="color:var(--cyan);">ENCRYPTED ACCESS</h2>
-                    <input id="pin" type="password" class="input-field" style="width:150px; text-align:center;">
-                    <button onclick="if(document.getElementById('pin').value==='1234'){db.adminLocked=false; render()}else{alert('DENIED')}" class="p-btn" style="width:150px; border-radius:8px; background:var(--cyan); color:var(--dark);">UNLOCK</button>
-                </div>`;
+                v.innerHTML = `<div class="admin-dark" style="display:flex; flex-direction:column; align-items:center; justify-content:center;"><h2>SECURE ADMIN</h2><input id="p" type="password" style="padding:10px; text-align:center;"><button onclick="if(document.getElementById('p').value==='1234'){db.adminLocked=false; render()}" class="p-btn" style="width:100px; margin-top:10px;">UNLOCK</button></div>`;
             } else {
                 v.innerHTML = `<div class="admin-dark">
-                    <div style="display:flex; justify-content:space-between;"><span>SYSTEM MASTER</span><button onclick="db.adminLocked=true; render()" style="color:red; background:none; border:none;">[LOCK]</button></div>
+                    <div style="display:flex; justify-content:space-between;"><span>SYSTEM AUDIT</span><button onclick="db.adminLocked=true; render()" style="color:red; background:none; border:none;">[LOCK]</button></div>
                     <div style="background:var(--slate); padding:15px; border-radius:10px; margin:15px 0;">
-                        <p style="font-size:10px; color:var(--cyan);">SYSTEM LIQUIDITY</p>
-                        <h2 style="color:#4ade80; margin:5px 0;">KSh ${db.wallet.toLocaleString()}</h2>
-                        <button onclick="db.wallet+=100000; log('ADMIN: +100k'); render();" style="width:48%; background:var(--cyan); color:var(--dark); border:none; padding:10px; border-radius:5px; font-weight:bold;">DEPOSIT</button>
-                        <button onclick="db.wallet-=20000; log('ADMIN: -20k'); render();" style="width:48%; background:#f87171; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">WITHDRAW</button>
+                        <p style="font-size:10px;">WALLET</p><h2>KSh ${db.wallet.toLocaleString()}</h2>
                     </div>
-                    <div style="background:var(--slate); padding:15px; border-radius:10px; margin-bottom:15px;">
-                        <p style="font-size:10px;">GLOBAL BROADCAST</p>
-                        <input id="bc" class="input-field" style="background:#000; color:white; border-color:#334155;" placeholder="Push message to everyone...">
-                        <button onclick="db.broadcast=document.getElementById('bc').value; log('BROADCAST UPDATED'); render();" class="p-btn" style="border-radius:5px;">UPDATE BANNER</button>
-                        <button onclick="db.broadcast=''; render();" style="width:100%; background:none; color:#f87171; border:none; margin-top:5px; font-size:10px;">[CLEAR BANNER]</button>
-                    </div>
-                    <p style="font-size:11px; color:var(--cyan);">AUDIT TERMINAL</p>
                     <div class="terminal">${db.logs.map(l => `> ${l}`).reverse().join('<br>')}</div>
                 </div>`;
             }
         }
         n.innerHTML = `
-            <div onclick="window.activeTab='market'; render()" class="nav-item ${tab==='market'?'nav-active':''}">Market</div>
             <div onclick="window.activeTab='academy'; render()" class="nav-item ${tab==='academy'?'nav-active':''}">Academy</div>
+            <div onclick="window.activeTab='market'; render()" class="nav-item ${tab==='market'?'nav-active':''}">Market</div>
             <div onclick="window.activeTab='admin'; render()" class="nav-item ${tab==='admin'?'nav-active':''}">Admin</div>
         `;
     }
-    window.join = function() {
+    window.login = function() {
         const u = document.getElementById('u').value;
         if(u) {
-            if(!db.users.find(x=>x.name===u)) db.users.push({name:u});
-            db.currentUser = u; log('LOGIN: ' + u);
+            if(!db.users.find(x=>x.name===u)) db.users.push({name:u, courses: []});
+            db.currentUser = u; log('ACADEMY LOGIN: ' + u);
             save(); render();
         }
     };
-    window.buyItem = function(p, n) {
+    window.enroll = function(c) {
+        db.users.find(x=>x.name===db.currentUser).courses.push(c);
+        log(db.currentUser + ' ENROLLED: ' + c);
+        save(); render();
+    };
+    window.buy = function(p, n) {
         if(db.wallet >= p) {
             db.wallet -= p; log('PURCHASE: ' + n);
-            save(); render(); alert('Added to Farm Inventory!');
-        } else { alert('Insufficient System Funds'); }
-    };
+            save(); render(); alert('Bought ' + n);
+        }
+    }
     render();
     </script>
 </body>
