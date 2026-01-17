@@ -463,3 +463,80 @@ agriEngine.render = function() {
     else this.renderAcademy(view);
 };
 agriEngine.render(); // Immediate Refresh
+// 1. ACADEMY DATA & CURRICULUM
+agriEngine.courses = [
+    { 
+        id: "crop101", n: "Modern Crop Science", i: "??", 
+        lessons: ["Soil Preparation", "Seed Selection", "Pest Management"],
+        progress: 0
+    },
+    { 
+        id: "live201", n: "Livestock Mastery", i: "??", 
+        lessons: ["Animal Nutrition", "Disease Control", "Breeding Basics"],
+        progress: 0
+    },
+    { 
+        id: "biz301", n: "Agri-Business 101", i: "??", 
+        lessons: ["Market Analysis", "Farm Record Keeping", "Value Addition"],
+        progress: 0
+    }
+];
+// 2. OVERRIDE ACADEMY RENDER
+agriEngine.renderAcademy = function(v) {
+    v.innerHTML = `
+        <div style="background:#2d6a4f; color:white; padding:20px; border-radius:0 0 20px 20px; margin-bottom:20px;">
+            <h2 style="margin:0;">Agri-Academy</h2>
+            <p style="margin:5px 0 0 0; opacity:0.8; font-size:13px;">Master the art of modern farming</p>
+        </div>
+        <div id="lesson-viewer" style="display:none; margin:0 15px 20px 15px; padding:20px; background:white; border-radius:15px; border-top:5px solid #2d6a4f; box-shadow:0 10px 20px rgba(0,0,0,0.05);"></div>
+        <div style="padding:0 15px;">
+            <h4 style="margin:0 0 15px 0; color:#333;">Your Courses</h4>
+            ${this.courses.map(c => `
+                <div onclick="agriEngine.openCourse('${c.id}')" style="background:white; padding:15px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; gap:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05); cursor:pointer;">
+                    <div style="font-size:35px;">${c.i}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold; color:#2d6a4f; font-size:14px;">${c.n}</div>
+                        <div style="font-size:11px; color:#75757a;">${c.lessons.length} Modules</div>
+                        <div style="width:100%; height:6px; background:#eee; border-radius:10px; margin-top:8px;">
+                            <div style="width:${c.progress}%; height:100%; background:#40916c; border-radius:10px;"></div>
+                        </div>
+                    </div>
+                    <div style="font-size:18px; color:#ccc;">??</div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="margin:20px 15px; padding:20px; background:linear-gradient(135deg, #1b4332, #2d6a4f); border-radius:15px; color:white; text-align:center;">
+            <div style="font-size:24px; margin-bottom:10px;">??</div>
+            <div style="font-weight:bold;">Certification Program</div>
+            <div style="font-size:11px; opacity:0.9; margin:5px 0 15px 0;">Complete all courses to unlock your AgriMastery Certificate.</div>
+            <button onclick="alert('Complete your courses first!')" style="background:rgba(255,255,255,0.2); border:1px solid white; color:white; padding:8px 20px; border-radius:20px; font-size:12px; cursor:pointer;">Claim Certificate</button>
+        </div>
+    `;
+};
+// 3. LESSON LOGIC
+agriEngine.openCourse = function(id) {
+    const course = this.courses.find(c => c.id === id);
+    const viewer = document.getElementById('lesson-viewer');
+    viewer.style.display = "block";
+    viewer.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <b style="color:#2d6a4f;">${course.n}</b>
+            <span onclick="document.getElementById('lesson-viewer').style.display='none'" style="cursor:pointer; color:#999;">?</span>
+        </div>
+        <div style="font-size:13px; color:#333; line-height:1.6;">
+            <p>Welcome to <strong>${course.lessons[0]}</strong>. This module covers the essential fundamentals required for high-yield productivity.</p>
+            <ul style="padding-left:20px;">
+                ${course.lessons.map(l => `<li style="margin-bottom:8px; color:#555;">${l} <span style="font-size:10px; color:#2d6a4f; margin-left:10px;">?? Active</span></li>`).join('')}
+            </ul>
+        </div>
+        <button onclick="agriEngine.completeLesson('${id}')" style="width:100%; background:#2d6a4f; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;">MARK AS COMPLETED</button>
+    `;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+};
+agriEngine.completeLesson = function(id) {
+    const course = this.courses.find(c => c.id === id);
+    course.progress = Math.min(course.progress + 33.4, 100);
+    alert(`Progress updated for ${course.n}!`);
+    this.renderAcademy(document.getElementById('viewport'));
+    document.getElementById('lesson-viewer').style.display = 'none';
+};
