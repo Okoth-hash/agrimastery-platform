@@ -597,3 +597,51 @@ agriEngine.applyProgress = function(id) {
     this.renderAcademy(document.getElementById('viewport'));
     document.getElementById('lesson-viewer').style.display = 'none';
 };
+// 1. ENSURE COURSE DATA EXISTS IN STATE
+agriEngine.courses = [
+    { 
+        id: "crop101", n: "Modern Crop Science", i: "??", 
+        lessons: ["Soil Preparation", "Seed Selection", "Pest Management"],
+        progress: 0
+    },
+    { 
+        id: "live201", n: "Livestock Mastery", i: "??", 
+        lessons: ["Animal Nutrition", "Disease Control", "Breeding Basics"],
+        progress: 0
+    },
+    { 
+        id: "biz301", n: "Agri-Business 101", i: "??", 
+        lessons: ["Market Analysis", "Farm Record Keeping", "Value Addition"],
+        progress: 0
+    }
+];
+// 2. RE-DECLARE RENDER TO ENSURE CONTENT LOADS
+agriEngine.renderAcademy = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    v.innerHTML = `
+        <div style="background:#2d6a4f; color:white; padding:20px; border-radius:0 0 20px 20px; margin-bottom:20px;">
+            <h2 style="margin:0;">Agri-Academy</h2>
+            <p style="margin:5px 0 0 0; opacity:0.8; font-size:13px;">Learning Center Active</p>
+        </div>
+        <div id="lesson-viewer" style="display:none; margin:0 15px 20px 15px; padding:20px; background:white; border-radius:15px; border-top:5px solid #2d6a4f; box-shadow:0 10px 20px rgba(0,0,0,0.1);"></div>
+        <div style="padding:0 15px;">
+            <h4 style="margin:0 0 15px 0; color:#333;">Available Modules</h4>
+            ${this.courses.map(c => `
+                <div onclick="agriEngine.openCourse('${c.id}')" style="background:white; padding:15px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; gap:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05); cursor:pointer;">
+                    <div style="font-size:35px;">${c.i}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold; color:#2d6a4f; font-size:14px;">${c.n}</div>
+                        <div style="font-size:11px; color:#75757a;">${c.lessons.length} Lessons</div>
+                        <div style="width:100%; height:6px; background:#eee; border-radius:10px; margin-top:8px;">
+                            <div style="width:${c.progress}%; height:100%; background:#40916c; border-radius:10px; transition: width 0.5s;"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+};
+// 3. AUTO-REFRESH IF USER IS ON ACADEMY TAB
+if (agriEngine.state.activeTab === 'student') {
+    agriEngine.renderAcademy(document.getElementById('viewport'));
+}
