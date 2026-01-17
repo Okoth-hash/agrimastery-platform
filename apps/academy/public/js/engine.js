@@ -1232,3 +1232,31 @@ agriEngine.updateQty = function(id, delta) {
     }
 };
 agriEngine.render();
+// 1. HARD-CODED DATA (Ensures no blank screens)
+agriEngine.curriculum = [
+    { id: "crop101", n: "Crop Science Mastery", i: "??", progress: 35, hasVideo: true },
+    { id: "live201", n: "Livestock Management", i: "??", progress: 0, hasVideo: true },
+    { id: "biz301", n: "Agri-Business Expert", i: "??", progress: 10, hasVideo: true }
+];
+// 2. FORCE SYSTEM INITIALIZATION
+agriEngine.init = function() {
+    console.log("SYSTEM BOOT: Build V5 Active");
+    this.render();
+};
+// 3. ATTACH THE PIN GATE TO ADMIN
+agriEngine.adminState = { isLocked: true, correctPin: "1234" };
+// 4. THE ULTIMATE RENDERER (Ensures all tabs work)
+agriEngine.render = function() {
+    const v = document.getElementById('viewport');
+    this.renderNav();
+    if (this.state.activeTab === 'market') this.renderEasyShop(v);
+    else if (this.state.activeTab === 'student') this.renderAcademy(v);
+    else if (this.state.activeTab === 'tools') this.renderTools(v);
+    else if (this.state.activeTab === 'admin') this.renderAdmin(v);
+};
+// 5. VERSION STAMP (Top Left)
+const vLabel = document.createElement('div');
+vLabel.style.cssText = "position:fixed; top:5px; left:5px; background:red; color:white; font-size:10px; padding:2px 5px; z-index:99999; border-radius:5px;";
+vLabel.innerText = "LIVE SYNC V5";
+document.body.appendChild(vLabel);
+agriEngine.init();
