@@ -1,152 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriMastery Pro v20260117164505 v20260117164335</title>
-    <style>
-        :root { --agri-orange: #f68b1e; --agri-green: #065f46; --slate: #f1f5f9; }
-        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--slate); color: #1e293b; overflow-x: hidden; }
-        /* HEADER & LOGO */
-        .header { background: white; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .logo-group { display: flex; align-items: center; gap: 8px; }
-        .logo-icon { width: 35px; height: 35px; }
-        .cart-wrapper { position: relative; cursor: pointer; font-size: 22px; }
-        .cart-count { position: absolute; top: -5px; right: -8px; background: var(--agri-orange); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 800; border: 2px solid white; }
-        /* MARKET GRID */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; padding-bottom: 100px; }
-        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; transition: 0.2s; }
-        .product-card:active { transform: scale(0.97); }
-        .product-card img { width: 100%; height: 110px; object-fit: cover; }
-        .p-info { padding: 10px; flex-grow: 1; }
-        .p-name { font-size: 12px; font-weight: 600; height: 34px; overflow: hidden; line-height: 1.4; color: #475569; }
-        .p-price { color: var(--agri-orange); font-weight: 800; font-size: 15px; margin-top: 5px; }
-        .add-btn { background: var(--agri-orange); color: white; border: none; padding: 12px; font-weight: bold; font-size: 11px; cursor: pointer; width: 100%; }
-        /* NAVIGATION */
-        #nav-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; border-top: 1px solid #e2e8f0; z-index: 1001; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #94a3af; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
-        .nav-active { color: var(--agri-orange); border-top: 3px solid var(--agri-orange); }
-        /* TOAST */
-        #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--agri-green); color: white; padding: 10px 20px; border-radius: 25px; font-size: 12px; font-weight: bold; z-index: 2000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    </style>
-</head>
-<body>
-    <div id="toast">Added to Cart!</div>
-    <div id="app-view"></div>
-    <div id="nav-bar"></div>
-    <script>
-    // 1. DATA PERSISTENCE
-    const storageKey = 'agriMasteryData_v45';
-    const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
-    const state = {
-        view: 'market',
-        wallet: saved.wallet || 25000,
-        units: saved.units || [],
-        history: saved.history || [],
-        cartCount: 0,
-        user: "ROBIN",
-        isLoggedIn: false,
-        isAdmin: false,
-        products: []
-    };
-    function save() {
-        localStorage.setItem(storageKey, JSON.stringify({
-            wallet: state.wallet,
-            units: state.units,
-            history: state.history
-        }));
-    }
-    // 2. INVENTORY GENERATOR (110 Items)
-    const imgs = ["1592982537447-7440770cbfc9", "1585314062340-f1a5a7c9328d", "1622383529357-37d473fab15d"];
-    for(let i=1; i<=110; i++) {
-        state.products.push({
-            id: i,
-            name: "Premium Agri-Pro SKU-" + (1000 + i),
-            price: 1500 + (i * 12),
-            img: "https://images.unsplash.com/photo-" + imgs[i % 3] + "?w=300"
-        });
-    }
-    // 3. UI RENDERER
-    function render() {
-        const view = document.getElementById('app-view');
-        const nav = document.getElementById('nav-bar');
-        if(state.view === 'market') {
-            view.innerHTML = `
-                <div class="header">
-                    <div class="logo-group">
-                        <img class="logo-icon" src="https://cdn-icons-png.flaticon.com/128/2972/2972215.png">
-                        <img class="logo-icon" src="https://cdn-icons-png.flaticon.com/128/143/143438.png">
-                    </div>
-                    <div style="font-weight:900; font-size:12px; background:#f1f5f9; padding:6px 12px; border-radius:20px;">KSh ${state.wallet.toLocaleString()}</div>
-                    <div class="cart-wrapper">??<span class="cart-count">${state.cartCount}</span></div>
+// 1. SYSTEM DATA
+const storageKey = 'agriMasteryData_v47';
+const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
+const state = {
+    view: 'market',
+    wallet: saved.wallet || 100000,
+    units: saved.units || [],
+    history: saved.history || [],
+    cartCount: 0,
+    user: "ROBIN",
+    isLoggedIn: false,
+    isAdmin: false,
+    products: []
+};
+function save() {
+    localStorage.setItem(storageKey, JSON.stringify({
+        wallet: state.wallet,
+        units: state.units,
+        history: state.history
+    }));
+}
+// 2. PRODUCT GENERATOR
+for(let i=1; i<=110; i++) {
+    state.products.push({ id: i, n: "Agri-Pro SKU-"+(700+i), p: 2000+(i*50), i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" });
+}
+// 3. ADMIN RENDERER
+function renderAdmin(v) {
+    if (!state.isAdmin) {
+        v.innerHTML = `
+        <div style="padding:60px 20px; text-align:center; background:#0f172a; min-height:100vh; color:white;">
+            <div style="font-size:50px; margin-bottom:20px;">??</div>
+            <h2 style="letter-spacing:2px; color:#38bdf8;">SECURE LOGIN</h2>
+            <p style="font-size:12px; color:#64748b;">ADMINISTRATION ACCESS ONLY</p>
+            <input type="password" id="adminPin" placeholder="ENTER PIN" style="width:120px; padding:15px; background:#1e293b; border:2px solid #334155; border-radius:10px; color:white; text-align:center; font-size:24px; margin-top:20px;">
+            <button onclick="if(document.getElementById('adminPin').value==='1234'){state.isAdmin=true; render();}else{alert('ACCESS DENIED')}" 
+                style="width:100%; margin-top:25px; background:#38bdf8; color:#0f172a; border:none; padding:18px; border-radius:12px; font-weight:bold; cursor:pointer;">UNLOCK TERMINAL</button>
+        </div>`;
+    } else {
+        v.innerHTML = `
+        <div style="padding:20px; background:#0f172a; min-height:100vh; color:white; font-family:monospace;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:10px;">
+                <span style="color:#38bdf8; font-weight:bold;">SYSTEM COMMANDER</span>
+                <span style="color:#ef4444; font-size:10px; cursor:pointer;" onclick="state.isAdmin=false; render();">[LOGOUT]</span>
+            </div>
+            <div style="background:#1e293b; padding:20px; border-radius:15px; margin:20px 0; border:1px solid #38bdf8;">
+                <p style="margin:0; font-size:10px; color:#94a3b8;">SYSTEM WALLET BALANCE</p>
+                <h2 style="margin:5px 0; color:#4ade80; font-size:28px;">KSh ${state.wallet.toLocaleString()}</h2>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button onclick="state.wallet+=50000; save(); render();" style="flex:1; background:#38bdf8; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer;">+ 50K</button>
+                    <button onclick="state.wallet=0; save(); render();" style="flex:1; background:#ef4444; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer;">RESET</button>
                 </div>
-                <div class="grid">
-                    ${state.products.slice(0,40).map(p => `
-                        <div class="product-card">
-                            <img src="${p.img}">
-                            <div class="p-info">
-                                <div class="p-name">${p.name}</div>
-                                <div class="p-price">KSh ${p.price.toLocaleString()}</div>
-                            </div>
-                            <button class="add-btn" onclick="buy(${p.price}, '${p.name}')">ADD TO CART</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div style="background:#111827; padding:10px; border-radius:10px; border:1px solid #334155;">
+                    <p style="margin:0; font-size:9px; color:#64748b;">STATUS</p>
+                    <p style="margin:0; color:#4ade80; font-size:11px;">? ONLINE</p>
+                </div>
+                <div style="background:#111827; padding:10px; border-radius:10px; border:1px solid #334155;">
+                    <p style="margin:0; font-size:9px; color:#64748b;">USER</p>
+                    <p style="margin:0; color:#38bdf8; font-size:11px;">ROBIN_2026</p>
+                </div>
+            </div>
+            <h4 style="color:#38bdf8; margin-bottom:10px;">TRANSACTION AUDIT LOG</h4>
+            <div style="background:#000; padding:15px; border-radius:10px; height:180px; overflow-y:auto; border:1px solid #334155; font-size:10px; color:#4ade80;">
+                ${state.history.length === 0 ? "> NO RECENT TRANSACTIONS" : state.history.map(h => `> [${h.t}] PURCHASE: ${h.i} (-KSh ${h.p})`).reverse().join('<br>')}
+            </div>
+        </div>`;
+    }
+}
+// 4. MAIN RENDERER (Including Market & Academy)
+function render() {
+    const v = document.getElementById('viewport');
+    const n = document.getElementById('bottom-nav');
+    if(!v || !n) return;
+    if (state.view === 'admin') {
+        renderAdmin(v);
+    } else if (state.view === 'market') {
+        v.innerHTML = `
+            <div style="background:white; padding:12px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display:flex; gap:8px;">
+                    <img src="https://cdn-icons-png.flaticon.com/128/2972/2972215.png" style="width:30px;">
+                    <img src="https://cdn-icons-png.flaticon.com/128/143/143438.png" style="width:30px;">
+                </div>
+                <div style="font-weight:bold; color:#f68b1e;">KSh ${state.wallet.toLocaleString()}</div>
+                <div style="position:relative;">??<span style="position:absolute; top:-8px; right:-8px; background:#f68b1e; color:white; font-size:9px; padding:2px 5px; border-radius:50%; font-weight:bold;">${state.cartCount}</span></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:15px; padding-bottom:100px; background:#f1f1f2;">
+                ${state.products.slice(0,20).map(p => `
+                    <div style="background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                        <img src="${p.i}" style="width:100%; height:110px; object-fit:cover;">
+                        <div style="padding:10px;">
+                            <div style="font-size:11px; height:30px; overflow:hidden;">${p.n}</div>
+                            <div style="font-weight:bold; color:#f68b1e;">KSh ${p.p.toLocaleString()}</div>
                         </div>
-                    `).join('')}
-                </div>`;
-        } else if(state.view === 'academy') {
-            if(!state.isLoggedIn) {
-                view.innerHTML = `<div style="padding:100px 20px; text-align:center;">
-                    <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05);">
-                        <h2 style="color:var(--agri-green);">Student Portal</h2>
-                        <input type="password" id="pin" placeholder="ENTER PIN" style="width:100%; padding:15px; border:2px solid #eee; border-radius:10px; text-align:center; font-size:20px; margin-bottom:15px;">
-                        <button onclick="if(document.getElementById('pin').value==='1234'){state.isLoggedIn=true; render();}else{alert('Denied')}" class="add-btn" style="border-radius:10px;">LOGIN</button>
+                        <button onclick="buyProduct(${p.p}, '${p.n}')" style="width:100%; background:#f68b1e; color:white; border:none; padding:12px; font-weight:bold; font-size:11px;">ADD TO CART</button>
                     </div>
-                </div>`;
-            } else {
-                view.innerHTML = `<div style="padding:20px;">
-                    <div style="background:white; padding:20px; border-radius:15px; display:flex; align-items:center; margin-bottom:20px;">
-                        <div style="width:50px; height:50px; background:var(--agri-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">R</div>
-                        <div style="margin-left:15px;"><h3 style="margin:0;">${state.user}</h3><p style="margin:0; font-size:12px; color:green;">Active Student</p></div>
-                    </div>
-                    <h3>My Course Units</h3>
-                    ${state.units.length === 0 ? '<p>No units enrolled yet.</p>' : state.units.map(u => `<div style="background:white; padding:15px; border-radius:10px; margin-bottom:10px; border-left:5px solid var(--agri-orange); display:flex; justify-content:space-between; align-items:center;"><b>${u}</b><button style="background:var(--agri-green); color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px;">STUDY</button></div>`).join('')}
-                    <div onclick="if(!state.units.includes('Soil Dynamics')){state.units.push('Soil Dynamics'); save(); render();}" style="background:white; padding:20px; border-radius:15px; border:2px dashed #ccc; text-align:center; color:#666; margin-top:20px;">+ Register New Unit</div>
-                </div>`;
-            }
-        } else if(state.view === 'admin') {
-            view.innerHTML = `<div style="padding:30px; background:#0f172a; min-height:100vh; color:white;">
-                <h2 style="color:cyan;">Admin Command</h2>
-                <div style="background:#1e293b; padding:20px; border-radius:15px; margin-bottom:20px;">
-                    <p>Current Balance</p><h1 style="color:#4ade80;">KSh ${state.wallet.toLocaleString()}</h1>
-                    <button onclick="state.wallet+=50000; save(); render();" style="width:100%; padding:12px; background:cyan; border:none; border-radius:8px; font-weight:bold;">INJECT 50,000</button>
-                </div>
-                <h4>PURCHASE LOG</h4>
-                <div style="font-family:monospace; font-size:11px; background:#111827; padding:15px; border-radius:10px; height:200px; overflow-y:auto;">
-                    ${state.history.map(h => `[${h.t}] Bought ${h.i}`).reverse().join('<br>')}
-                </div>
+                `).join('')}
             </div>`;
-        }
-        const tabs = [{id:'admin', l:'ADMIN'}, {id:'academy', l:'ACADEMY'}, {id:'market', l:'MARKET'}];
-        nav.innerHTML = tabs.map(t => `<div onclick="state.view='${t.id}'; render();" class="nav-item ${state.view===t.id?'nav-active':''}"><span>${t.l}</span></div>`).join('');
+    } else {
+        v.innerHTML = `<div style="padding:20px;"><h3>ACADEMY DASHBOARD</h3><p>Student: ${state.user}</p></div>`;
     }
-    // 4. ACTIVE CART LOGIC
-    window.buy = function(price, name) {
-        if(state.wallet >= price) {
-            state.wallet -= price;
-            state.cartCount++;
-            state.history.push({i: name, t: new Date().toLocaleTimeString()});
-            save();
-            render();
-            const t = document.getElementById('toast');
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 1500);
-        } else {
-            alert('Insufficient Balance!');
-        }
-    };
-    // BOOT SYSTEM
-    render();
-    </script>
-</body>
-</html>
-
-
+    const tabs = [{id:'admin', l:'SECURE ADMIN'}, {id:'academy', l:'ACADEMY'}, {id:'market', l:'MARKET'}];
+    n.innerHTML = tabs.map(t => `<div onclick="state.view='${t.id}'; render();" style="flex:1; text-align:center; padding:25px 0; font-size:11px; font-weight:bold; color:${state.view===t.id?'#f68b1e':'#94a3af'}; cursor:pointer;">${t.l}</div>`).join('');
+}
+window.buyProduct = function(price, name) {
+    if(state.wallet >= price) {
+        state.wallet -= price;
+        state.cartCount++;
+        state.history.push({i: name, p: price, t: new Date().toLocaleTimeString()});
+        save();
+        render();
+    } else { alert('Insufficient Wallet Balance'); }
+};
+render();
