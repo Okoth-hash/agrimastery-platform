@@ -1563,3 +1563,67 @@ agriEngine.showCart = function() {
         </div>
     `;
 };
+// 1. SEARCH & FILTER STATE
+agriEngine.marketState = {
+    searchQuery: "",
+    activeCategory: "All"
+};
+// 2. SEARCH & FILTER LOGIC
+agriEngine.handleSearch = function(query) {
+    this.marketState.searchQuery = query.toLowerCase();
+    this.render();
+};
+agriEngine.setCategory = function(cat) {
+    this.marketState.activeCategory = cat;
+    this.render();
+};
+// 3. UPDATED JUMIA MARKET RENDERER (With Search Bar)
+agriEngine.renderEasyShop = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    // Filter the 100+ items based on search and category
+    const filteredItems = this.state.inventory.filter(item => {
+        const matchesSearch = item.n.toLowerCase().includes(this.marketState.searchQuery);
+        const matchesCat = this.marketState.activeCategory === "All" || item.cat === this.marketState.activeCategory;
+        return matchesSearch && matchesCat;
+    });
+    v.innerHTML = `
+        <div style="background:#f1f1f2; min-height:100vh; padding-bottom:100px;">
+            <div style="background:#f68b1e; color:white; padding:10px 15px; position:sticky; top:0; z-index:1000;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
+                    <span>?? 0742178833</span>
+                    <span>Wallet: KSh ${this.state.wallet.toLocaleString()}</span>
+                </div>
+                <input type="text" placeholder="Search 100+ products..." 
+                    oninput="agriEngine.handleSearch(this.value)" 
+                    value="${this.marketState.searchQuery}"
+                    style="width:100%; padding:10px; border-radius:5px; border:none; outline:none; color:#333;">
+            </div>
+            <div style="display:flex; overflow-x:auto; background:white; padding:10px; gap:8px; border-bottom:1px solid #ddd;">
+                ${['All', 'Seeds', 'Fertilizer', 'Equipment', 'Tools'].map(cat => `
+                    <button onclick="agriEngine.setCategory('${cat}')" 
+                        style="padding:6px 15px; border-radius:20px; border:1px solid #f68b1e; 
+                        background:${this.marketState.activeCategory === cat ? '#f68b1e' : 'white'}; 
+                        color:${this.marketState.activeCategory === cat ? 'white' : '#f68b1e'}; 
+                        font-size:11px; white-space:nowrap; cursor:pointer; font-weight:bold;">
+                        ${cat}
+                    </button>
+                `).join('')}
+            </div>
+            <div style="padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                ${filteredItems.length === 0 ? '<div style="grid-column:1/3; text-align:center; padding:40px; color:#75757a;">No items found</div>' : 
+                  filteredItems.map(item => `
+                    <div style="background:white; border-radius:4px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
+                        <img src="${item.i}" style="width:100%; height:120px; object-fit:cover;">
+                        <div style="padding:8px; flex:1;">
+                            <div style="font-size:11px; color:#333; font-weight:bold;">${item.n}</div>
+                            <div style="font-weight:bold; font-size:14px; color:#f68b1e; margin-top:5px;">KSh ${item.p.toLocaleString()}</div>
+                        </div>
+                        <button onclick="agriEngine.addToCart(${item.id})" style="width:100%; background:#f68b1e; color:white; border:none; padding:10px; font-weight:bold; font-size:11px; cursor:pointer;">ADD TO CART</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+};
+// Force refresh to apply search bar
+agriEngine.render();
