@@ -329,3 +329,40 @@ agriEngine.saveCalc = function(t, r) {
     alert("Saved Successfully!");
     this.render(); // Refresh the view
 };
+// 1. EXTENDED RAINFALL LOGIC
+agriEngine.runTool = function(id) {
+    const out = document.getElementById('tool-output');
+    out.style.display = "block";
+    let title = ""; let res = "";
+    if(id === "harv") {
+        const a = prompt("Acres:"); const y = prompt("Bags per acre:");
+        if(a && y) { title="Harvest Estimate"; res=`${a} Acres = ${a*y} Total Bags`; }
+    } else if(id === "prof") {
+        const c = prompt("Cost (KSh):"); const s = prompt("Sales (KSh):");
+        if(c && s) { title="Profit Projection"; res=`Net: KSh ${(s-c).toLocaleString()}`; }
+    } else if(id === "rain") {
+        const mm = prompt("Enter Daily Rainfall (mm):", "10");
+        if(mm) {
+            // Get previous total or start at 0
+            let currentTotal = parseFloat(localStorage.getItem('agri_rain_total') || '0');
+            currentTotal += parseFloat(mm);
+            localStorage.setItem('agri_rain_total', currentTotal);
+            title="Rainfall Log"; 
+            res=`Added ${mm}mm. Monthly Total: ${currentTotal}mm`;
+        }
+    } else {
+        out.innerHTML = `<strong>${id.toUpperCase()} Tool:</strong><br>Feature active. Results for ${id} will appear here. Support: ${this.state.contact}`;
+        return;
+    }
+    if(title) {
+        out.innerHTML = `
+            <div style="font-size:14px;"><strong>${title}</strong></div>
+            <div style="font-size:18px; color:#1b4332; font-weight:bold; margin:5px 0;">${res}</div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="agriEngine.saveCalc('${title}','${res}')" style="background:#1b4332; color:white; border:none; padding:8px 12px; border-radius:5px; font-size:11px; font-weight:bold; cursor:pointer;">?? SAVE TO HISTORY</button>
+                ${id === 'rain' ? `<button onclick="localStorage.setItem('agri_rain_total', 0); alert('Counter Reset'); agriEngine.render();" style="background:#cc0000; color:white; border:none; padding:8px 12px; border-radius:5px; font-size:11px; cursor:pointer;">?? RESET MONTH</button>` : ''}
+            </div>
+        `;
+    }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+};
