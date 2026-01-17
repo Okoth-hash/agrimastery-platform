@@ -1506,3 +1506,60 @@ agriEngine.showCart = function() {
         </div>
     `;
 };
+// 1. CATEGORY FILTER LOGIC
+agriEngine.filterCategory = function(cat) {
+    this.state.currentFilter = cat;
+    this.render();
+};
+// 2. QUANTITY UPDATE LOGIC
+agriEngine.updateCartQty = function(id, change) {
+    const item = this.state.cart.find(i => i.id === id);
+    if (item) {
+        item.qty += change;
+        // Remove item if quantity drops to zero
+        if (item.qty <= 0) {
+            this.state.cart = this.state.cart.filter(i => i.id !== id);
+        }
+        localStorage.setItem('agri_cart', JSON.stringify(this.state.cart));
+        this.showCart(); // Refresh the cart view immediately
+    }
+};
+// 3. ENHANCED JUMIA CART RENDERER
+agriEngine.showCart = function() {
+    const v = document.getElementById('viewport');
+    const total = this.state.cart.reduce((sum, item) => sum + (item.p * item.qty), 0);
+    v.innerHTML = `
+        <div style="padding:15px; background:white; min-height:100vh; padding-bottom:100px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f68b1e; padding-bottom:10px; margin-bottom:15px;">
+                <h2 style="margin:0; color:#333;">My Shopping Cart</h2>
+                <button onclick="agriEngine.render()" style="background:none; border:none; color:#f68b1e; font-weight:bold; cursor:pointer;">BACK TO SHOP</button>
+            </div>
+            ${this.state.cart.length === 0 ? 
+                '<div style="text-align:center; padding:50px 0; color:#75757a;">Your cart is empty. Start shopping!</div>' : 
+                this.state.cart.map(item => `
+                <div style="display:flex; gap:12px; padding:15px 0; border-bottom:1px solid #f1f1f2; align-items:center;">
+                    <img src="${item.i}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
+                    <div style="flex:1;">
+                        <div style="font-size:13px; font-weight:bold; color:#333;">${item.n}</div>
+                        <div style="color:#f68b1e; font-weight:bold; font-size:14px; margin-top:3px;">KSh ${item.p.toLocaleString()}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; background:#f1f1f2; padding:5px; border-radius:20px;">
+                        <button onclick="agriEngine.updateCartQty(${item.id}, -1)" style="width:24px; height:24px; border-radius:50%; border:none; background:#f68b1e; color:white; font-weight:bold; cursor:pointer;">-</button>
+                        <span style="font-weight:bold; min-width:15px; text-align:center;">${item.qty}</span>
+                        <button onclick="agriEngine.updateCartQty(${item.id}, 1)" style="width:24px; height:24px; border-radius:50%; border:none; background:#f68b1e; color:white; font-weight:bold; cursor:pointer;">+</button>
+                    </div>
+                </div>
+            `).join('')}
+            <div style="position:fixed; bottom:65px; left:0; width:100%; background:white; padding:15px; border-top:1px solid #ddd; box-shadow:0 -5px 15px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:bold;">
+                    <span>Subtotal:</span>
+                    <span style="color:#f68b1e; font-size:18px;">KSh ${total.toLocaleString()}</span>
+                </div>
+                <button onclick="window.location.href='https://wa.me/254742178833?text=Hi!%20I%20want%20to%20order%20items%20totaling%20KSh%20${total}'" 
+                        style="width:100%; background:#25D366; color:white; border:none; padding:15px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    ?? CHECKOUT (WhatsApp)
+                </button>
+            </div>
+        </div>
+    `;
+};
