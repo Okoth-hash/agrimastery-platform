@@ -1308,3 +1308,10 @@ document.body.appendChild(indicator);
 // Re-activating PIN logic just in case
 agriEngine.adminState = { isLocked: true, correctPin: "1234" };
 agriEngine.render();
+// SUCCESS INDICATOR FOR OKOTH-HASH
+const okothIndicator = document.createElement('div');
+okothIndicator.style.cssText = "position:fixed; top:0; width:100%; background:#1b4332; color:white; text-align:center; font-size:10px; z-index:100002; padding:4px;";
+okothIndicator.innerText = "SYSTEM LIVE: okoth-hash V8 (PIN: 1234)";
+document.body.appendChild(okothIndicator);
+agriEngine.adminState = { isLocked: true, correctPin: "1234" };
+agriEngine.render();
