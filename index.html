@@ -3,130 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriMastery Pro</title>
+    <title>AgriMastery Secure v52</title>
     <style>
-        :root { --orange: #f68b1e; --green: #065f46; --dark: #0f172a; --bg: #f1f5f9; }
-        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); color: #1e293b; -webkit-tap-highlight-color: transparent; }
-        /* HEADER & BRANDING */
-        .header { background: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .brand { display: flex; align-items: center; gap: 8px; }
-        .brand img { width: 32px; height: 32px; }
-        .wallet-pill { background: #f1f5f9; padding: 6px 12px; border-radius: 20px; font-weight: 800; color: var(--green); font-size: 13px; }
-        /* MARKETPLACE */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; padding-bottom: 100px; }
-        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
-        .product-card img { width: 100%; height: 110px; object-fit: cover; }
-        .p-details { padding: 10px; flex-grow: 1; }
-        .p-name { font-size: 11px; font-weight: 600; color: #475569; height: 32px; overflow: hidden; }
-        .p-price { color: var(--orange); font-weight: 800; font-size: 14px; margin-top: 4px; }
-        .buy-btn { background: var(--orange); color: white; border: none; padding: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
-        /* ACADEMY STYLES */
-        .auth-card { background: white; padding: 25px; border-radius: 20px; margin: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .input-group { margin-bottom: 15px; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
-        .btn-primary { width: 100%; background: var(--green); color: white; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        /* NAV BAR */
-        #nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; border-top: 1px solid #e2e8f0; z-index: 100; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #94a3af; cursor: pointer; text-transform: uppercase; }
-        .nav-active { color: var(--orange); border-top: 3px solid var(--orange); }
-        /* ADMIN */
-        .admin-view { background: var(--dark); color: white; min-height: 100vh; padding: 20px; font-family: monospace; }
-        .admin-card { background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #38bdf8; }
+        :root { --orange: #f68b1e; --green: #065f46; --dark: #0f172a; --bg: #f8fafc; }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); color: #1e293b; }
+        /* HEADER */
+        .header { background: white; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo-box { display: flex; gap: 8px; }
+        .logo-box img { width: 32px; height: 32px; }
+        .wallet-display { background: var(--green); color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; }
+        /* VIEWPORT */
+        #viewport { min-height: 100vh; padding-bottom: 100px; }
+        /* MARKET */
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .item-card img { width: 100%; height: 110px; object-fit: cover; }
+        .buy-btn { width: 100%; background: var(--orange); color: white; border: none; padding: 12px; font-weight: bold; cursor: pointer; }
+        /* ADMIN SECURE */
+        .admin-bg { background: var(--dark); color: white; min-height: 100vh; padding: 25px; font-family: monospace; }
+        .admin-card { background: #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid #38bdf8; }
+        .pin-input { background: #1e293b; border: 2px solid #334155; color: white; padding: 15px; width: 100%; border-radius: 10px; font-size: 24px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
+        /* NAV */
+        #navbar { position: fixed; bottom: 0; width: 100%; height: 80px; background: white; display: flex; border-top: 1px solid #e2e8f0; z-index: 1000; }
+        .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #94a3af; cursor: pointer; text-transform: uppercase; }
+        .active-tab { color: var(--orange); border-top: 4px solid var(--orange); }
     </style>
 </head>
 <body>
     <div id="viewport"></div>
-    <div id="nav"></div>
+    <div id="navbar"></div>
     <script>
-    const storageKey = 'agriFullSystem_v51';
+    const storageKey = 'agriSecure_v52';
     const db = JSON.parse(localStorage.getItem(storageKey)) || {
-        users: [], 
-        currentUser: null,
-        wallet: 150000,
-        history: []
+        users: [],
+        wallet: 250000,
+        logs: [],
+        activeStudent: null,
+        adminLocked: true
     };
     function save() { localStorage.setItem(storageKey, JSON.stringify(db)); }
     const products = [];
     for(let i=1; i<=110; i++) {
-        products.push({ id: i, n: "Agri-Pro SKU-" + (500+i), p: 1200 + (i*15), img: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" });
+        products.push({ id: i, n: "Agri-Master Pro SKU-" + (600+i), p: 1500 + (i*10), img: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" });
     }
-    const availableCourses = ["Fish Farming", "Greenhouse Tech", "Irrigation", "Agribusiness 101"];
     function render() {
         const v = document.getElementById('viewport');
-        const n = document.getElementById('nav');
+        const n = document.getElementById('navbar');
         const tab = window.activeTab || 'market';
-        if (tab === 'market') {
-            v.innerHTML = `
-                <div class="header">
-                    <div class="brand">
-                        <img src="https://cdn-icons-png.flaticon.com/128/2972/2972215.png"> <img src="https://cdn-icons-png.flaticon.com/128/143/143438.png"> </div>
-                    <div class="wallet-pill">KSh ${db.wallet.toLocaleString()}</div>
-                    <div style="font-size:20px;">??</div>
-                </div>
-                <div class="market-grid">${products.slice(0,30).map(p => `
-                    <div class="product-card">
-                        <img src="${p.img}">
-                        <div class="p-details"><div class="p-name">${p.n}</div><div class="p-price">KSh ${p.p.toLocaleString()}</div></div>
-                        <button class="buy-btn" onclick="buy(${p.p}, '${p.n}')">BUY NOW</button>
-                    </div>`).join('')}</div>`;
-        } else if (tab === 'academy') {
-            if (!db.currentUser) {
-                v.innerHTML = `<div class="auth-card">
-                    <h2 style="color:var(--green); text-align:center;">Student Registration</h2>
-                    <div class="input-group"><input id="u" type="text" placeholder="Full Name"></div>
-                    <div class="input-group"><input id="p" type="password" placeholder="Password"></div>
-                    <button class="btn-primary" onclick="register()">CREATE ACCOUNT</button>
+        if (tab === 'admin') {
+            if (db.adminLocked) {
+                v.innerHTML = `<div class="admin-bg" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <h2 style="color:#38bdf8;">ADMIN ENCRYPTION</h2>
+                    <input type="password" id="adminPin" class="pin-input" placeholder="0000">
+                    <button onclick="if(document.getElementById('adminPin').value==='1234'){db.adminLocked=false; render();}else{alert('DENIED')}" class="buy-btn" style="border-radius:10px;">UNLOCK SYSTEM</button>
                 </div>`;
             } else {
-                const user = db.users.find(u => u.username === db.currentUser);
-                v.innerHTML = `<div style="padding:20px;">
-                    <h3>Hello, ${user.username}!</h3>
-                    <p style="font-size:12px; color:var(--green);"><b>My Courses:</b></p>
-                    ${user.courses.map(c => `<div class="admin-card" style="background:white; color:black; border-left-color:var(--orange); border-bottom:1px solid #eee;">${c}</div>`).join('')}
-                    <h4>Available to Enroll</h4>
-                    ${availableCourses.filter(c => !user.courses.includes(c)).map(c => `
-                        <div style="background:white; padding:15px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between;">
-                            <span>${c}</span><button onclick="enroll('${c}')" style="background:var(--green); color:white; border:none; border-radius:5px; padding:5px 10px;">ENROLL</button>
-                        </div>`).join('')}
-                    <button onclick="db.currentUser=null; render();" style="margin-top:20px; color:red; border:none; background:none; font-weight:bold;">LOGOUT</button>
+                v.innerHTML = `<div class="admin-bg">
+                    <div style="display:flex; justify-content:space-between;"><h3>COMMAND CENTER</h3><button onclick="db.adminLocked=true; render();" style="color:#ef4444; border:none; background:none;">LOCK</button></div>
+                    <div class="admin-card">
+                        <p style="font-size:11px; color:#94a3b8;">SYSTEM LIQUIDITY</p>
+                        <h1 style="color:#4ade80;">KSh ${db.wallet.toLocaleString()}</h1>
+                        <button onclick="db.wallet+=50000; db.logs.push('DEPOSIT: +50k'); save(); render();" style="width:100%; padding:12px; background:#38bdf8; border:none; border-radius:8px; font-weight:bold; margin-bottom:10px;">DEPOSIT 50K</button>
+                        <button onclick="db.wallet-=10000; db.logs.push('WITHDRAW: -10k'); save(); render();" style="width:100%; padding:12px; background:#f87171; border:none; border-radius:8px; font-weight:bold;">WITHDRAW 10K</button>
+                    </div>
+                    <h4>LIVE SYSTEM LOGS</h4>
+                    <div style="background:black; padding:15px; border-radius:10px; height:150px; overflow-y:auto; font-size:11px; color:#4ade80;">
+                        ${db.logs.map(log => `> ${log}`).reverse().join('<br>')}
+                    </div>
+                    <h4>REGISTERED STUDENTS: ${db.users.length}</h4>
                 </div>`;
             }
-        } else if (tab === 'admin') {
-            v.innerHTML = `<div class="admin-view">
-                <h3>ADMIN COMMAND</h3>
-                <div class="admin-card">
-                    <p>SYSTEM BALANCE</p><h2>KSh ${db.wallet.toLocaleString()}</h2>
-                    <button onclick="db.wallet+=50000; save(); render();" style="width:100%; padding:10px; background:#38bdf8; border:none; border-radius:5px; font-weight:bold;">DEPOSIT 50K</button>
-                    <button onclick="db.wallet-=10000; save(); render();" style="width:100%; padding:10px; background:#f87171; border:none; border-radius:5px; font-weight:bold; margin-top:5px;">WITHDRAW 10K</button>
+        } else if (tab === 'market') {
+            v.innerHTML = `
+                <div class="header">
+                    <div class="logo-box"><img src="https://cdn-icons-png.flaticon.com/128/2972/2972215.png"><img src="https://cdn-icons-png.flaticon.com/128/143/143438.png"></div>
+                    <div class="wallet-display">KSh ${db.wallet.toLocaleString()}</div>
+                    <div style="font-size:22px;">??</div>
                 </div>
-                <div style="font-size:10px; color:#4ade80;">LOGS:<br>${db.history.slice(-10).map(h => `> ${h}`).join('<br>')}</div>
-            </div>`;
+                <div class="market-grid">
+                    ${products.slice(0,20).map(p => `
+                        <div class="item-card">
+                            <img src="${p.img}">
+                            <div style="padding:10px;"><div style="font-size:11px; height:32px;">${p.n}</div><b style="color:var(--orange);">KSh ${p.p}</b></div>
+                            <button onclick="buyItem(${p.p}, '${p.n}')" class="buy-btn">BUY</button>
+                        </div>`).join('')}
+                </div>`;
+        } else if (tab === 'academy') {
+            v.innerHTML = `<div style="padding:20px;"><h2>Academy Status</h2><p>Student system active. Total students: ${db.users.length}</p></div>`;
         }
         n.innerHTML = `
-            <div onclick="window.activeTab='market'; render();" class="nav-item ${tab==='market'?'nav-active':''}">Market</div>
-            <div onclick="window.activeTab='academy'; render();" class="nav-item ${tab==='academy'?'nav-active':''}">Academy</div>
-            <div onclick="window.activeTab='admin'; render();" class="nav-item ${tab==='admin'?'nav-active':''}">Admin</div>
+            <div onclick="window.activeTab='admin'; render();" class="nav-tab ${tab==='admin'?'active-tab':''}">Admin</div>
+            <div onclick="window.activeTab='market'; render();" class="nav-tab ${tab==='market'?'active-tab':''}">Market</div>
+            <div onclick="window.activeTab='academy'; render();" class="nav-tab ${tab==='academy'?'active-tab':''}">Academy</div>
         `;
     }
-    window.register = function() {
-        const u = document.getElementById('u').value;
-        const p = document.getElementById('p').value;
-        if(u && p) {
-            db.users.push({username: u, password: p, courses: []});
-            db.currentUser = u;
-            save(); render();
-        }
-    };
-    window.enroll = function(c) {
-        db.users.find(u => u.username === db.currentUser).courses.push(c);
-        save(); render();
-    };
-    window.buy = function(price, name) {
-        if(db.wallet >= price) {
-            db.wallet -= price;
-            db.history.push("Bought " + name);
-            save(); render(); alert("Purchased!");
-        } else { alert("Insufficient Funds"); }
+    window.buyItem = function(p, n) {
+        if(db.wallet >= p) {
+            db.wallet -= p; db.logs.push('PURCHASE: ' + n);
+            save(); render(); alert('Purchased!');
+        } else { alert('Low Balance'); }
     };
     render();
     </script>
