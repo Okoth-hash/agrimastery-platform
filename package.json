@@ -1,27 +1,38 @@
 {
-  "name": "agrimastery-platform",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
-  "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.7.4",
-    "typescript": "5.9.2"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "packageManager": "npm@11.6.2",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "dependencies": {
-    "twilio": "^5.11.2"
-  }
+    "scripts":  {
+                    "build":  "react-scripts build",
+                    "backup":  "node scripts/backup.js",
+                    "start":  "react-scripts start",
+                    "test":  "react-scripts test",
+                    "deploy":  "npm run build \u0026\u0026 node scripts/deploy.js",
+                    "eject":  "react-scripts eject"
+                },
+    "description":  "Agricultural Education \u0026 Trade Intelligence Platform for Kenya",
+    "dependencies":  {
+                         "lucide-react":  "^0.263.1",
+                         "react":  "^18.2.0",
+                         "react-scripts":  "5.0.1",
+                         "react-dom":  "^18.2.0"
+                     },
+    "version":  "2.0.0",
+    "browserslist":  {
+                         "development":  [
+                                             "last 1 chrome version",
+                                             "last 1 firefox version",
+                                             "last 1 safari version"
+                                         ],
+                         "production":  [
+                                            "\u003e0.2%",
+                                            "not dead",
+                                            "not op_mini all"
+                                        ]
+                     },
+    "author":  "Omondi Robin Okoth",
+    "name":  "agrimastery-2.0",
+    "devDependencies":  {
+                            "autoprefixer":  "^10.4.14",
+                            "postcss":  "^8.4.24",
+                            "tailwindcss":  "^3.3.0"
+                        },
+    "license":  "MIT"
 }

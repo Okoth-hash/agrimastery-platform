@@ -1,86 +1,64 @@
-/* =========================================================================
-   AGRIMASTERY UNIFIED FUNCTIONAL CORE
-   Architect: Omondi Robin Okoth (2026)
-   ========================================================================= */
 const agriEngine = {
-    isAdmin: localStorage.getItem('agri_admin_active') === 'true',
-    user: JSON.parse(localStorage.getItem('agri_logged_in_user')),
+    author: { name: "Omondi Robin Okoth", phone: "254742178833", email: "okothrobin323@gmail.com" },
+    version: "2.0.0-P4-Final",
+    // --- PHASE 4 CORE LOGIC ---
     init: function() {
-        document.body.style.margin = "0";
-        document.body.style.backgroundColor = "#f0f4f8";
-        // 1. FORCED LAYOUT GENERATION
-        document.body.innerHTML = \
-            <div id="status-bar" style="background:#000; color:#0f0; padding:8px; font-family:monospace; font-size:11px; position:sticky; top:0; z-index:1000;"></div>
-            <div id="container" style="max-width:800px; margin:auto; padding:15px;">
-                <div id="admin-module"></div>
-                <div id="academy-module"></div>
-                <div id="market-module"></div>
-                <div id="glossary-module"></div>
-            </div>\;
+        console.log("PHASE 4: Final Integration Initiated.");
+        this.buildEnvironment();
+        this.loadState();
         this.pulse();
-        this.renderAll();
-        window.onclick = () => this.pulse();
+        // Listeners to keep Phase 3 Persistence active
+        window.addEventListener('scroll', () => this.pulse());
+        window.addEventListener('click', () => this.pulse());
+    },
+    buildEnvironment: function() {
+        document.body.innerHTML = '<div id="agri-app"></div>';
+        const app = document.getElementById('agri-app');
+        app.style = "font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f7f6; min-height:100vh;";
+        app.innerHTML = \
+            <div id="p4-status" style="background:#1a1a1a; color:#00ff88; padding:10px; font-family:monospace; font-size:12px; position:sticky; top:0; border-bottom:2px solid #00ff88; z-index:9999;"></div>
+            <div style="padding:20px; max-width:900px; margin:auto;">
+                <h1 style="color:#1b4332; text-align:center;">AgriMastery Unified Platform</h1>
+                <div id="p2-admin-intel"></div>
+                <div id="p3-academy-persistence"></div>
+                <div id="p2-market-intel"></div>
+                <div id="p1-glossary-foundation"></div>
+            </div>\;
+    },
+    loadState: function() {
+        this.isAdmin = localStorage.getItem('agri_admin_active') === 'true';
+        this.user = JSON.parse(localStorage.getItem('agri_logged_in_user') || 'null');
+        this.renderModules();
     },
     pulse: function() {
-        const bar = document.getElementById('status-bar');
-        if(bar) bar.innerHTML = "🛰️ SYSTEM ACTIVE | SYNC: " + new Date().toLocaleTimeString() + " | DEV: OKOTH ROBIN";
+        const status = document.getElementById('p4-status');
+        if(status) status.innerHTML = "🛰️ PHASE 4 ACTIVE | HEARTBEAT: " + new Date().toLocaleTimeString() + " | DATA SECURE";
     },
-    renderAll: function() {
-        this.f_Admin();
-        this.f_Academy();
-        this.f_Market();
-        this.f_Glossary();
+    renderModules: function() {
+        // Phase 2: Admin Intel
+        document.getElementById('p2-admin-intel').innerHTML = this.isAdmin ? 
+            '<div style="background:#0b0f19; color:#00ff88; padding:15px; border-radius:10px; margin-bottom:15px;">👨‍✈️ Admin: System Oversight Active</div>' : 
+            '<div style="background:#fff; padding:15px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px; text-align:center;"><button onclick="agriEngine.login()" style="cursor:pointer; border:none; background:none; color:#666;">Admin Access</button></div>';
+        // Phase 3: Academy Persistence
+        const pg = this.user ? (this.user.lastPage || 1) : 0;
+        document.getElementById('p3-academy-persistence').innerHTML = \
+            <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border-left:8px solid #2d6a4f; margin-bottom:15px;">
+                <h3>🎓 Academy Module</h3>
+                \
+            </div>\;
+        // Phase 2: Market Intel
+        document.getElementById('p2-market-intel').innerHTML = \
+            <div style="background:#fff7ed; padding:20px; border-radius:12px; border-top:5px solid #ea580c; margin-bottom:15px;">
+                <h3>📈 Market Intel</h3>
+                <p>Nairobi: KSh 4,200 | Eldoret: KSh 3,800</p>
+            </div>\;
+        // Phase 1: Glossary Foundation
+        document.getElementById('p1-glossary-foundation').innerHTML = \
+            <div style="background:white; padding:20px; border-radius:12px; border:1px solid #eee;">
+                <h3>🔍 Visual Glossary</h3>
+                <input type="text" placeholder="Search 5,000+ terms..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+            </div>\;
     },
-    // --- COMPONENT: ADMIN COMMAND (Functional Logic) ---
-    f_Admin: function() {
-        const el = document.getElementById('admin-module');
-        if(!this.isAdmin) {
-            el.innerHTML = '<div style="background:#fff; padding:20px; border-radius:12px; margin-bottom:15px; border:1px solid #ddd; text-align:center;">' +
-                           '<button onclick="agriEngine.authAdmin()" style="background:#1a1a1a; color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer;">🔓 Open Admin Console</button></div>';
-        } else {
-            el.innerHTML = '<div style="background:#0b0f19; color:#10b981; padding:20px; border-radius:12px; margin-bottom:15px; border:2px solid #10b981;">' +
-                           '<h3>👨‍✈️ Admin Command Center</h3>' +
-                           '<button onclick="agriEngine.logout()" style="background:#ef4444; color:white; border:none; padding:8px 15px; border-radius:5px;">Secure Lock</button></div>';
-        }
-    },
-    // --- COMPONENT: 1000-PAGE ACADEMY (Tracking Logic) ---
-    f_Academy: function() {
-        const el = document.getElementById('academy-module');
-        if(!this.user) {
-            el.innerHTML = '<div style="background:#fff; padding:20px; border-radius:12px; margin-bottom:15px; border-left:8px solid #2d6a4f;">' +
-                           '<h3>🎓 Academy Portal</h3>' +
-                           '<button onclick="agriEngine.authUser()" style="width:100%; padding:12px; background:#2d6a4f; color:white; border:none; border-radius:8px;">Student Login</button></div>';
-        } else {
-            const pg = this.user.lastPage || 1;
-            el.innerHTML = '<div style="background:#fff; padding:20px; border-radius:12px; margin-bottom:15px; border-left:8px solid #2d6a4f;">' +
-                           '<h3>📖 Welcome back, ' + this.user.name + '</h3>' +
-                           '<p>📍 Current Progress: <b>Page ' + pg + ' / 1000</b></p>' +
-                           '<div style="background:#eee; height:8px; border-radius:4px;"><div style="width:'+(pg/10)+'%; background:#2d6a4f; height:100%; border-radius:4px;"></div></div>' +
-                           '<button onclick="alert(\'Opening Page '+pg+'...\')" style="margin-top:15px; width:100%; padding:10px; background:#409167; color:white; border:none; border-radius:8px;">Resume Manual</button></div>';
-        }
-    },
-    // --- COMPONENT: MARKET INTEL (Dynamic Pricing) ---
-    f_Market: function() {
-        const el = document.getElementById('market-module');
-        el.innerHTML = '<div style="background:#fff7ed; padding:20px; border-radius:12px; margin-bottom:15px; border-top:5px solid #ea580c;">' +
-                       '<h3>📈 Market Live Prices</h3>' +
-                       '<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #fed7aa;"><span>Nairobi (Maize)</span><b>KSh 4,200</b></div>' +
-                       '<div style="display:flex; justify-content:space-between; padding:10px 0;"><span>Eldoret (Maize)</span><b>KSh 3,800</b></div></div>';
-    },
-    // --- COMPONENT: GLOSSARY (Searchable DB) ---
-    f_Glossary: function() {
-        const el = document.getElementById('glossary-module');
-        el.innerHTML = '<div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee;">' +
-                       '<h3>🔍 Visual Glossary</h3>' +
-                       '<input type="text" placeholder="Search 5,000+ terms..." style="width:100%; padding:12px; box-sizing:border-box; border-radius:8px; border:1px solid #ddd; margin-bottom:15px;">' +
-                       '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">' +
-                       '<div style="background:#f9f9f9; padding:8px; border-radius:8px; text-align:center;"><small>Tillage</small></div>' +
-                       '<div style="background:#f9f9f9; padding:8px; border-radius:8px; text-align:center;"><small>Irrigation</small></div>' +
-                       '</div></div>';
-    },
-    // --- AUTH LOGIC ---
-    authAdmin: function() { if(prompt("Pass:")==="1234") { localStorage.setItem('agri_admin_active','true'); location.reload(); } },
-    authUser: function() { const n = prompt("Name:"); if(n) { localStorage.setItem('agri_logged_in_user', JSON.stringify({name:n, lastPage:1})); location.reload(); } },
-    logout: function() { localStorage.clear(); location.reload(); }
+    login: function() { if(prompt("Key:")==="1234") { localStorage.setItem('agri_admin_active','true'); location.reload(); } }
 };
 window.onload = () => agriEngine.init();
