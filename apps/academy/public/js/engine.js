@@ -980,3 +980,92 @@ const bootInterval = setInterval(() => {
 document.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => setTimeout(forceAgriBoot, 100));
 });
+// 1. INTEGRATED ADMIN UI
+agriEngine.renderAdmin = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    const stats = {
+        inventory: this.state.inventory.length || 1000,
+        students: 1, 
+        wallet: this.state.wallet.toLocaleString(),
+        contact: this.state.contact
+    };
+    v.innerHTML = `
+        <div style="background:#0f172a; color:white; padding:25px; border-radius:0 0 25px 25px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0; font-size:20px;">System Administrator</h2>
+                <div style="background:#38bdf8; color:#0f172a; padding:4px 10px; border-radius:10px; font-size:10px; font-weight:bold;">LIVE</div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:20px;">
+                <div style="text-align:center;"><div style="font-size:18px; font-weight:bold;">${stats.inventory}</div><div style="font-size:9px; opacity:0.7;">ITEMS</div></div>
+                <div style="text-align:center;"><div style="font-size:18px; font-weight:bold;">${stats.students}</div><div style="font-size:9px; opacity:0.7;">USERS</div></div>
+                <div style="text-align:center;"><div style="font-size:18px; font-weight:bold;">V4</div><div style="font-size:9px; opacity:0.7;">BUILD</div></div>
+            </div>
+        </div>
+        <div style="padding:0 15px;">
+            <div style="background:white; border-radius:15px; padding:20px; margin-bottom:15px; box-shadow:0 4px 6px rgba(0,0,0,0.02); border:1px solid #e2e8f0;">
+                <div style="color:#64748b; font-size:11px; font-weight:bold; letter-spacing:1px;">STUDENT WALLET BALANCE</div>
+                <div style="font-size:28px; font-weight:900; color:#0f172a; margin:10px 0;">KSh ${stats.wallet}</div>
+                <button onclick="agriEngine.adminAddCash()" style="width:100%; background:#0f172a; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">+ ADD CREDIT</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div onclick="agriEngine.adminManageInventory()" style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; cursor:pointer;">
+                    <div style="font-size:24px;">??</div>
+                    <div style="font-weight:bold; font-size:13px; margin-top:5px;">Market Editor</div>
+                    <div style="font-size:10px; color:#64748b;">Manage 1,000 items</div>
+                </div>
+                <div onclick="agriEngine.adminViewHistory()" style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; cursor:pointer;">
+                    <div style="font-size:24px;">??</div>
+                    <div style="font-weight:bold; font-size:13px; margin-top:5px;">Tool Logs</div>
+                    <div style="font-size:10px; color:#64748b;">View calculations</div>
+                </div>
+                <div onclick="agriEngine.adminManageAcademy()" style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; cursor:pointer;">
+                    <div style="font-size:24px;">??</div>
+                    <div style="font-weight:bold; font-size:13px; margin-top:5px;">Academy Stats</div>
+                    <div style="font-size:10px; color:#64748b;">Track progress</div>
+                </div>
+                <div onclick="agriEngine.adminEditContact()" style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; cursor:pointer;">
+                    <div style="font-size:24px;">??</div>
+                    <div style="font-weight:bold; font-size:13px; margin-top:5px;">Support Mgr</div>
+                    <div style="font-size:10px; color:#64748b;">Edit ${stats.contact}</div>
+                </div>
+            </div>
+            <div style="background:#f8fafc; padding:15px; border-radius:12px; border:1px dashed #cbd5e1; text-align:center;">
+                <div style="font-size:11px; color:#64748b;">System Support: <b>0742178833</b></div>
+            </div>
+        </div>
+        <div id="admin-detail-panel" style="display:none; position:fixed; inset:0; background:white; z-index:100000; padding:20px; overflow-y:auto;"></div>
+    `;
+};
+// 2. ADMIN ACTIONS
+agriEngine.adminManageInventory = function() {
+    const p = document.getElementById('admin-detail-panel');
+    p.style.display = 'block';
+    p.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0;">Market Editor</h2>
+            <button onclick="document.getElementById('admin-detail-panel').style.display='none'" style="border:none; background:none; font-size:20px;">?</button>
+        </div>
+        <div style="font-size:13px; color:#64748b; margin-bottom:20px;">Currently managing ${this.state.inventory.length} items. Prices are indexed by ID.</div>
+        ${this.state.inventory.slice(0,10).map(i => `
+            <div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                <span>${i.n}</span>
+                <b style="color:#10b981;">KSh ${i.p}</b>
+            </div>
+        `).join('')}
+        <div style="padding:20px; text-align:center; color:#94a3b8; font-size:11px;">(Showing first 10 items)</div>
+    `;
+};
+agriEngine.adminManageAcademy = function() {
+    const p = document.getElementById('admin-detail-panel');
+    p.style.display = 'block';
+    p.innerHTML = `
+        <h2 style="margin-bottom:20px;">Academy Progress</h2>
+        ${this.curriculum.map(c => `
+            <div style="margin-bottom:15px; background:#f8fafc; padding:15px; border-radius:10px;">
+                <div style="font-weight:bold;">${c.n}</div>
+                <div style="font-size:12px; color:#64748b;">Global Average Completion: ${c.progress}%</div>
+            </div>
+        `).join('')}
+        <button onclick="document.getElementById('admin-detail-panel').style.display='none'" style="width:100%; padding:15px; background:#0f172a; color:white; border:none; border-radius:10px; margin-top:20px;">BACK TO DASHBOARD</button>
+    `;
+};
