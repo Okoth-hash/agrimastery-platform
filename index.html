@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriMastery V42 - ROBIN</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>AgriMastery Pro - ROBIN</title>
     <style>
-        body { margin: 0; font-family: sans-serif; background: #0f172a; color: white; }
-        #viewport { min-height: 100vh; padding-bottom: 80px; }
-        #bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #ddd; z-index: 999; }
-        .tab { flex: 1; text-align: center; padding: 25px 0; font-size: 11px; font-weight: bold; cursor: pointer; color: #94a3af; }
-        .active-tab { color: #f68b1e; }
-        #boot-button { background: #f68b1e; color: white; border: none; padding: 20px; border-radius: 10px; font-weight: bold; display: none; margin: 50px auto; width: 80%; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #1e293b; }
+        #viewport { min-height: 100vh; padding-bottom: 90px; }
+        #bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; border-top: 1px solid #e2e8f0; z-index: 1000; }
+        .tab { flex: 1; text-align: center; padding: 25px 0; font-size: 11px; font-weight: 800; cursor: pointer; color: #94a3af; text-transform: uppercase; }
+        .active-tab { color: #f68b1e; border-top: 3px solid #f68b1e; padding-top: 22px; }
+        .btn-primary { background: #065f46; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
     <div id="viewport">
-        <div style="padding: 50px; text-align: center;">
-            <div id="status-text">SECURE SYSTEM INITIALIZING...</div>
-            <button id="boot-button" onclick="render()">FORCE START SYSTEM</button>
+        <div style="padding: 100px 20px; text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 20px;">??</div>
+            <h3 id="loader-text">ESTABLISHING SECURE CONNECTION...</h3>
+            <button onclick="bootSystem()" style="margin-top:20px; padding:15px; background:#f68b1e; color:white; border:none; border-radius:10px; font-weight:bold;">RETRY CONNECTION</button>
         </div>
     </div>
     <div id="bottom-nav"></div>
     <script>
-    // 1. DATA CORE (Robin's Profile)
+    // 1. SYSTEM STATE (Persistence for Robin)
     const saved = JSON.parse(localStorage.getItem('agriMasteryData')) || {};
     const state = {
         activeTab: 'academy',
@@ -41,69 +43,73 @@
             history: state.history
         }));
     }
-    // 2. GENERATE MARKET (110 Items)
+    // 2. LOAD MARKET (110 Items)
     for(let i=1; i<=110; i++) {
-        state.inventory.push({ id: i, n: "Agri-Pro Item "+i, p: 1250+(i*10), i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=200" });
+        state.inventory.push({ id: i, n: "Agri-Master Pro SKU-"+(200+i), p: 1500+(i*15), i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300" });
     }
-    // 3. MASTER RENDERER
-    function render() {
+    // 3. UI RENDERING
+    function bootSystem() {
         const v = document.getElementById('viewport');
         const n = document.getElementById('bottom-nav');
-        v.style.background = "#f1f5f9"; // Change background back to light for UI
-        v.style.color = "black";
         if (state.activeTab === 'academy') {
             if (!state.isLoggedIn) {
                 v.innerHTML = `<div style="padding:40px 20px; text-align:center;">
-                    <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
-                        <img src="https://cdn-icons-png.flaticon.com/128/3443/3443421.png" style="width:70px;">
-                        <h2>Student Portal</h2>
-                        <p style="color:gray; font-size:12px;">Authorized: ROBIN</p>
-                        <input type="password" id="p" placeholder="PIN" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:10px; text-align:center; font-size:20px;">
-                        <button onclick="if(document.getElementById('p').value==='1234'){state.isLoggedIn=true; render();}else{alert('Wrong PIN')}" style="width:100%; background:#065f46; color:white; border:none; padding:15px; border-radius:10px; margin-top:15px; font-weight:bold;">SIGN IN</button>
+                    <div style="background:white; padding:35px; border-radius:25px; box-shadow:0 15px 30px rgba(0,0,0,0.1);">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3443/3443421.png" style="width:80px; margin-bottom:15px;">
+                        <h2 style="margin:0; color:#065f46;">Student Portal</h2>
+                        <p style="font-size:12px; color:#64748b; margin-bottom:25px;">Welcome, ROBIN</p>
+                        <input type="password" id="p" placeholder="Enter PIN" style="width:100%; padding:18px; border:2px solid #f1f5f9; border-radius:12px; text-align:center; font-size:22px; margin-bottom:15px; box-sizing:border-box;">
+                        <button onclick="if(document.getElementById('p').value==='1234'){state.isLoggedIn=true; bootSystem();}else{alert('Access Denied')}" class="btn-primary">SECURE LOGIN</button>
                     </div>
                 </div>`;
             } else {
                 v.innerHTML = `<div style="padding:20px;">
-                    <div style="background:white; padding:15px; border-radius:15px; display:flex; align-items:center; margin-bottom:20px;">
-                        <img src="https://cdn-icons-png.flaticon.com/128/201/201614.png" style="width:50px;">
-                        <div style="margin-left:15px;"><h4 style="margin:0;">${state.userName}</h4><p style="margin:0; font-size:11px; color:#065f46;">ID: AM-2026</p></div>
+                    <div style="background:white; padding:20px; border-radius:20px; display:flex; align-items:center; margin-bottom:20px; border-left:8px solid #065f46;">
+                        <img src="https://cdn-icons-png.flaticon.com/128/201/201614.png" style="width:60px;">
+                        <div style="margin-left:15px;"><h4 style="margin:0; letter-spacing:1px;">${state.userName}</h4><p style="margin:0; font-size:11px; color:#065f46; font-weight:bold;">ID: AM-2026-X</p></div>
                     </div>
-                    <h3>My Registered Units</h3>
-                    ${state.registeredUnits.map(u => `<div style="background:white; padding:15px; border-radius:10px; margin-bottom:10px; border-left:5px solid #f68b1e; display:flex; justify-content:space-between; align-items:center;"><span>${u}</span><button style="background:#065f46; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px;">STUDY</button></div>`).join('')}
-                    <h4 style="margin-top:20px;">Available Courses</h4>
-                    <div onclick="if(!state.registeredUnits.includes('Modern Agribusiness')){state.registeredUnits.push('Modern Agribusiness'); save(); render();}" style="background:white; padding:15px; border-radius:10px; border-left:5px solid #065f46; cursor:pointer; font-weight:bold;">+ Modern Agribusiness</div>
+                    <h3 style="color:#334155;">Academic Progress</h3>
+                    ${state.registeredUnits.map(u => `<div style="background:white; padding:18px; border-radius:15px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 6px rgba(0,0,0,0.02); border-right:4px solid #f68b1e;">
+                        <span style="font-weight:bold; font-size:14px;">${u}</span><button style="background:#065f46; color:white; border:none; padding:8px 15px; border-radius:8px; font-size:11px; font-weight:bold;">ENTER CLASS</button>
+                    </div>`).join('')}
+                    <div onclick="if(!state.registeredUnits.includes('Advanced Agribusiness')){state.registeredUnits.push('Advanced Agribusiness'); save(); bootSystem();}" style="background:#fff; border:2px dashed #cbd5e1; padding:20px; border-radius:15px; text-align:center; color:#64748b; cursor:pointer; margin-top:10px;">+ Enroll in Advanced Agribusiness</div>
                 </div>`;
             }
         } else if (state.activeTab === 'market') {
-            v.innerHTML = `<div style="background:#f68b1e; padding:15px; color:white; font-weight:bold; position:sticky; top:0; z-index:10;">?? MARKET | Wallet: KSh ${state.wallet.toLocaleString()}</div>
-            <div style="padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                ${state.inventory.slice(0,20).map(i => `<div style="background:white; padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:11px; height:30px;">${i.n}</div><div style="font-weight:bold; color:#f68b1e;">KSh ${i.p}</div>
-                    <button onclick="if(state.wallet>=${i.p}){state.wallet-=${i.p}; state.history.push({item:'${i.n}', price:${i.p}, time:new Date().toLocaleTimeString()}); save(); render(); alert('Bought!');}else{alert('No funds');}" style="width:100%; background:#f68b1e; color:white; border:none; padding:8px; margin-top:5px; border-radius:4px; font-weight:bold;">BUY</button>
+            v.innerHTML = `<div style="background:#f68b1e; padding:20px; color:white; font-weight:bold; position:sticky; top:0; z-index:100; display:flex; justify-content:space-between; align-items:center;">
+                <span>?? MARKET</span><span style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:10px; font-size:12px;">KSh ${state.wallet.toLocaleString()}</span>
+            </div>
+            <div style="padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-bottom:100px;">
+                ${state.inventory.slice(0,30).map(i => `<div style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                    <img src="${i.i}" style="width:100%; height:110px; object-fit:cover;">
+                    <div style="padding:10px;"><div style="font-size:12px; color:#475569; height:32px; overflow:hidden;">${i.n}</div><div style="font-weight:bold; color:#f68b1e; font-size:16px; margin-top:5px;">KSh ${i.p}</div></div>
+                    <button onclick="if(state.wallet>=${i.p}){state.wallet-=${i.p}; state.history.push({item:'${i.n}', price:${i.p}, time:new Date().toLocaleTimeString()}); save(); bootSystem(); alert('Success!');}else{alert('Insufficient Funds');}" style="width:100%; background:#f68b1e; color:white; border:none; padding:12px; font-weight:bold; font-size:11px;">BUY NOW</button>
                 </div>`).join('')}
             </div>`;
         } else if (state.activeTab === 'admin') {
             if (!state.isAdminLoggedIn) {
-                v.innerHTML = `<div style="padding:40px; text-align:center; background:#0f172a; height:100vh; color:white;"><h2>Admin Secure PIN</h2><input type="password" id="ap" style="width:100px; padding:15px; text-align:center; border-radius:10px;"><button onclick="if(document.getElementById('ap').value==='1234'){state.isAdminLoggedIn=true; render();}" style="width:100%; margin-top:20px; background:#38bdf8; padding:15px; border-radius:10px; font-weight:bold; border:none; color:#0f172a;">UNLOCK COMMAND CENTER</button></div>`;
+                v.innerHTML = `<div style="padding:40px; text-align:center; background:#0f172a; min-height:100vh; color:white;"><h2>Admin Secure Portal</h2><input type="password" id="ap" style="width:150px; padding:15px; text-align:center; border-radius:10px; border:none; font-size:24px;"><button onclick="if(document.getElementById('ap').value==='1234'){state.isAdminLoggedIn=true; bootSystem();}else{alert('Access Denied')}" style="width:100%; margin-top:20px; background:#38bdf8; color:#0f172a; padding:18px; border-radius:12px; font-weight:bold; border:none;">UNLOCK TRACKER</button></div>`;
             } else {
-                v.innerHTML = `<div style="padding:20px; background:#0f172a; color:white; min-height:100vh;"><h3>Admin: ${state.userName}</h3><h2 style="color:#4ade80;">KSh ${state.wallet.toLocaleString()}</h2><button onclick="state.wallet+=10000; save(); render();" style="width:100%; padding:15px; background:#38bdf8; border:none; border-radius:10px; font-weight:bold;">GIFT 10K</button><h4 style="margin-top:20px; border-bottom:1px solid #334155;">HISTORY</h4><div style="font-size:10px; color:#94a3b8;">${state.history.map(h => `[${h.time}] ${h.item}`).join('<br>')}</div></div>`;
+                v.innerHTML = `<div style="padding:20px; background:#0f172a; color:white; min-height:100vh;">
+                    <h3 style="color:#38bdf8; margin:0;">SYSTEM TRACKER: ${state.userName}</h3>
+                    <div style="background:#1e293b; padding:20px; border-radius:15px; margin:20px 0; border:1px solid #334155;">
+                        <p style="margin:0; font-size:11px; color:#94a3b8;">WALLET BALANCE</p>
+                        <h2 style="margin:5px 0; color:#4ade80;">KSh ${state.wallet.toLocaleString()}</h2>
+                        <button onclick="state.wallet+=50000; save(); bootSystem();" style="width:100%; background:#38bdf8; color:#0f172a; border:none; padding:12px; border-radius:8px; font-weight:bold; margin-top:10px;">GIFT 50K</button>
+                    </div>
+                    <h4 style="border-bottom:1px solid #334155; padding-bottom:10px; color:#38bdf8;">LIVE PURCHASE LOG</h4>
+                    <div style="font-family:monospace; font-size:11px; color:#94a3b8; max-height:200px; overflow-y:auto;">
+                        ${state.history.length === 0 ? "Tracking... No transactions yet." : state.history.map(h => `[${h.time}] ${h.item} - KSh ${h.price}`).reverse().join('<br>')}
+                    </div>
+                </div>`;
             }
         }
         const tabs = [{id:'admin', l:'ADMIN'}, {id:'academy', l:'ACADEMY'}, {id:'market', l:'MARKET'}];
-        n.innerHTML = tabs.map(t => `<div onclick="state.activeTab='${t.id}'; render();" class="tab ${state.activeTab===t.id?'active-tab':''}">${t.l}</div>`).join('');
+        n.innerHTML = tabs.map(t => `<div onclick="state.activeTab='${t.id}'; bootSystem();" class="tab ${state.activeTab===t.id?'active-tab':''}">${t.l}</div>`).join('');
     }
-    // 4. EMERGENCY TIMEOUT (If it stays on "Initializing" for 3 seconds, show the button)
-    setTimeout(() => {
-        const btn = document.getElementById('boot-button');
-        const st = document.getElementById('status-text');
-        if(btn) { 
-            btn.style.display = 'block'; 
-            st.innerText = "Connection Delay Detected...";
-        }
-    }, 3000);
-    // AUTO-START
-    window.onload = render;
-    render();
+    // AUTO-EXECUTE
+    window.onload = bootSystem;
+    setTimeout(bootSystem, 100);
     </script>
 </body>
 </html>
