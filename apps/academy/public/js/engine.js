@@ -1372,3 +1372,29 @@ agriEngine.unlockAdmin = function() {
         alert("ACCESS DENIED");
     }
 };
+// 1. FORCE NAVIGATION TO TOP LAYER
+const fixNavStyle = document.createElement('style');
+fixNavStyle.innerHTML = `
+    #nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        z-index: 200000 !important; /* Higher than the manual */
+        background: white !important;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1) !important;
+    }
+    #viewport {
+        padding-bottom: 80px !important; /* Space for the nav */
+    }
+`;
+document.head.appendChild(fixNavStyle);
+// 2. EMERGENCY EXIT FOR MANUAL
+agriEngine.exitManual = function() {
+    // This clears the full-screen manual and returns to the dashboard
+    this.state.activeTab = 'market'; 
+    this.render();
+};
+// 3. RE-SYNC DASHBOARD
+agriEngine.renderNav();
+agriEngine.render();
