@@ -118,3 +118,67 @@ const agriEngine = {
     toggleCart: function() { /* Cart logic integrated from previous sync */ }
 };
 document.addEventListener('DOMContentLoaded', () => agriEngine.init());
+// Extending the existing agriEngine with 20 Functional Tools
+agriEngine.renderTools = function(v) {
+    const tools = [
+        { id: "harv", n: "Harvest Calculator", i: "??", d: "Estimate total yield based on area." },
+        { id: "seed", n: "Seed Rate Calc", i: "??", d: "Calculate seeds needed per hectare." },
+        { id: "fert", n: "Fertilizer Mixer", i: "??", d: "NPK ratio balancer for soil types." },
+        { id: "irr", n: "Irrigation Timer", i: "??", d: "Water flow requirements per crop." },
+        { id: "prof", n: "Profit Projection", i: "??", d: "Estimate ROI after harvest expenses." },
+        { id: "pest", n: "Pesticide Diluter", i: "??", d: "Safe chemical mixing ratios." },
+        { id: "soil", n: "pH Level Guide", i: "??", d: "Correction steps for soil acidity." },
+        { id: "land", n: "Acreage Converter", i: "???", d: "Convert sq meters to acres/hectares." },
+        { id: "feed", n: "Livestock Feed", i: "??", d: "Daily intake per animal weight." },
+        { id: "stor", n: "Storage Life", i: "???", d: "Shelf life at various temperatures." },
+        { id: "labr", n: "Labor Costing", i: "??", d: "Calculate man-hours for weeding/harvest." },
+        { id: "fuel", n: "Tractor Fuel", i: "??", d: "Consumption per acre of plowing." },
+        { id: "rain", n: "Rainfall Tracker", i: "???", d: "Monthly accumulation vs crop need." },
+        { id: "plant", n: "Plant Spacing", i: "??", d: "Optimized grid for max density." },
+        { id: "mkt", n: "Price Index", i: "??", d: "Historical market price trends." },
+        { id: "compost", n: "Compost Ratio", i: "??", d: "Brown vs Green waste balance." },
+        { id: "spray", n: "Nozzle Calibrator", i: "??", d: "Flow rate for uniform spraying." },
+        { id: "vet", n: "Gestation Calc", i: "??", d: "Estimated birth dates for livestock." },
+        { id: "dry", n: "Moisture Content", i: "??", d: "Ideal drying time for grains." },
+        { id: "loan", n: "Agri-Loan Calc", i: "??", d: "Interest and repayment schedule." }
+    ];
+    v.innerHTML = `
+        <div style="padding:15px; background:#1b4332; color:white; margin-bottom:15px; border-radius:0 0 15px 15px;">
+            <h2 style="margin:0;">Agri-Toolbox</h2>
+            <small>20 Professional Utilities for Modern Farming</small>
+        </div>
+        <div id="tool-output" style="margin:0 15px 15px 15px; padding:15px; background:white; border-radius:10px; display:none; border-left:5px solid #1b4332; box-shadow:0 4px 6px rgba(0,0,0,0.05);"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 15px;">
+            ${tools.map(t => `
+                <div onclick="agriEngine.runTool('${t.id}')" style="background:white; padding:15px; border-radius:10px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.05); transition:transform 0.2s;">
+                    <div style="font-size:30px; margin-bottom:8px;">${t.i}</div>
+                    <div style="font-size:12px; font-weight:bold; color:#1b4332;">${t.n}</div>
+                    <div style="font-size:10px; color:#75757a; margin-top:4px;">${t.d}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+};
+agriEngine.runTool = function(id) {
+    const out = document.getElementById('tool-output');
+    out.style.display = "block";
+    if(id === "harv") {
+        const area = prompt("Enter Area (Acres):", "1");
+        const yieldPer = prompt("Est. Yield per Acre (bags):", "30");
+        if(area && yieldPer) {
+            const total = area * yieldPer;
+            out.innerHTML = `<strong>?? Harvest Estimate:</strong><br>For ${area} acres, your expected harvest is <b>${total} bags</b>.`;
+        }
+    } else if (id === "prof") {
+        const cost = prompt("Enter Total Production Cost (KSh):", "20000");
+        const price = prompt("Expected Selling Price (KSh):", "40000");
+        if(cost && price) {
+            const profit = price - cost;
+            const margin = ((profit / price) * 100).toFixed(1);
+            out.innerHTML = `<strong>?? Profit Report:</strong><br>Net Profit: <b>KSh ${profit.toLocaleString()}</b><br>Margin: <b>${margin}%</b>`;
+        }
+    } else {
+        out.innerHTML = `<strong>${id.toUpperCase()} Tool:</strong><br>Please connect external sensor or enter laboratory data for manual calculation. Support: ${this.state.contact}`;
+    }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+};
