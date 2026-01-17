@@ -1681,3 +1681,51 @@ vBadge.style.cssText = "position:fixed; top:5px; right:5px; background:black; co
 vBadge.innerText = "DATA-SAFE V10";
 document.body.appendChild(vBadge);
 agriEngine.render();
+// 1. LIVE VERSION TRACKER
+const APP_VERSION = "11.0.1"; // Increment this to force all phones to refresh
+console.log("Live Sync Active: v" + APP_VERSION);
+// 2. IMMEDIATE REFRESH LOGIC
+(function() {
+    const lastVersion = localStorage.getItem('agri_app_version');
+    if (lastVersion !== APP_VERSION) {
+        localStorage.setItem('agri_app_version', APP_VERSION);
+        // Soft refresh to load new scripts without wiping user data
+        console.log("New Update Detected. Syncing...");
+        setTimeout(() => { location.reload(true); }, 500); 
+    }
+})();
+// 3. JUMIA MARKET SEARCH & CART SYNC (Restored)
+agriEngine.renderEasyShop = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    // Filter and Render Logic for 100+ items
+    const filtered = this.state.inventory.filter(i => 
+        i.n.toLowerCase().includes(this.marketState.searchQuery) &&
+        (this.marketState.activeCategory === "All" || i.cat === this.marketState.activeCategory)
+    );
+    v.innerHTML = `
+        <div style="background:#f1f1f2; min-height:100vh; padding-bottom:100px;">
+            <div style="background:#f68b1e; color:white; padding:12px; position:sticky; top:0; z-index:2000;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
+                    <span>? LIVE SYNC: ON</span>
+                    <span>?? 0742178833</span>
+                </div>
+                <input type="text" placeholder="Search 100+ items..." 
+                    oninput="agriEngine.handleSearch(this.value)"
+                    style="width:100%; padding:12px; border-radius:8px; border:none; font-size:16px; color:#333;">
+            </div>
+            <div style="padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                ${filtered.map(item => `
+                    <div style="background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                        <img src="${item.i}" style="width:100%; height:120px; object-fit:cover;">
+                        <div style="padding:10px;">
+                            <div style="font-size:11px; font-weight:bold; height:28px; overflow:hidden;">${item.n}</div>
+                            <div style="color:#f68b1e; font-weight:bold; margin-top:5px;">KSh ${item.p.toLocaleString()}</div>
+                        </div>
+                        <button onclick="agriEngine.addToCart(${item.id})" style="width:100%; background:#f68b1e; color:white; border:none; padding:12px; font-weight:bold;">ADD TO CART</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+};
+agriEngine.render();
