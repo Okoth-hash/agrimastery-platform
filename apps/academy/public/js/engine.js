@@ -1627,3 +1627,57 @@ agriEngine.renderEasyShop = function(v) {
 };
 // Force refresh to apply search bar
 agriEngine.render();
+// 1. DATA SHIELD - PRESERVE EXISTING USER DATA
+(function() {
+    const savedWallet = localStorage.getItem('agri_wallet');
+    const savedCart = localStorage.getItem('agri_cart');
+    // If data exists, lock it in so the update doesn't wipe it
+    if(savedWallet) agriEngine.state.wallet = parseFloat(savedWallet);
+    if(savedCart) agriEngine.state.cart = JSON.parse(savedCart);
+    console.log("Data Shield: Wallet and Cart preserved.");
+})();
+// 2. SEARCH & FILTER OVERRIDE
+agriEngine.marketState = { searchQuery: "", activeCategory: "All" };
+agriEngine.handleSearch = function(q) {
+    this.marketState.searchQuery = q.toLowerCase();
+    this.render();
+};
+// 3. JUMIA-STYLE RENDERER WITH SEARCH & 0742178833
+agriEngine.renderEasyShop = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    const items = this.state.inventory.filter(i => {
+        return i.n.toLowerCase().includes(this.marketState.searchQuery) && 
+               (this.marketState.activeCategory === "All" || i.cat === this.marketState.activeCategory);
+    });
+    v.innerHTML = `
+        <div style="background:#f1f1f2; min-height:100vh; padding-bottom:100px;">
+            <div style="background:#f68b1e; color:white; padding:10px; position:sticky; top:0; z-index:1000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:8px;">
+                    <span>?? Help: 0742178833</span>
+                    <span>KSh ${this.state.wallet.toLocaleString()}</span>
+                </div>
+                <input type="text" placeholder="Search seeds, tools..." 
+                    oninput="agriEngine.handleSearch(this.value)"
+                    style="width:100%; padding:12px; border-radius:8px; border:none; color:#333; font-size:14px;">
+            </div>
+            <div style="padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                ${items.map(item => `
+                    <div style="background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                        <img src="${item.i}" style="width:100%; height:120px; object-fit:cover;">
+                        <div style="padding:10px;">
+                            <div style="font-size:11px; font-weight:bold; height:28px; overflow:hidden;">${item.n}</div>
+                            <div style="color:#f68b1e; font-weight:bold; margin-top:5px;">KSh ${item.p.toLocaleString()}</div>
+                        </div>
+                        <button onclick="agriEngine.addToCart(${item.id})" style="width:100%; background:#f68b1e; color:white; border:none; padding:12px; font-weight:bold; cursor:pointer;">ADD TO CART</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+};
+// 4. VERSION INDICATOR (Confirms the update worked)
+const vBadge = document.createElement('div');
+vBadge.style.cssText = "position:fixed; top:5px; right:5px; background:black; color:white; font-size:8px; padding:2px 5px; z-index:10000; border-radius:3px;";
+vBadge.innerText = "DATA-SAFE V10";
+document.body.appendChild(vBadge);
+agriEngine.render();
