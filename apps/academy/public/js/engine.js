@@ -1315,3 +1315,60 @@ okothIndicator.innerText = "SYSTEM LIVE: okoth-hash V8 (PIN: 1234)";
 document.body.appendChild(okothIndicator);
 agriEngine.adminState = { isLocked: true, correctPin: "1234" };
 agriEngine.render();
+// 1. SECURE ADMIN INITIALIZATION
+agriEngine.adminSettings = {
+    pin: "1234",
+    isLocked: true,
+    viewLogs: []
+};
+// 2. UPDATED ADMIN RENDER (PIN LOCKED)
+agriEngine.renderAdmin = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    if (this.adminSettings.isLocked) {
+        v.innerHTML = `
+            <div style="background:#0f172a; min-height:80vh; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; border-radius:20px;">
+                <div style="font-size:40px; margin-bottom:10px;">??</div>
+                <h3 style="margin:0;">Admin Command Center</h3>
+                <p style="font-size:11px; opacity:0.6; margin-bottom:20px;">Enter 1234 to Manage System</p>
+                <input type="password" id="pin-entry" placeholder="****" maxlength="4" style="width:120px; padding:12px; border-radius:8px; border:none; text-align:center; font-size:22px; color:#0f172a; margin-bottom:15px;">
+                <button onclick="agriEngine.unlockAdmin()" style="background:#38bdf8; color:#0f172a; border:none; padding:12px 30px; border-radius:8px; font-weight:bold; cursor:pointer;">UNLOCK</button>
+            </div>
+        `;
+        return;
+    }
+    // 3. FULL SYSTEM TRACKER (UNLOCKED)
+    v.innerHTML = `
+        <div style="background:#1e3a8a; color:white; padding:20px; border-radius:15px; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <b>SYSTEM STATUS: LIVE</b>
+                <button onclick="agriEngine.adminSettings.isLocked=true; agriEngine.render();" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 8px; border-radius:5px; font-size:10px;">LOCK</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
+                <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">
+                    <small>User: OMONDI ROBIN</small><br><b>Page: 1/1000</b>
+                </div>
+                <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">
+                    <small>Wallet Balance</small><br><b>KSh ${this.state.wallet.toLocaleString()}</b>
+                </div>
+            </div>
+        </div>
+        <div style="padding:10px;">
+            <h4 style="margin:0 0 10px 0; font-size:13px;">Control Panel</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button onclick="agriEngine.setTab('market')" style="padding:15px; background:white; border:1px solid #ddd; border-radius:10px; font-size:12px;">Manage EasyShop</button>
+                <button onclick="agriEngine.setTab('student')" style="padding:15px; background:white; border:1px solid #ddd; border-radius:10px; font-size:12px;">Manage Academy</button>
+                <button onclick="agriEngine.setTab('tools')" style="padding:15px; background:white; border:1px solid #ddd; border-radius:10px; font-size:12px;">Manage Toolbox</button>
+                <button onclick="alert('Support: 0742178833')" style="padding:15px; background:white; border:1px solid #ddd; border-radius:10px; font-size:12px;">Contact Support</button>
+            </div>
+        </div>
+    `;
+};
+agriEngine.unlockAdmin = function() {
+    const val = document.getElementById('pin-entry').value;
+    if (val === this.adminSettings.pin) {
+        this.adminSettings.isLocked = false;
+        this.render();
+    } else {
+        alert("ACCESS DENIED");
+    }
+};
