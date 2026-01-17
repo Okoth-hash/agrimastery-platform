@@ -244,3 +244,88 @@ agriEngine.renderTools = function(v) {
         v.innerHTML += historyHTML;
     }
 };
+// 1. REFRESH TOOLS DATA
+agriEngine.state.toolHistory = JSON.parse(localStorage.getItem('agri_tool_history') || '[]');
+// 2. DEFINE THE 20 TOOLS
+agriEngine.toolsList = [
+    { id: "harv", n: "Harvest Calculator", i: "??", d: "Yield per acre estimate" },
+    { id: "prof", n: "Profit Projection", i: "??", d: "ROI & Margin analysis" },
+    { id: "seed", n: "Seed Rate", i: "??", d: "Seeds per hectare" },
+    { id: "fert", n: "Fertilizer Mixer", i: "??", d: "NPK Ratio balancer" },
+    { id: "irr", n: "Irrigation Timer", i: "??", d: "Water flow needs" },
+    { id: "soil", n: "pH Level Guide", i: "??", d: "Soil correction steps" },
+    { id: "land", n: "Acreage Conv", i: "???", d: "Sq Meters to Acres" },
+    { id: "pest", n: "Pesticide Mixer", i: "??", d: "Chemical dilution" },
+    { id: "feed", n: "Livestock Feed", i: "??", d: "Daily intake calc" },
+    { id: "stor", n: "Storage Life", i: "???", d: "Shelf life tracker" },
+    { id: "labr", n: "Labor Costing", i: "??", d: "Man-hour budget" },
+    { id: "fuel", n: "Tractor Fuel", i: "??", d: "Liters per acre" },
+    { id: "rain", n: "Rainfall Log", i: "???", d: "Monthly tracking" },
+    { id: "plant", n: "Plant Spacing", i: "??", d: "Max density grid" },
+    { id: "mkt", n: "Price Index", i: "??", d: "Market trends" },
+    { id: "comp", n: "Compost Ratio", i: "??", d: "Waste balancer" },
+    { id: "spray", n: "Spray Nozzle", i: "??", d: "Flow rate calibration" },
+    { id: "vet", n: "Gestation", i: "??", d: "Birth date tracker" },
+    { id: "dry", n: "Grain Drying", i: "??", d: "Moisture content" },
+    { id: "loan", n: "Agri-Loan", i: "??", d: "Interest calculator" }
+];
+// 3. RENDER THE TOOLS VIEW
+agriEngine.renderTools = function(v) {
+    v.innerHTML = `
+        <div style="background:#1b4332; color:white; padding:20px; border-radius:0 0 20px 20px; margin-bottom:20px;">
+            <h2 style="margin:0;">Agri-Toolbox</h2>
+            <p style="margin:5px 0 0 0; opacity:0.8; font-size:13px;">20 Functional Professional Utilities</p>
+        </div>
+        <div id="tool-output" style="display:none; margin:0 15px 20px 15px; padding:15px; background:white; border-radius:10px; border-left:5px solid #f68b1e; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 15px;">
+            ${this.toolsList.map(t => `
+                <div onclick="agriEngine.runTool('${t.id}')" style="background:white; padding:15px; border-radius:12px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.05); cursor:pointer;">
+                    <div style="font-size:32px; margin-bottom:10px;">${t.i}</div>
+                    <div style="font-weight:bold; font-size:13px; color:#1b4332;">${t.n}</div>
+                    <div style="font-size:10px; color:#999; margin-top:5px;">${t.d}</div>
+                </div>
+            `).join('')}
+        </div>
+        <div id="tool-history" style="margin:30px 15px; padding:15px; background:#f4f4f4; border-radius:10px;">
+            <h4 style="margin:0 0 15px 0; color:#1b4332;">Recently Saved Calculations</h4>
+            ${this.state.toolHistory.length === 0 ? '<p style="font-size:12px; color:#999;">No history yet.</p>' : 
+              this.state.toolHistory.slice(0, 5).map(h => `
+                <div style="background:white; padding:10px; border-radius:5px; margin-bottom:10px; font-size:11px; border-bottom:2px solid #eee;">
+                    <div style="color:#75757a; font-size:10px;">${h.date}</div>
+                    <b>${h.title}:</b> ${h.result}
+                </div>
+              `).join('')}
+        </div>
+    `;
+};
+// 4. TOOL LOGIC
+agriEngine.runTool = function(id) {
+    const out = document.getElementById('tool-output');
+    out.style.display = "block";
+    let title = ""; let res = "";
+    if(id === "harv") {
+        const a = prompt("Acres:"); const y = prompt("Bags per acre:");
+        if(a && y) { title="Harvest Estimate"; res=`${a} Acres = ${a*y} Total Bags`; }
+    } else if(id === "prof") {
+        const c = prompt("Cost (KSh):"); const s = prompt("Sales (KSh):");
+        if(c && s) { title="Profit Projection"; res=`Net: KSh ${(s-c).toLocaleString()}`; }
+    } else {
+        out.innerHTML = `<strong>${id.toUpperCase()} Tool:</strong><br>Manual input required. Contact ${this.state.contact} for calibration.`;
+        return;
+    }
+    if(title) {
+        out.innerHTML = `
+            <div style="font-size:14px;"><strong>${title}</strong></div>
+            <div style="font-size:18px; color:#1b4332; font-weight:bold; margin:5px 0;">${res}</div>
+            <button onclick="agriEngine.saveCalc('${title}','${res}')" style="background:#1b4332; color:white; border:none; padding:8px 12px; border-radius:5px; font-size:11px; font-weight:bold; cursor:pointer;">?? SAVE TO HISTORY</button>
+        `;
+    }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+};
+agriEngine.saveCalc = function(t, r) {
+    const entry = { date: new Date().toLocaleDateString(), title: t, result: r };
+    this.state.toolHistory.unshift(entry);
+    localStorage.setItem('agri_tool_history', JSON.stringify(this.state.toolHistory));
+    alert("Saved Successfully!");
+    this.render(); // Refresh the view
+};
