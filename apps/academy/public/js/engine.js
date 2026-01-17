@@ -943,3 +943,40 @@ const checkDisplay = setInterval(() => {
     }
 }, 1000);
 console.log("AgriMastery " + APP_VERSION + " is active.");
+// 1. EMERGENCY UI RE-BOOT
+function forceAgriBoot() {
+    const v = document.getElementById('viewport');
+    const currentTab = localStorage.getItem('agri_tab') || 'market';
+    console.log("Deep Boot: Initializing " + currentTab);
+    if (currentTab === 'student') {
+        agriEngine.renderAcademy(v);
+    } else if (currentTab === 'tools') {
+        agriEngine.renderTools(v);
+    } else if (currentTab === 'market') {
+        agriEngine.renderEasyShop(v);
+    } else if (currentTab === 'admin') {
+        agriEngine.renderAdmin(v);
+    }
+    // Force version visibility
+    if(!document.getElementById('version-v4')) {
+        const ver = document.createElement('div');
+        ver.id = 'version-v4';
+        ver.style.cssText = "position:fixed; top:60px; right:10px; font-size:8px; background:rgba(0,0,0,0.5); color:white; padding:2px 5px; border-radius:10px; z-index:99999;";
+        ver.innerText = "SYNC: V4-ACTIVE";
+        document.body.appendChild(ver);
+    }
+}
+// 2. TRIGGER BOOT EVERY 2 SECONDS UNTIL CONTENT APPEARS
+let bootAttempts = 0;
+const bootInterval = setInterval(() => {
+    const view = document.getElementById('viewport');
+    if (view) {
+        forceAgriBoot();
+        bootAttempts++;
+    }
+    if (bootAttempts > 5) clearInterval(bootInterval);
+}, 2000);
+// 3. ATTACH TO NAVIGATION
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => setTimeout(forceAgriBoot, 100));
+});
