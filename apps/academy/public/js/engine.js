@@ -1300,3 +1300,11 @@ const statusTag = document.createElement('div');
 statusTag.style.cssText = "position:fixed; top:10px; left:10px; background:#25d366; color:white; font-size:9px; padding:3px 8px; border-radius:20px; z-index:100000; font-weight:bold;";
 statusTag.innerText = "APPEND V6 ACTIVE";
 document.body.appendChild(statusTag);
+// SUCCESS INDICATOR
+const indicator = document.createElement('div');
+indicator.style.cssText = "position:fixed; top:0; width:100%; background:#25d366; color:white; text-align:center; font-size:10px; font-weight:bold; z-index:100001; padding:2px;";
+indicator.innerText = "SYSTEM CONNECTED: V7 ACTIVE (PIN: 1234)";
+document.body.appendChild(indicator);
+// Re-activating PIN logic just in case
+agriEngine.adminState = { isLocked: true, correctPin: "1234" };
+agriEngine.render();
