@@ -737,3 +737,87 @@ agriEngine.adminViewHistory = function() {
         </div>
     `;
 };
+// 1. DATA INITIALIZATION
+agriEngine.curriculum = [
+    { 
+        id: "crop101", n: "Crop Science Mastery", i: "??", 
+        desc: "Soil health and yield optimization.",
+        lessons: ["Soil Prep", "Fertilizing", "Harvesting"],
+        progress: 0
+    },
+    { 
+        id: "live201", n: "Livestock Management", i: "??", 
+        desc: "Feeding, health, and breeding.",
+        lessons: ["Nutrition", "Disease Control", "Housing"],
+        progress: 0
+    },
+    { 
+        id: "biz301", n: "Agri-Business Expert", i: "??", 
+        desc: "Marketing and farm accounting.",
+        lessons: ["Record Keeping", "Sales", "Scaling"],
+        progress: 0
+    }
+];
+// 2. FORCED RENDER LOGIC
+agriEngine.renderAcademy = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    v.innerHTML = `
+        <div style="background:#2d6a4f; color:white; padding:25px; border-radius:0 0 25px 25px; margin-bottom:20px;">
+            <h2 style="margin:0;">Agri-Academy</h2>
+            <p style="margin:5px 0 0 0; opacity:0.8; font-size:13px;">Learning Management Active</p>
+        </div>
+        <div id="lesson-overlay" style="display:none; margin:0 15px 20px 15px; padding:20px; background:white; border-radius:15px; border-top:5px solid #2d6a4f; box-shadow:0 10px 30px rgba(0,0,0,0.1);"></div>
+        <div style="padding:0 15px;">
+            <h4 style="margin:0 0 15px 0; color:#333;">Available Courses</h4>
+            ${this.curriculum.map(c => `
+                <div onclick="agriEngine.enterCourse('${c.id}')" style="background:white; padding:15px; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; gap:15px; box-shadow:0 4px 6px rgba(0,0,0,0.03); cursor:pointer; border:1px solid #f1f1f2;">
+                    <div style="font-size:40px; background:#f0fff4; padding:10px; border-radius:12px;">${c.i}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold; color:#2d6a4f; font-size:15px;">${c.n}</div>
+                        <div style="font-size:11px; color:#75757a; margin-bottom:8px;">${c.desc}</div>
+                        <div style="width:100%; height:8px; background:#eee; border-radius:10px; position:relative;">
+                            <div style="width:${c.progress}%; height:100%; background:#40916c; border-radius:10px; transition:width 0.8s;"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="padding:20px; text-align:center;">
+            <button onclick="alert('Certification unlocks at 100% completion')" style="background:none; border:2px dashed #ccc; color:#999; padding:15px; width:100%; border-radius:15px;">?? Certificate of Completion</button>
+        </div>
+    `;
+};
+// 3. COURSE & LESSON INTERACTION
+agriEngine.enterCourse = function(id) {
+    const course = this.curriculum.find(c => c.id === id);
+    const overlay = document.getElementById('lesson-overlay');
+    overlay.style.display = "block";
+    overlay.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <b style="color:#2d6a4f; font-size:16px;">${course.n}</b>
+            <span onclick="document.getElementById('lesson-overlay').style.display='none'" style="cursor:pointer; font-size:20px; color:#999;">?</span>
+        </div>
+        <div style="font-size:14px; color:#444; line-height:1.6; margin-bottom:20px;">
+            <p><strong>Lesson 1: ${course.lessons[0]}</strong></p>
+            <p>In this module, you will learn the core foundations of ${course.n}. Focus on the variables that drive profit and sustainability.</p>
+        </div>
+        <button onclick="agriEngine.triggerQuiz('${id}')" style="width:100%; background:#2d6a4f; color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; cursor:pointer;">START ASSESSMENT</button>
+    `;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+};
+agriEngine.triggerQuiz = function(id) {
+    const course = this.curriculum.find(c => c.id === id);
+    const pass = confirm(`Quiz: Is ${course.n} essential for high-yield farming?`);
+    if(pass) {
+        course.progress = Math.min(course.progress + 34, 100);
+        alert("Correct! Progress updated.");
+        this.renderAcademy();
+        document.getElementById('lesson-overlay').style.display = 'none';
+    } else {
+        alert("Incorrect. Review your materials.");
+    }
+};
+// 4. ENSURE AUTO-INITIALIZATION
+if (agriEngine.state.activeTab === 'student') {
+    setTimeout(() => agriEngine.renderAcademy(), 100);
+}
