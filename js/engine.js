@@ -1,90 +1,87 @@
-// 1. DATA CORE
+// 1. STATE & WALLET
 agriEngine.state = {
     activeTab: 'market',
     wallet: 15000,
     page: 1,
-    cart: [],
     inventory: []
 };
-// 2. JUMIA-STYLE MARKET DATA (110 Items)
+// 2. JUMIA-STYLE MARKET GENERATOR
 for(let i=1; i<=110; i++) {
     agriEngine.state.inventory.push({
         id: i,
-        n: "Premium Agri-Item #" + i,
-        p: 1200 + (i * 45),
-        oldP: 2500 + (i * 45),
-        i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300",
-        discount: "45%"
+        name: "Agri-Master Pro SKU-" + i,
+        price: 1250 + (i * 25),
+        oldPrice: 3000 + (i * 10),
+        img: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=300"
     });
 }
-// 3. 20 TOOLS LIST
-const toolList = [
-    {n:"Soil pH", i:"??"}, {n:"Rainfall", i:"??"}, {n:"Profit", i:"??"}, {n:"Harvest", i:"??"},
-    {n:"Seed Gap", i:"??"}, {n:"Pest Alert", i:"??"}, {n:"Weather", i:"??"}, {n:"NPK Calc", i:"??"},
-    {n:"Livestock", i:"??"}, {n:"Irrigation", i:"??"}, {n:"Market Price", i:"??"}, {n:"Storage", i:"??"},
-    {n:"Tractor", i:"??"}, {n:"Labor", i:"??"}, {n:"Insurance", i:"??"}, {n:"Compost", i:"??"},
-    {n:"Vet Check", i:"??"}, {n:"Solar", i:"??"}, {n:"Transport", i:"??"}, {n:"Loans", i:"??"}
+// 3. TOOLS DATABASE (20 ITEMS)
+const toolset = [
+    "Soil pH","Rainfall","Profit","Harvest","Seed Gap","Pest Alert","Weather","NPK Calc",
+    "Livestock","Irrigation","Market Price","Storage","Tractor","Labor","Insurance","Compost",
+    "Vet Check","Solar Power","Transport","Agri-Loan"
 ];
-// 4. RENDERERS
+// 4. RENDERER ENGINES
 agriEngine.renderAdmin = (v) => {
-    v.innerHTML = `<div style="padding:20px; background:#1e293b; min-height:100vh; color:white;">
-        <h2 style="margin-top:0;">ADMIN CONTROL</h2>
-        <div style="background:#334155; padding:20px; border-radius:12px; margin-bottom:15px;">
-            <p>User: OMONDI ROBIN</p>
-            <p>Wallet: KSh ${agriEngine.state.wallet.toLocaleString()}</p>
-            <button onclick="agriEngine.state.wallet += 10000; agriEngine.render();" style="width:100%; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;">+ ADD KSH 10,000</button>
+    v.innerHTML = `<div style="padding:20px; background:#0f172a; min-height:100vh; color:white;">
+        <h2 style="color:#38bdf8;">SYSTEM ADMIN</h2>
+        <div style="background:#1e293b; padding:20px; border-radius:12px; border-left:5px solid #38bdf8;">
+            <p><strong>Operator:</strong> OMONDI ROBIN</p>
+            <p><strong>System Status:</strong> <span style="color:#4ade80;">Fully Active</span></p>
+            <p><strong>Wallet:</strong> KSh ${agriEngine.state.wallet.toLocaleString()}</p>
+            <button onclick="agriEngine.state.wallet += 20000; agriEngine.render();" style="width:100%; background:#38bdf8; color:#0f172a; border:none; padding:15px; border-radius:8px; font-weight:bold; margin-top:10px;">GIFT KSH 20,000</button>
         </div>
-        <button onclick="location.reload()" style="width:100%; background:#ef4444; color:white; border:none; padding:12px; border-radius:8px;">RESET SYSTEM</button>
     </div>`;
 };
 agriEngine.renderAcademy = (v) => {
-    v.innerHTML = `<div style="padding:15px; background:#f8fafc; min-height:100vh;">
-        <div style="background:#1b4332; color:white; padding:25px; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-            <h2 style="margin:0;">AGRI-ACADEMY</h2>
-            <div style="margin-top:10px; background:rgba(255,255,255,0.2); height:8px; border-radius:4px;">
-                <div style="width:${(agriEngine.state.page/1000)*100}%; background:#4ade80; height:100%; border-radius:4px;"></div>
+    v.innerHTML = `<div style="padding:20px; background:white; min-height:100vh;">
+        <div style="background:#065f46; color:white; padding:20px; border-radius:15px;">
+            <h3>?? Agri-Academy</h3>
+            <div style="background:rgba(0,0,0,0.2); height:10px; border-radius:5px; margin:10px 0;">
+                <div style="width:${(agriEngine.state.page/1000)*100}%; background:#34d399; height:100%; border-radius:5px;"></div>
             </div>
-            <p style="font-size:12px; margin-top:5px;">Progress: ${agriEngine.state.page} / 1000 Pages</p>
+            <span>Page ${agriEngine.state.page} / 1000</span>
         </div>
-        <div style="margin-top:20px; background:white; padding:20px; border-radius:12px; line-height:1.7;">
-            <h3 style="color:#1b4332;">Module ${Math.ceil(agriEngine.state.page/10)}: Soil Science</h3>
-            <p>Soil health is determined by organic matter content and microorganism activity...</p>
+        <div style="margin-top:20px; color:#334155; line-height:1.6;">
+            <h4>Lesson ${Math.ceil(agriEngine.state.page/5)}: Crop Management</h4>
+            <p>Proper spacing and nutrient timing are the foundations of a high-yield harvest in East Africa...</p>
         </div>
-        <button onclick="agriEngine.state.page++; agriEngine.render(); window.scrollTo(0,0);" style="width:100%; margin-top:20px; background:#2d6a4f; color:white; border:none; padding:18px; border-radius:10px; font-weight:bold; font-size:16px;">READ NEXT PAGE</button>
+        <button onclick="agriEngine.state.page++; agriEngine.render(); window.scrollTo(0,0);" style="width:100%; position:fixed; bottom:90px; left:0; background:#065f46; color:white; border:none; padding:18px; font-weight:bold;">NEXT LESSON</button>
     </div>`;
 };
 agriEngine.renderTools = (v) => {
-    v.innerHTML = `<div style="padding:15px; background:#f1f5f9; min-height:100vh;">
-        <h2 style="color:#334155; margin-bottom:15px;">20 SMART TOOLS</h2>
-        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;">
-            ${toolList.map(t => `<div onclick="alert('${t.n} Tool Active')" style="background:white; padding:20px 10px; text-align:center; border-radius:12px; box-shadow:0 2px 4px rgba(0,0,0,0.05); border-bottom:4px solid #2d6a4f;">
-                <div style="font-size:32px; margin-bottom:8px;">${t.i}</div>
-                <div style="font-size:11px; font-weight:bold; color:#1e293b;">${t.n.toUpperCase()}</div>
+    v.innerHTML = `<div style="padding:15px; background:#f8fafc; min-height:100vh;">
+        <h3 style="color:#1e293b;">20 ACTIVE TOOLS</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-bottom:100px;">
+            ${toolset.map(t => `<div onclick="alert('${t} Loaded')" style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 4px rgba(0,0,0,0.05); text-align:center; border-bottom:3px solid #065f46;">
+                <div style="font-weight:bold; font-size:12px; color:#1e293b;">${t.toUpperCase()}</div>
             </div>`).join('')}
         </div>
     </div>`;
 };
 agriEngine.renderMarket = (v) => {
     v.innerHTML = `<div style="background:#f1f1f2; min-height:100vh;">
-        <div style="background:#f68b1e; padding:12px; color:white; position:sticky; top:0; z-index:1000;">
-            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:8px;"><span>CALL 0742178833</span><span>KSH ${agriEngine.state.wallet.toLocaleString()}</span></div>
-            <input type="text" placeholder="Search Jumia-Style..." style="width:100%; padding:10px; border-radius:4px; border:none; font-size:14px;">
+        <div style="background:#f68b1e; padding:15px; color:white; position:sticky; top:0; z-index:1000;">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:12px; margin-bottom:10px;">
+                <span>?? JUMIA STYLE</span>
+                <span>Wallet: KSh ${agriEngine.state.wallet.toLocaleString()}</span>
+            </div>
+            <input type="text" placeholder="Search products..." style="width:100%; padding:10px; border-radius:4px; border:none;">
         </div>
-        <div style="padding:8px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            ${agriEngine.state.inventory.map(i => `<div style="background:white; border-radius:4px; overflow:hidden; position:relative;">
-                <div style="position:absolute; top:5px; left:5px; background:#feefd3; color:#f68b1e; font-size:10px; padding:2px 5px; font-weight:bold;">-${i.discount}</div>
-                <img src="${i.i}" style="width:100%; height:130px; object-fit:cover;">
+        <div style="padding:8px; display:grid; grid-template-columns:1fr 1fr; gap:8px; padding-bottom:100px;">
+            ${agriEngine.state.inventory.map(i => `<div style="background:white; border-radius:4px; overflow:hidden;">
+                <img src="${i.img}" style="width:100%; height:120px; object-fit:cover;">
                 <div style="padding:8px;">
-                    <div style="font-size:12px; color:#333; height:32px; overflow:hidden;">${i.n}</div>
-                    <div style="font-size:16px; font-weight:bold; color:#222; margin-top:4px;">KSh ${i.p.toLocaleString()}</div>
-                    <div style="font-size:12px; color:#888; text-decoration:line-through;">KSh ${i.oldP.toLocaleString()}</div>
+                    <div style="font-size:12px; height:32px; overflow:hidden;">${i.name}</div>
+                    <div style="font-size:16px; font-weight:bold; color:#f68b1e;">KSh ${i.price.toLocaleString()}</div>
+                    <div style="font-size:11px; text-decoration:line-through; color:#999;">KSh ${i.oldPrice.toLocaleString()}</div>
                 </div>
-                <button onclick="alert('Added!')" style="width:100%; background:#f68b1e; color:white; border:none; padding:10px; font-weight:bold; font-size:12px; cursor:pointer;">ADD TO CART</button>
+                <button onclick="alert('Added to Cart')" style="width:100%; background:#f68b1e; color:white; border:none; padding:10px; font-weight:bold;">ADD TO CART</button>
             </div>`).join('')}
         </div>
     </div>`;
 };
-// 5. MASTER RENDERER
+// 5. THE ULTIMATE NAVIGATION
 agriEngine.render = function() {
     const v = document.getElementById('viewport');
     const n = document.getElementById('bottom-nav');
@@ -93,15 +90,15 @@ agriEngine.render = function() {
     else if(this.state.activeTab === 'tools') this.renderTools(v);
     else this.renderMarket(v);
     const tabs = [
-        {id:'admin', i:'G', l:'Admin'},
-        {id:'academy', i:'A', l:'Academy'},
-        {id:'tools', i:'T', l:'Tools'},
-        {id:'market', i:'M', l:'Market'}
+        {id:'admin', i:'ADMIN', l:'Admin'},
+        {id:'academy', i:'ACAD', l:'Academy'},
+        {id:'tools', i:'TOOL', l:'Tools'},
+        {id:'market', i:'SHOP', l:'Market'}
     ];
     n.innerHTML = tabs.map(t => `
-        <div onclick="agriEngine.state.activeTab='${t.id}'; agriEngine.render(); window.scrollTo(0,0);" style="flex:1; text-align:center; padding:12px 5px; color:${this.state.activeTab===t.id?'#f68b1e':'#94a3b8'}">
-            <div style="font-size:22px; font-weight:bold;">${t.i}</div>
-            <div style="font-size:10px; font-weight:bold;">${t.l}</div>
+        <div onclick="agriEngine.state.activeTab='${t.id}'; agriEngine.render(); window.scrollTo(0,0);" style="flex:1; text-align:center; padding:15px 0; color:${this.state.activeTab===t.id?'#f68b1e':'#94a3af'}">
+            <div style="font-size:12px; font-weight:900;">${t.i}</div>
+            <div style="font-size:9px; font-weight:bold; margin-top:2px;">${t.l}</div>
         </div>
     `).join('');
 };
