@@ -3,96 +3,101 @@ const agriEngine = {
         user: JSON.parse(localStorage.getItem('agri_student')),
         isAdmin: localStorage.getItem('agri_admin_mode') === 'true',
         directory: JSON.parse(localStorage.getItem('agri_directory') || '[]'),
-        blacklist: JSON.parse(localStorage.getItem('agri_blacklist') || '[]')
+        progress: parseInt(localStorage.getItem('agri_progress')) || 0,
+        currentUnit: localStorage.getItem('agri_active_unit') || 'None'
     },
-    courses: [
-        { id: "C1", title: "Professional Maize Mastery", icon: "🌽" },
-        { id: "C2", title: "Advanced Soil Science", icon: "🌱" },
-        { id: "C3", title: "Climate-Smart Irrigation", icon: "💧" },
-        { id: "C4", title: "Livestock Management Pro", icon: "🐄" },
-        { id: "C5", title: "Agribusiness & Export", icon: "📈" }
-    ],
     init: function() {
-        // --- BLACKLIST CHECK ---
-        if (this.state.user && this.state.blacklist.includes(this.state.user.email)) {
-            this.renderSuspendedScreen();
-            return;
-        }
         document.body.innerHTML = '<div id="admin-zone"></div><div id="student-zone"></div>';
         this.render();
     },
     render: function() {
-        this.renderAdminZone();
-        this.renderStudentZone();
-    },
-    // --- ADMIN MODULE WITH ENFORCEMENT ---
-    renderAdminZone: function() {
-        const zone = document.getElementById('admin-zone');
-        if (!this.state.isAdmin) {
-            zone.innerHTML = '<div style="background:#1a1a1a; padding:10px; text-align:center; cursor:pointer;" ondblclick="agriEngine.unlock()">...</div>';
-            return;
-        }
-        zone.innerHTML = '<div style="background:#0a0a0a; color:white; padding:20px; border-bottom:4px solid #cc0000; font-family:sans-serif;">' +
-            '<h2 style="color:#ff4d4d; margin:0;">🛡️ SECURITY ENFORCEMENT PANEL</h2>' +
-            '<div style="margin-top:15px; background:#111; padding:15px; border-radius:10px;">' +
-                '<table style="width:100%; text-align:left; font-size:13px;">' +
-                    '<tr style="color:#666;"><th>STUDENT</th><th>EMAIL</th><th>STATUS</th><th>ACTION</th></tr>' +
-                    this.state.directory.map(s => {
-                        const isBanned = this.state.blacklist.includes(s.email);
-                        return '<tr>' +
-                            '<td>' + s.name + '</td>' +
-                            '<td>' + s.email + '</td>' +
-                            '<td style="color:' + (isBanned ? 'red' : '#0f0') + '">' + (isBanned ? 'SUSPENDED' : 'ACTIVE') + '</td>' +
-                            '<td>' +
-                                (isBanned ? 
-                                '<button onclick="agriEngine.restoreStudent(\''+s.email+'\')" style="background:#2d6a4f; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Restore</button>' :
-                                '<button onclick="agriEngine.forceLogout(\''+s.email+'\')" style="background:#cc0000; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Force Logout</button>') +
-                            '</td>' +
-                        '</tr>';
-                    }).join('') +
-                '</table>' +
-            '</div>' +
-        '</div>';
-    },
-    // --- STUDENT MODULE ---
-    renderStudentZone: function() {
+        if(this.state.isAdmin) this.renderAdmin();
         const zone = document.getElementById('student-zone');
-        if (!this.state.user) { zone.innerHTML = '<div style="padding:50px; text-align:center;">Please Register or Login</div>'; return; }
-        zone.innerHTML = '<div style="background:#f0f4f8; padding:40px 20px; min-height:100vh;">' +
-            '<div style="max-width:1100px; margin:auto;">' +
-                '<div style="background:#2d6a4f; color:white; padding:30px; border-radius:15px;">' +
-                    '<h1>Dashboard: ' + this.state.user.name + '</h1>' +
+        if (!this.state.user) {
+            this.renderRegistration(zone);
+        } else {
+            this.renderStudentDashboard(zone);
+        }
+    },
+    // --- 1. REGISTRATION WITH CREDENTIALS ---
+    renderRegistration: function(container) {
+        container.innerHTML = '<div style="max-width:400px; margin:50px auto; background:white; padding:30px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">' +
+            '<h2 style="color:#2d6a4f; text-align:center;">Student Registration</h2>' +
+            '<input type="text" id="rName" placeholder="Full Name" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
+            '<input type="email" id="rEmail" placeholder="Email" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
+            '<input type="tel" id="rPhone" placeholder="Phone (254...)" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
+            '<select id="rGender" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px;">' +
+                '<option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option>' +
+            '</select>' +
+            '<input type="password" id="rPin" maxlength="4" placeholder="Create 4-Digit PIN" style="width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:5px; text-align:center;">' +
+            '<button onclick="agriEngine.handleReg()" style="width:100%; padding:12px; background:#2d6a4f; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-top:10px;">REGISTER NOW</button>' +
+        '</div>';
+    },
+    handleReg: function() {
+        const data = {
+            name: document.getElementById('rName').value,
+            email: document.getElementById('rEmail').value,
+            phone: document.getElementById('rPhone').value,
+            gender: document.getElementById('rGender').value,
+            pin: document.getElementById('rPin').value
+        };
+        if(Object.values(data).every(v => v)) {
+            localStorage.setItem('agri_student', JSON.stringify(data));
+            location.reload();
+        } else { alert("Complete all credentials!"); }
+    },
+    // --- 2. STUDENT DASHBOARD & ACTION BUTTONS ---
+    renderStudentDashboard: function(container) {
+        const u = this.state.user;
+        container.innerHTML = '<div style="background:#f0f4f8; min-height:100vh; font-family:sans-serif; padding:20px;">' +
+            '<div style="max-width:800px; margin:auto; background:white; padding:25px; border-radius:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05);">' +
+                '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px;">' +
+                    '<div><h3 style="margin:0;">' + u.name + '</h3><small>' + u.email + '</small></div>' +
+                    '<button onclick="agriEngine.logout()" style="background:#ff4d4d; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-size:12px;">LOG OUT</button>' +
                 '</div>' +
-                '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px; margin-top:20px;">' +
-                    this.courses.map(c => '<div style="background:white; padding:20px; border-radius:10px; text-align:center;">' +
-                        '<h3>' + c.icon + '</h3><h4>' + c.title + '</h4>' +
-                    '</div>').join('') +
+                '<div style="margin:20px 0; display:grid; grid-template-columns:1fr 1fr; gap:15px;">' +
+                    '<button onclick="agriEngine.registerUnit()" style="padding:15px; background:#2d6a4f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">📖 REGISTER UNIT</button>' +
+                    '<button onclick="agriEngine.continue()" style="padding:15px; background:#1b4332; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">▶️ CONTINUE COURSE</button>' +
+                '</div>' +
+                '<div style="background:#f9f9f9; padding:15px; border-radius:10px; margin:20px 0; border:1px solid #eee;">' +
+                    '<b>Active Unit:</b> ' + this.state.currentUnit + '<br>' +
+                    '<b>Progress:</b> ' + this.state.progress + '% complete' +
+                '</div>' +
+                '<div style="display:flex; gap:10px;">' +
+                    '<button onclick="agriEngine.openSuggestion()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer;">💡 SUGGESTIONS</button>' +
+                    '<button id="certBtn" onclick="agriEngine.downloadCert()" style="flex:1; padding:12px; background:#ffc107; color:#333; border:none; border-radius:5px; font-weight:bold; cursor:' + (this.state.progress >= 100 ? 'pointer' : 'not-allowed') + '; opacity:' + (this.state.progress >= 100 ? '1' : '0.4') + ';">🎓 DOWNLOAD CERTIFICATE</button>' +
                 '</div>' +
             '</div>' +
         '</div>';
     },
-    // --- ENFORCEMENT LOGIC ---
-    forceLogout: function(email) {
-        if(confirm("Kick this student out and suspend access?")) {
-            this.state.blacklist.push(email);
-            localStorage.setItem('agri_blacklist', JSON.stringify(this.state.blacklist));
+    // --- BUTTON ACTIONS ---
+    registerUnit: function() {
+        const unit = prompt("Enter Unit Name (e.g., Maize Mastery, Soil Health):");
+        if(unit) {
+            localStorage.setItem('agri_active_unit', unit);
             location.reload();
         }
     },
-    restoreStudent: function(email) {
-        this.state.blacklist = this.state.blacklist.filter(e => e !== email);
-        localStorage.setItem('agri_blacklist', JSON.stringify(this.state.blacklist));
-        location.reload();
+    continue: function() {
+        alert("Redirecting to Chapter " + (Math.floor(this.state.progress / 10) + 1) + "...");
+        // Logic to open manual goes here
     },
-    renderSuspendedScreen: function() {
-        document.body.innerHTML = '<div style="height:100vh; display:flex; align-items:center; justify-content:center; background:#000; color:white; font-family:sans-serif; text-align:center;">' +
-            '<div><h1 style="color:red; font-size:50px;">🛑 ACCESS SUSPENDED</h1>' +
-            '<p>Your account has been logged out by the Administrator.</p>' +
-            '<button onclick="localStorage.removeItem(\'agri_student\');location.reload();" style="padding:10px 20px; border:none; background:white; cursor:pointer; font-weight:bold;">Return to Home</button></div>' +
-        '</div>';
+    openSuggestion: function() {
+        const msg = prompt("What can we improve at AgriMastery?");
+        if(msg) alert("Thank you! Your feedback has been sent to the Admin.");
     },
-    unlock: function() {
-        if(prompt("PIN:") === "1234") { localStorage.setItem('agri_admin_mode', 'true'); location.reload(); }
+    downloadCert: function() {
+        if(this.state.progress < 100) {
+            alert("Finish 100% of the course to unlock your Certificate!");
+        } else {
+            alert("Generating your Professional AgriMastery Certificate...");
+        }
+    },
+    logout: function() {
+        if(confirm("Are you sure you want to log out?")) {
+            localStorage.removeItem('agri_student');
+            location.reload();
+        }
     }
 };
 document.addEventListener('DOMContentLoaded', () => agriEngine.init());
