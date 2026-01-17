@@ -821,3 +821,45 @@ agriEngine.triggerQuiz = function(id) {
 if (agriEngine.state.activeTab === 'student') {
     setTimeout(() => agriEngine.renderAcademy(), 100);
 }
+// 1. UPDATE CURRICULUM WITH VIDEO METADATA
+agriEngine.curriculum = agriEngine.curriculum.map(c => ({
+    ...c,
+    hasVideo: true,
+    duration: "15-20 mins"
+}));
+// 2. ENHANCED RENDER WITH VIDEO ICONS
+const originalAcademyRender = agriEngine.renderAcademy;
+agriEngine.renderAcademy = function(v) {
+    if (!v) v = document.getElementById('viewport');
+    // Call original to set up basic structure
+    originalAcademyRender.call(this, v);
+    // Inject Video Badges into the existing course cards
+    const cards = v.querySelectorAll('div[onclick^="agriEngine.enterCourse"]');
+    cards.forEach((card, idx) => {
+        const videoBadge = document.createElement('div');
+        videoBadge.style.cssText = "display:flex; align-items:center; gap:5px; margin-top:5px; color:#2d6a4f; font-size:10px; font-weight:bold;";
+        videoBadge.innerHTML = `<span>?? Video Lesson Included</span> • <span>?? ${this.curriculum[idx].duration}</span>`;
+        // Insert before the progress bar
+        const infoDiv = card.querySelector('div[style*="flex:1"]');
+        const progressBar = infoDiv.querySelector('div[style*="height:8px"]');
+        infoDiv.insertBefore(videoBadge, progressBar);
+    });
+};
+// 3. UPDATED LESSON VIEWER WITH VIDEO PLACEHOLDER
+const originalEnterCourse = agriEngine.enterCourse;
+agriEngine.enterCourse = function(id) {
+    originalEnterCourse.call(this, id);
+    const overlay = document.getElementById('lesson-overlay');
+    // Add Video Player Placeholder
+    const videoPlaceholder = `
+        <div style="width:100%; height:180px; background:#000; border-radius:10px; margin-bottom:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-size:12px; position:relative; overflow:hidden;">
+            <div style="font-size:40px; opacity:0.8;">??</div>
+            <div style="margin-top:10px;">Loading Video Tutorial...</div>
+            <div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:4px; font-size:9px;">HD 1080p</div>
+        </div>
+    `;
+    // Insert video at the top of the overlay content
+    overlay.innerHTML = overlay.innerHTML.replace('<div style="font-size:14px;', videoPlaceholder + '<div style="font-size:14px;');
+};
+// Refresh UI
+if(agriEngine.state.activeTab === 'student') agriEngine.renderAcademy();
