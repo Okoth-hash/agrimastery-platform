@@ -407,3 +407,59 @@ agriEngine.runTool = function(id) {
     // Call the original runTool for all other IDs
     originalRunTool.call(this, id);
 };
+// --- FORCE OVERRIDE TOOLS MODULE ---
+agriEngine.renderTools = function(v) {
+    const tools = [
+        { id: "harv", n: "Harvest Calc", i: "??", d: "Yield per acre" },
+        { id: "soil", n: "pH Guide", i: "??", d: "Kenyan Crop Chart" },
+        { id: "rain", n: "Rainfall Log", i: "???", d: "Monthly total" },
+        { id: "prof", n: "Profit Proj", i: "??", d: "ROI & Margins" },
+        { id: "seed", n: "Seed Rate", i: "??", d: "Seeds per Ha" },
+        { id: "fert", n: "Fertilizer", i: "??", d: "NPK Balancer" },
+        { id: "irr", n: "Irrigation", i: "??", d: "Water flow" },
+        { id: "land", n: "Acreage", i: "???", d: "M2 to Acres" },
+        { id: "pest", n: "Pesticide", i: "??", d: "Mix ratios" },
+        { id: "feed", n: "Livestock", i: "??", d: "Daily intake" },
+        { id: "stor", n: "Storage", i: "???", d: "Shelf life" },
+        { id: "labr", n: "Labor", i: "??", d: "Man-hours" },
+        { id: "fuel", n: "Fuel", i: "??", d: "Tractor usage" },
+        { id: "plant", n: "Spacing", i: "??", d: "Plant grid" },
+        { id: "mkt", n: "Market", i: "??", d: "Price index" },
+        { id: "comp", n: "Compost", i: "??", d: "Waste mix" },
+        { id: "spray", n: "Nozzle", i: "??", d: "Flow rate" },
+        { id: "vet", n: "Gestation", i: "??", d: "Birth dates" },
+        { id: "dry", n: "Drying", i: "??", d: "Moisture %" },
+        { id: "loan", n: "Agri-Loan", i: "??", d: "Interest calc" }
+    ];
+    v.innerHTML = `
+        <div style="background:#1b4332; color:white; padding:20px; border-radius:0 0 15px 15px; margin-bottom:15px;">
+            <h2 style="margin:0;">Agri-Toolbox</h2>
+            <small>20 Professional Utilities Active</small>
+        </div>
+        <div id="tool-output" style="display:none; margin:0 15px 15px 15px; padding:15px; background:white; border-radius:10px; border-left:5px solid #f68b1e; box-shadow:0 4px 6px rgba(0,0,0,0.05);"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 15px;">
+            ${tools.map(t => `
+                <div onclick="agriEngine.runTool('${t.id}')" style="background:white; padding:15px; border-radius:10px; text-align:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                    <div style="font-size:30px; margin-bottom:5px;">${t.i}</div>
+                    <div style="font-size:12px; font-weight:bold; color:#1b4332;">${t.n}</div>
+                    <div style="font-size:10px; color:#999;">${t.d}</div>
+                </div>
+            `).join('')}
+        </div>
+        <div id="tool-history-list" style="margin:20px 15px; padding:15px; background:#eee; border-radius:10px;">
+            <h4 style="margin:0 0 10px 0;">Saved History</h4>
+            ${this.state.toolHistory.slice(0,3).map(h => `<div style="font-size:11px; margin-bottom:5px; background:#fff; padding:5px; border-radius:3px;"><b>${h.title}:</b> ${h.result}</div>`).join('')}
+        </div>
+    `;
+};
+// Update the global render to point to the correct tab logic
+const originalRender = agriEngine.render;
+agriEngine.render = function() {
+    const view = document.getElementById('viewport');
+    this.renderNav();
+    if (this.state.activeTab === 'tools') this.renderTools(view);
+    else if (this.state.activeTab === 'market') this.renderEasyShop(view);
+    else if (this.state.activeTab === 'admin') this.renderAdmin(view);
+    else this.renderAcademy(view);
+};
+agriEngine.render(); // Immediate Refresh
