@@ -3,16 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriMastery Pro</title>
+    <title>AgriMastery Pro - ROBIN</title>
     <style>
-        body { margin: 0; font-family: -apple-system, sans-serif; background: #f1f1f2; }
-        #viewport { min-height: 100vh; padding-bottom: 90px; }
-        #bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; border-top: 2px solid #eee; z-index: 10000; }
+        body { margin: 0; font-family: sans-serif; background: #f1f5f9; }
+        #viewport { min-height: 100vh; padding-bottom: 80px; }
+        #bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #ddd; z-index: 999; }
+        .tab { flex: 1; text-align: center; padding: 25px 0; font-size: 11px; font-weight: bold; cursor: pointer; color: #94a3af; }
+        .active-tab { color: #f68b1e; }
     </style>
 </head>
 <body>
-    <div id="viewport">Initializing System...</div>
+    <div id="viewport">Loading Secured System...</div>
     <div id="bottom-nav"></div>
-    <script src="js/engine.js"></script>
+    <script>
+    // 1. DATA CORE
+    const saved = JSON.parse(localStorage.getItem('agriMasteryData')) || {};
+    const state = {
+        activeTab: 'academy',
+        wallet: saved.wallet || 15000,
+        isLoggedIn: false,
+        isAdminLoggedIn: false,
+        userName: "ROBIN",
+        registeredUnits: saved.registeredUnits || [],
+        history: saved.history || [],
+        inventory: []
+    };
+    function save() {
+        localStorage.setItem('agriMasteryData', JSON.stringify({
+            wallet: state.wallet,
+            registeredUnits: state.registeredUnits,
+            history: state.history
+        }));
+    }
+    // 2. GENERATE MARKET
+    for(let i=1; i<=110; i++) {
+        state.inventory.push({ id: i, n: "Agri-Pro SKU-"+i, p: 1250+(i*10), i: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=200" });
+    }
+    // 3. MASTER RENDERER
+    function render() {
+        const v = document.getElementById('viewport');
+        const n = document.getElementById('bottom-nav');
+        if (state.activeTab === 'academy') {
+            if (!state.isLoggedIn) {
+                v.innerHTML = `<div style="padding:40px 20px; text-align:center;">
+                    <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3443/3443421.png" style="width:70px;">
+                        <h2>Student Portal</h2>
+                        <input type="password" id="p" placeholder="PIN" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:10px; text-align:center; font-size:20px;">
+                        <button onclick="if(document.getElementById('p').value==='1234'){state.isLoggedIn=true; render();}else{alert('Wrong PIN')}" style="width:100%; background:#065f46; color:white; border:none; padding:15px; border-radius:10px; margin-top:15px; font-weight:bold;">SIGN IN</button>
+                    </div>
+                </div>`;
+            } else {
+                v.innerHTML = `<div style="padding:20px;">
+                    <div style="background:white; padding:15px; border-radius:15px; display:flex; align-items:center; margin-bottom:20px;">
+                        <img src="https://cdn-icons-png.flaticon.com/128/201/201614.png" style="width:50px;">
+                        <div style="margin-left:15px;"><h4 style="margin:0;">${state.userName}</h4><p style="margin:0; font-size:11px; color:#065f46;">ID: AM-2026</p></div>
+                    </div>
+                    <h3>My Units</h3>
+                    ${state.registeredUnits.map(u => `<div style="background:white; padding:15px; border-radius:10px; margin-bottom:10px; border-left:5px solid #f68b1e; display:flex; justify-content:space-between;"><span>${u}</span><button style="background:#065f46; color:white; border:none; padding:5px 10px; border-radius:5px;">STUDY</button></div>`).join('')}
+                    <h4 style="margin-top:20px;">Available Courses</h4>
+                    <div onclick="if(!state.registeredUnits.includes('Modern Agribusiness')){state.registeredUnits.push('Modern Agribusiness'); save(); render();}" style="background:white; padding:15px; border-radius:10px; border-left:5px solid #065f46; cursor:pointer;">Modern Agribusiness +</div>
+                </div>`;
+            }
+        } else if (state.activeTab === 'market') {
+            v.innerHTML = `<div style="background:#f68b1e; padding:15px; color:white; font-weight:bold; position:sticky; top:0; z-index:10;">?? MARKET | KSh ${state.wallet.toLocaleString()}</div>
+            <div style="padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                ${state.inventory.slice(0,20).map(i => `<div style="background:white; padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:11px; height:30px;">${i.n}</div><div style="font-weight:bold; color:#f68b1e;">KSh ${i.p}</div>
+                    <button onclick="if(state.wallet>=${i.p}){state.wallet-=${i.p}; state.history.push({item:'${i.n}', price:${i.p}, time:new Date().toLocaleTimeString()}); save(); render(); alert('Bought!');}else{alert('No funds');}" style="width:100%; background:#f68b1e; color:white; border:none; padding:5px; margin-top:5px; border-radius:4px;">BUY</button>
+                </div>`).join('')}
+            </div>`;
+        } else if (state.activeTab === 'admin') {
+            if (!state.isAdminLoggedIn) {
+                v.innerHTML = `<div style="padding:40px; text-align:center; background:#0f172a; height:100vh; color:white;"><h2>Admin PIN</h2><input type="password" id="ap" style="width:100px; padding:15px; text-align:center;"><button onclick="if(document.getElementById('ap').value==='1234'){state.isAdminLoggedIn=true; render();}" style="width:100%; margin-top:20px; background:#38bdf8; padding:15px; border-radius:10px; font-weight:bold; border:none;">UNLOCK</button></div>`;
+            } else {
+                v.innerHTML = `<div style="padding:20px; background:#0f172a; color:white; min-height:100vh;"><h3>Admin: ${state.userName}</h3><h2 style="color:#4ade80;">KSh ${state.wallet.toLocaleString()}</h2><button onclick="state.wallet+=10000; save(); render();" style="width:100%; padding:15px; background:#38bdf8; border:none; border-radius:10px; font-weight:bold;">GIFT 10K</button><h4 style="margin-top:20px; border-bottom:1px solid #334155;">HISTORY</h4><div style="font-size:10px; color:#94a3b8;">${state.history.map(h => `[${h.time}] ${h.item}`).join('<br>')}</div></div>`;
+            }
+        } else {
+            v.innerHTML = `<div style="padding:20px;"><h3>20 TOOLS LOADED</h3></div>`;
+        }
+        const tabs = [{id:'admin', l:'ADMIN'}, {id:'academy', l:'ACADEMY'}, {id:'tools', l:'TOOLS'}, {id:'market', l:'MARKET'}];
+        n.innerHTML = tabs.map(t => `<div onclick="state.activeTab='${t.id}'; render();" class="tab ${state.activeTab===t.id?'active-tab':''}">${t.l}</div>`).join('');
+    }
+    // BOOT
+    window.onload = render;
+    render();
+    </script>
 </body>
 </html>
